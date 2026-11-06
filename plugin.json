@@ -17,17 +17,19 @@
     "all"
   ],
   "displayName": {
-    "en_US": "渡渡鸟工具箱",
-    "zh_CN": "渡渡鸟工具箱"
+    "default": "渡渡鸟工具箱",
+    "zh-CN": "渡渡鸟工具箱"
   },
   "description": {
-    "en_US": "SiYuan toolbox with database views, Excalidraw, file management and editor enhancements",
-    "zh_CN": "思源笔记数据库视图、Excalidraw、附件管理与编辑增强工具箱"
+    "default": "思源笔记数据库视图、Excalidraw、附件管理与编辑增强工具箱",
+    "zh-CN": "思源笔记数据库视图、Excalidraw、附件管理与编辑增强工具箱"
   },
   "readme": {
-    "en_US": "README.md",
-    "zh_CN": "README.md"
+    "default": "README.md",
+    "zh-CN": "README.md"
   },
+  "icon": "icon.png",
+  "preview": "preview.png",
   "funding": {
     "custom": []
   },

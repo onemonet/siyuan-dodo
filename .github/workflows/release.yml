@@ -4,6 +4,7 @@ on:
   push:
     tags:
       - "v*"
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -42,16 +43,12 @@ jobs:
       - name: Verify release artifact
         run: |
           test -s package-marketplace.zip
-          unzip -l package-marketplace.zip | grep -q 'plugin.json'
-          unzip -l package-marketplace.zip | grep -q 'index.js'
-          if unzip -Z1 package-marketplace.zip | grep -E '^excalidraw/|^skills/dodo-toolbox-excalidraw/'; then
-            echo "Marketplace archive unexpectedly contains unpublished Excalidraw assets"
-            exit 1
-          fi
+          pnpm verify:marketplace
           # SiYuan expects the Release asset to be named package.zip.
           cp package-marketplace.zip package.zip
 
       - name: Publish release
+        if: startsWith(github.ref, 'refs/tags/v')
         uses: ncipollo/release-action@v1
         with:
           artifacts: package.zip

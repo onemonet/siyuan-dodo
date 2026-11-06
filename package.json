@@ -12,6 +12,7 @@
     "dev": "node scripts/build-frappe-gantt.mjs && node scripts/dev.mjs --watch",
     "build": "node scripts/build-frappe-gantt.mjs && vite build --config vite.excalidraw.config.ts && vite build",
     "build:marketplace": "node scripts/build-frappe-gantt.mjs && cross-env DODO_BUILD_TARGET=marketplace vite build",
+    "verify:marketplace": "node scripts/verify-marketplace-package.mjs",
     "build:install": "pnpm run build && node scripts/sync-build.mjs",
     "install:local": "node scripts/sync-build.mjs",
     "install:preview": "node scripts/sync-build.mjs --dry-run",

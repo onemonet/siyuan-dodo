@@ -308,6 +308,7 @@ function marketplaceMetadata() {
     name: "marketplace-metadata",
     generateBundle(this: any) {
       if (!isMarketplace) return;
+      const manifest = JSON.parse(readFileSync(resolve(__dirname, "plugin.json"), "utf8"));
       const lines = readFileSync(resolve(__dirname, "README.md"), "utf8").split(/\r?\n/);
       const skipped = ["主页", "Excalidraw", "分享到 Notion"];
       let removed = 0;
@@ -321,15 +322,21 @@ function marketplaceMetadata() {
       if (heading < 0) throw new Error("Marketplace README missing features heading");
       filtered.splice(heading + 1, 0, "",
         "> 集市版暂不包含主页、Excalidraw、分享到 Notion。这些功能仅保留在本地自用完整包中。");
+      // README is rendered from package.zip; source-tree links must point to
+      // GitHub because src/docs are not shipped as installable plugin assets.
       const readme = filtered.join("\n").replace(
-        "[第三方授权文件](src/lets-excalidraw/licenses/)",
-        "第三方授权文件（详见源码仓库）",
+        /\]\((src\/[^)]+|docs\/[^)]+|CONTRIBUTING\.md|LICENSE)\)/g,
+        (_match, relativePath: string) => "](" + manifest.url +
+          (relativePath.endsWith("/") ? "/tree/main/" : "/blob/main/") +
+          relativePath + ")",
       );
       this.emitFile({ type: "asset", fileName: "README.md", source: readme });
 
-      const manifest = JSON.parse(readFileSync(resolve(__dirname, "plugin.json"), "utf8"));
-      manifest.description.en_US = "SiYuan toolbox with database views, file management and editor enhancements";
-      manifest.description.zh_CN = "思源笔记数据库视图、附件管理与编辑增强工具箱";
+      manifest.description.default = "思源笔记数据库视图、附件管理与编辑增强工具箱";
+      manifest.description["zh-CN"] = manifest.description.default;
+      manifest.frontends = ["desktop"];
+      manifest.keywords = manifest.keywords.filter((keyword: string) =>
+        keyword.toLowerCase() !== "excalidraw");
       this.emitFile({ type: "asset", fileName: "plugin.json",
         source: JSON.stringify(manifest, null, 2) + "\n" });
     },
