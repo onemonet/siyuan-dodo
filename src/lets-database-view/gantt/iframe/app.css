@@ -1,0 +1,142 @@
+*{box-sizing:border-box}
+:root{font-family:var(--b3-font-family,Inter,-apple-system,"Segoe UI",sans-serif);font-size:13px}
+html,body{width:100%;margin:0}
+body{color:var(--g-text-dark,#171717);background:var(--g-header-background,#fff);overflow:hidden}
+button{font:inherit;cursor:pointer}
+.dodo-gantt-preview{display:flex;flex-direction:column;position:relative}
+/* Share Frappe's existing upper time-ruler row. No second toolbar row. */
+.dodo-gantt-header{position:absolute;top:0;left:260px;right:0;height:45px;
+  z-index:1200;display:flex;align-items:center;justify-content:flex-end;
+  gap:8px;padding:5px 12px;background:transparent;pointer-events:none}
+.dodo-gantt-grid-hidden .dodo-gantt-header{left:0}
+.dodo-gantt-controls{display:flex;align-items:center;gap:8px;pointer-events:auto;
+  padding-left:8px;background:var(--g-header-background,#fff);border-radius:6px}
+.dodo-gantt-controls button{border:1px solid var(--g-border-color,#ebeff2);border-radius:6px;min-height:29px;
+  padding:0 10px;color:var(--g-text-dark,#171717);background:var(--g-header-background,#fff)}
+.dodo-gantt-controls button:hover{background:var(--g-actions-background,#f3f3f3)}
+#dodo-gantt-prev,#dodo-gantt-next{font-size:21px;line-height:1;width:29px;
+  padding:0;display:inline-flex;align-items:center;justify-content:center}
+#dodo-gantt-zoom{display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  min-width:65px;white-space:nowrap}
+#dodo-gantt-zoom::after{content:"";display:inline-block;width:6px;height:6px;
+  border-right:1.5px solid currentColor;border-bottom:1.5px solid currentColor;
+  transform:rotate(45deg) translateY(-2px)}
+#dodo-gantt-zoom:disabled{opacity:.55;cursor:default}
+
+#dodo-gantt-chart{position:relative;flex:0 0 auto;width:100%;display:flex;overflow:hidden;background:#fff}
+.dodo-gantt-grid-toggle{position:absolute;z-index:4;top:8px;left:248px;
+  width:26px;height:26px;display:flex;align-items:center;justify-content:center;
+  border:0;border-radius:6px;background:var(--g-actions-background,#f3f3f3);
+  color:var(--g-text-muted,#7c7c7c);font-size:17px;line-height:1;cursor:pointer}
+.dodo-gantt-grid-toggle::before{content:"«"}
+.dodo-gantt-grid-toggle:hover{background:var(--g-border-color,#ebeff2);color:var(--g-text-dark,#171717)}
+.dodo-gantt-grid-hidden .dodo-gantt-grid-toggle{left:8px}
+.dodo-gantt-grid-toggle.is-collapsed::before{content:"»"}
+.dodo-gantt-grid-hidden .dodo-frappe-grid{display:none}
+.dodo-frappe-grid{width:260px;flex:0 0 260px;display:flex;flex-direction:column;min-height:0;
+  border-right:1px solid var(--g-border-color,#ebeff2);background:var(--g-header-background,#fff);z-index:1}
+.dodo-frappe-grid-head{height:85px;min-height:85px;display:grid;grid-template-columns:minmax(0,1fr);
+  align-items:end;border-bottom:1px solid var(--g-row-border-color,#c7c7c7);background:var(--g-header-background,#fff)}
+.dodo-frappe-grid-head span{height:34px;padding:9px 8px;overflow:hidden;text-overflow:ellipsis;
+  color:var(--g-text-muted,#7c7c7c);font-size:11px;border-right:1px solid var(--g-border-color,#ebeff2);white-space:nowrap;text-align:center}
+.dodo-frappe-grid-head span:first-child{text-align:left;padding-left:16px}
+.dodo-frappe-grid-scroll{flex:1;overflow:hidden;scrollbar-width:none}
+.dodo-frappe-grid-scroll::-webkit-scrollbar{display:none}
+.dodo-frappe-row{height:48px;display:grid;grid-template-columns:minmax(0,1fr);
+  border-bottom:1px solid var(--g-border-color,#ebeff2);align-items:center;cursor:default}
+.dodo-frappe-row:hover{background:var(--g-weekend-highlight-color,#f7f7f7)}
+.dodo-frappe-row.is-group{background:var(--g-row-color,#fdfdfd);font-weight:600}
+.dodo-frappe-row > span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:0 8px;font-size:11px;color:var(--g-text-dark,#171717)}
+.dodo-frappe-row .dodo-frappe-name{font-family:var(--dodo-av-font-family,inherit);
+  font-size:var(--dodo-av-font-size,14px);font-weight:var(--dodo-av-font-weight,400);
+  color:var(--dodo-av-color,#222);display:flex;align-items:center;gap:6px;padding-left:13px;min-width:0}
+.dodo-frappe-row .dodo-frappe-text{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dodo-frappe-row.is-link{cursor:pointer}
+.dodo-frappe-row.is-child .dodo-frappe-name{padding-left:26px}
+.dodo-frappe-expand{border:0;background:transparent;color:var(--g-text-muted,#7c7c7c);font-size:11px;padding:0 3px}
+.dodo-frappe-row .dodo-frappe-date,.dodo-frappe-row .dodo-frappe-length{text-align:center;font-variant-numeric:tabular-nums}
+.dodo-frappe-timeline{flex:1;min-width:0;min-height:0;overflow:hidden}
+.dodo-frappe-timeline .gantt-container{width:100%;overflow-x:auto;overflow-y:hidden;background:#fff}
+/* Hour/day: exact local wall-clock 'now' in the lower ruler, not an hourly tick. */
+.dodo-gantt-precise .current-highlight,.dodo-gantt-precise .current-ball-highlight,
+.dodo-gantt-precise .current-date-highlight{display:none}
+.dodo-gantt-now-line,.dodo-gantt-now-dot,.dodo-gantt-now-label{position:absolute;
+  pointer-events:none;z-index:1100;background:#e85b54}
+.dodo-gantt-now-line{width:1px}
+.dodo-gantt-now-dot{width:10px;height:10px;border-radius:50%;transform:translateX(-50%)}
+.dodo-gantt-now-label{background:var(--g-header-background,#fff);color:#e85b54;
+  font-size:12px;font-weight:600;line-height:20px;padding:0 3px;
+  white-space:nowrap;transform:translateX(-50%)}
+/* Keep Frappe 1.2.2's own default bar, progress and grid palette.
+ * Respect an explicitly mapped SiYuan color only for that specific task. */
+.dodo-frappe-timeline .bar-wrapper.dodo-frappe-colored .bar{
+  fill:var(--dodo-frappe-color);
+  stroke:var(--dodo-frappe-color);
+}
+.dodo-frappe-timeline .bar-wrapper.dodo-frappe-group .handle{display:none}
+.dodo-frappe-timeline .bar-wrapper.dodo-frappe-locked .handle.left,
+.dodo-frappe-timeline .bar-wrapper.dodo-frappe-locked .handle.right{display:none}
+.dodo-frappe-timeline .bar-wrapper:hover .handle.left,
+.dodo-frappe-timeline .bar-wrapper:hover .handle.right{opacity:.9}
+.dodo-frappe-timeline .bar-wrapper:hover .handle.progress{opacity:.85}
+.dodo-frappe-timeline .handle.progress{cursor:ew-resize}
+.dodo-frappe-timeline .bar-label{font-family:var(--dodo-av-font-family,inherit);
+  font-size:var(--dodo-av-font-size,14px);font-weight:var(--dodo-av-font-weight,400);
+  fill:var(--dodo-av-color,#222);text-anchor:start}
+/* Frappe's .gantt .bar-label.big has higher specificity than .bar-label. */
+.dodo-frappe-timeline .gantt .bar-label.big{fill:var(--dodo-av-color,#222)}
+.dodo-frappe-timeline .bar-wrapper.dodo-frappe-link{cursor:pointer}
+.dodo-frappe-timeline .popup-wrapper{display:none}
+
+/* Notion-style resize labels: fixed to the actual SVG edge handle.
+ * Outside the scrolling SVG so the date stays visible while dragging.
+ * Pointer-events:none ensures it never steals Frappe's mouse interaction.
+ */
+.dodo-frappe-date-hint[hidden]{display:none}
+.dodo-frappe-date-hint{
+  position:fixed;z-index:60;pointer-events:none;
+  width:max-content;max-width:calc(100vw - 12px);
+  padding:5px 9px;border-radius:7px;
+  color:var(--g-text-dark,#171717);
+  background:var(--g-header-background,#fff);
+  border:1px solid var(--g-border-color,#ebeff2);
+  box-shadow:0 2px 8px rgba(0,0,0,.10);
+  font-size:12px;font-weight:500;line-height:18px;
+  white-space:nowrap;font-variant-numeric:tabular-nums;
+}
+
+/* Retain save/error announcements for assistive technology without a footer row. */
+.dodo-gantt-screen-reader-status{position:absolute;width:1px;height:1px;padding:0;margin:-1px;
+  overflow:hidden;clip-path:inset(50%);white-space:nowrap;border:0}
+@media(max-width:560px){.dodo-gantt-header{padding:4px 6px}.dodo-gantt-controls{gap:4px}}
+
+
+/* In-iframe editor keeps task changes within the same host-verified AV API bridge. */
+.dodo-gantt-editor[hidden]{display:none}
+.dodo-gantt-editor{position:fixed;z-index:200;inset:0;display:flex;align-items:center;justify-content:center;
+  background:rgba(19,28,42,.42);padding:14px}
+.dodo-gantt-edit-panel{width:min(410px,100%);max-height:calc(100% - 24px);overflow:auto;
+  background:#fff;border-radius:11px;padding:18px;box-shadow:0 14px 44px rgba(18,33,48,.25);
+  display:flex;flex-direction:column;gap:11px}
+.dodo-gantt-edit-header{display:flex;justify-content:space-between;align-items:center;gap:9px;font-size:15px}
+.dodo-gantt-edit-header button{border:0;background:transparent;color:#717b8c;font-size:24px;line-height:1}
+.dodo-gantt-edit-title{font-size:13px;color:#5f7184;line-height:1.6;margin:0;overflow-wrap:anywhere}
+.dodo-gantt-edit-panel label{display:flex;flex-direction:column;gap:5px;font-size:12px;font-weight:500}
+.dodo-gantt-edit-panel label input{width:100%;border:1px solid #dce1e9;border-radius:6px;
+  padding:8px 9px;background:#fff;color:#273447;font:inherit;font-size:13px}
+.dodo-gantt-edit-panel input:disabled{opacity:.58;cursor:not-allowed;background:#f2f5f8}
+.dodo-gantt-edit-panel p#dodo-gantt-edit-help{margin:0;font-size:11px;color:#758196;line-height:1.6}
+.dodo-gantt-edit-actions{display:flex;justify-content:flex-end;gap:8px;padding-top:5px}
+.dodo-gantt-edit-actions button{border:1px solid #dde4ef;background:#fff;color:#526275;
+  border-radius:6px;padding:8px 12px}
+.dodo-gantt-edit-actions button[type=submit]{
+  background:var(--g-text-dark,#171717);
+  border-color:var(--g-text-dark,#171717);
+  color:var(--g-text-light,#fff);
+}
+.dodo-gantt-edit-actions button:disabled{opacity:.5;cursor:not-allowed}
+
+
+.dodo-gantt-minute-label[hidden]{display:none}
+.dodo-gantt-minute-label{display:inline-flex;align-items:center;font-size:11px;font-weight:600;
+  color:var(--g-text-dark,#171717);background:var(--g-actions-background,#f3f3f3);border-radius:5px;padding:6px 9px}

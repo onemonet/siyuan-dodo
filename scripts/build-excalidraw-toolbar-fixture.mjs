@@ -1,0 +1,23 @@
+import { build } from 'esbuild';
+import { mkdirSync, writeFileSync } from 'node:fs';
+const outdir='tmp/excalidraw-validation/toolbar-renderers';
+mkdirSync(outdir,{recursive:true});
+await build({stdin:{resolveDir:process.cwd(),sourcefile:'toolbar-fixture.tsx',loader:'tsx',contents:`
+import React from 'react';
+import {createRoot} from 'react-dom/client';
+import {convertToExcalidrawElements} from '@excalidraw/excalidraw';
+import {ToolbarHost} from './src/lets-excalidraw/app/toolbar/ToolbarHost';
+const elements=convertToExcalidrawElements([{id:'fixture',type:'rectangle',x:160,y:220,width:180,height:80}],{regenerateIds:false});
+let state={selectedElementIds:{fixture:true},scrollX:0,scrollY:0,zoom:{value:1},offsetLeft:0,offsetTop:0,width:innerWidth,height:innerHeight,theme:'light',activeTool:{type:'selection'}};
+const listeners=new Set();
+window.fixtureCounts={action:0,group:0,panel:0,mountA:0,cleanupA:0,mountB:0,cleanupB:0};
+const api={getSceneElements:()=>elements,getAppState:()=>state,onChange:fn=>{listeners.add(fn);return()=>listeners.delete(fn)},setToast:()=>{}};
+window.selectFixture=value=>{state={...state,selectedElementIds:value?{fixture:true}:{}};listeners.forEach(fn=>fn())};
+const Panel=({context,close})=><label>间隔<input type='number' defaultValue={12} aria-label='间隔'/><button onClick={()=>{if(context.elements.length)window.fixtureCounts.panel++;close()}}>应用</button></label>;
+const tools=[{id:'direct-fixture',label:'直接操作',run:()=>{window.fixtureCounts.action++}}, {id:'group-fixture',label:'操作分组',items:[{id:'group-action',label:'子操作',run:()=>{window.fixtureCounts.group++}},{id:'hidden-action',label:'不适用操作',when:()=>false,run:()=>{throw Error('hidden action ran')}}]}, {id:'panel-fixture',label:'参数面板',Panel}];
+const features=['A','B'].map(id=>({id:'feature-'+id,label:'交互'+id,description:'测试交互生命周期',defaultEnabled:false,mount:()=>{window.fixtureCounts['mount'+id]++;return()=>{window.fixtureCounts['cleanup'+id]++}}}));
+const root=createRoot(document.getElementById('root'));root.render(<ToolbarHost api={api} tools={tools} features={features}/>);
+window.addEventListener('pagehide',()=>{root.unmount();parent.fixtureCleanup={...window.fixtureCounts}});
+`},bundle:true,format:'esm',outdir,entryNames:'fixture',jsx:'automatic',minify:true,logLevel:'silent'});
+writeFileSync(outdir+'/index.html','<!doctype html><meta charset="UTF-8"><link rel="stylesheet" href="./fixture.css"><div id="root"></div><script type="module" src="./fixture.js"></script>');
+console.log('Toolbar renderer fixture ready');

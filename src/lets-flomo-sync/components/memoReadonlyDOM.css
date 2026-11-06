@@ -1,0 +1,259 @@
+.memo-status {
+  padding: 12px;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--b3-theme-on-surface) 4%, transparent);
+  color: var(--b3-theme-on-surface);
+  font-size: 13px;
+  opacity: 0.72;
+}
+
+.memo-status.error {
+  color: var(--b3-theme-error, #d95c5c);
+  opacity: 1;
+}
+
+.memo-dom {
+  min-width: 0;
+  overflow: hidden;
+  user-select: text;
+  line-height: 1.72;
+  --memo-tag-bg: color-mix(in srgb, var(--b3-theme-primary) 12%, transparent);
+  --memo-tag-color: var(--b3-theme-primary);
+  --memo-tag-font-size: 12px;
+  --memo-image-radius: 8px;
+  --memo-image-single-width: 180px;
+  --memo-image-single-min-width: 140px;
+  --memo-image-single-max-width: 240px;
+}
+
+.memo-dom [contenteditable] {
+  caret-color: transparent;
+  cursor: text;
+  -webkit-user-modify: read-only !important;
+}
+
+.memo-dom img[data-src],
+.memo-dom img[src],
+.memo-dom .memo-image-item,
+.memo-dom [data-type="img"] {
+  cursor: zoom-in;
+}
+
+.memo-dom span[data-type~="a"],
+.memo-dom span[data-type~="url"],
+.memo-dom a[href] {
+  color: var(--b3-theme-primary);
+  cursor: pointer;
+  text-decoration: underline;
+  text-decoration-color: color-mix(
+    in srgb,
+    var(--b3-theme-primary) 36%,
+    transparent
+  );
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+  transition:
+    background-color 120ms ease,
+    color 120ms ease,
+    text-decoration-color 120ms ease;
+}
+
+.memo-dom span[data-type~="a"]:hover,
+.memo-dom span[data-type~="url"]:hover,
+.memo-dom a[href]:hover,
+.memo-dom span[data-type~="a"]:focus-visible,
+.memo-dom span[data-type~="url"]:focus-visible,
+.memo-dom a[href]:focus-visible {
+  background: color-mix(in srgb, var(--b3-theme-primary) 9%, transparent);
+  color: var(--b3-theme-primary);
+  text-decoration-color: currentColor;
+  outline: none;
+}
+
+.memo-dom span[data-type="block-ref"] {
+  display: inline-flex;
+  align-items: center;
+  max-width: 100%;
+  padding: 1px 6px;
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--b3-theme-primary) 10%, transparent);
+  color: var(--b3-theme-primary);
+  cursor: pointer;
+  line-height: 1.45;
+  vertical-align: baseline;
+  transition:
+    background-color 120ms ease,
+    color 120ms ease;
+}
+
+.memo-dom span[data-type="block-ref"]::before {
+  content: "";
+  width: 3px;
+  height: 1em;
+  margin-right: 5px;
+  border-radius: 999px;
+  background: currentColor;
+  opacity: 0.75;
+}
+
+.memo-dom span[data-type="block-ref"]:hover,
+.memo-dom span[data-type="block-ref"]:focus-visible {
+  background: color-mix(in srgb, var(--b3-theme-primary) 16%, transparent);
+  outline: none;
+}
+
+.memo-dom span[data-type~="code"],
+.memo-dom code {
+  border: 1px solid
+    color-mix(in srgb, var(--b3-theme-on-surface) 10%, transparent);
+  border-radius: 5px;
+  background: color-mix(in srgb, var(--b3-theme-on-surface) 7%, transparent);
+  color: color-mix(
+    in srgb,
+    var(--b3-theme-on-surface) 92%,
+    var(--b3-theme-primary)
+  );
+  font-family:
+    "SFMono-Regular",
+    Consolas,
+    "Liberation Mono",
+    Menlo,
+    monospace;
+  font-size: 0.92em;
+  line-height: 1.45;
+  padding: 0.12em 0.36em;
+}
+
+.memo-dom [data-type="NodeCodeBlock"],
+.memo-dom [data-type="code-block"],
+.memo-dom pre {
+  max-width: 100%;
+  margin: 8px 0;
+  border: 1px solid
+    color-mix(in srgb, var(--b3-theme-on-surface) 10%, transparent);
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--b3-theme-on-surface) 6%, transparent);
+}
+
+.memo-dom [data-type="NodeCodeBlock"] [data-type="code-block"],
+.memo-dom [data-type="code-block"],
+.memo-dom pre {
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+}
+
+.memo-dom [data-type="NodeCodeBlock"] [data-type="code-block"],
+.memo-dom pre {
+  padding: 10px 12px;
+}
+
+.memo-dom pre code,
+.memo-dom [data-type="code-block"] code,
+.memo-dom [data-type="code-block"] .hljs {
+  display: block;
+  min-width: max-content;
+  border: none;
+  background: transparent;
+  color: inherit;
+  font-size: 12.5px;
+  line-height: 1.6;
+  padding: 0;
+  tab-size: 2;
+  white-space: pre;
+}
+
+.memo-dom .memo-image-grid {
+  display: grid;
+  gap: var(--memo-image-gap, 4px);
+  grid-template-columns: repeat(var(--memo-image-columns, 3), minmax(0, 1fr));
+  align-items: start;
+}
+
+.memo-dom .memo-image-grid--single {
+  grid-template-columns: minmax(
+    var(--memo-image-single-min-width),
+    var(--memo-image-single-width)
+  );
+  justify-content: start;
+}
+
+.memo-dom .memo-image-item {
+  position: relative;
+  display: block !important;
+  overflow: hidden;
+  border-radius: var(--memo-image-radius);
+  aspect-ratio: 1 / 1;
+}
+
+.memo-dom .memo-image-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.memo-dom .memo-image-item--single {
+  width: clamp(
+    var(--memo-image-single-min-width),
+    var(--memo-image-single-width),
+    var(--memo-image-single-max-width)
+  );
+  max-width: 100%;
+  aspect-ratio: 1 / 1;
+}
+
+.memo-dom .memo-image-item--single img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.memo-dom .memo-image-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: color-mix(in srgb, black 45%, transparent);
+  color: white;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.memo-dom span[data-type="tag"] {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 8px;
+  margin-right: 2px;
+  border-radius: 999px;
+  background-color: var(--memo-tag-bg);
+  color: var(--memo-tag-color);
+  cursor: pointer;
+  font-size: var(--memo-tag-font-size);
+  line-height: 1.4;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
+}
+
+.memo-dom span[data-type="tag"]:hover {
+  background-color: var(--memo-tag-color);
+  color: var(--b3-theme-surface);
+}
+
+.memo-dom .protyle-wysiwyg {
+  padding: 0;
+  line-height: inherit;
+}
+
+.memo-dom .protyle-wysiwyg [data-node-id] {
+  padding-left: 0;
+  padding-right: 0;
+  line-height: inherit;
+}
+
+.memo-dom .protyle-action,
+.memo-dom .protyle-attr,
+.memo-dom .protyle-icons {
+  display: none !important;
+}

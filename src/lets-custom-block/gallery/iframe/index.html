@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>相册</title>
+    <link rel="stylesheet" href="./app.css" />
+  </head>
+  <body>
+    <main class="gallery-page">
+      <input id="fileInput" type="file" accept="image/*,.avif,.bmp,.gif,.jpeg,.jpg,.png,.svg,.webp" multiple hidden />
+      <div id="emptyDropzone" class="gallery-empty-dropzone" hidden>
+        <div class="gallery-empty-icon" aria-hidden="true"></div>
+        <div class="gallery-empty-title">在此上传或拖入多张图片</div>
+        <button id="emptyUploadButton" type="button">↑ 上传图片</button>
+      </div>
+      <div id="status" class="gallery-status">正在加载相册...</div>
+      <div id="gallery" class="gallery-grid" hidden></div>
+    </main>
+
+    <script src="./muuri.min.js"></script>
+    <script type="module" src="./main.js"></script>
+  </body>
+</html>

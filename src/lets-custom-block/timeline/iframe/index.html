@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>时间线预览</title>
+    <link rel="stylesheet" href="./timeline3/css/timeline.css" />
+    <link rel="stylesheet" href="./app.css?v=20261019-opencolor8-restore" />
+  </head>
+  <body>
+    <div class="timeline-page">
+      <div id="loading" class="status-card">正在加载时间线预览...</div>
+      <div id="error" class="status-card status-card--error" hidden></div>
+      <div id="timeline" class="timeline-root" hidden></div>
+    </div>
+
+    <script>
+      // A failed ES module import prevents main.js and its try/catch from running.
+      // Give a useful error instead of leaving the loading message forever.
+      (function () {
+        const timeoutMs = 15000;
+        window.setTimeout(function () {
+          const loading = document.getElementById("loading");
+          const error = document.getElementById("error");
+          if (!loading || loading.hidden || !error) return;
+          loading.hidden = true;
+          error.hidden = false;
+          error.textContent = "时间线预览启动超时。请重新加载 Dodo；如果仍无法打开，请检查浏览器控制台中 /plugins/siyuan-dodo/preview/timeline/ 的资源加载错误。";
+          const retry = document.createElement("button");
+          retry.type = "button";
+          retry.className = "status-card__button";
+          retry.textContent = "重试加载";
+          retry.addEventListener("click", function () { window.location.reload(); });
+          error.appendChild(retry);
+        }, timeoutMs);
+      })();
+    </script>
+    <script src="./timeline3/js/timeline.js"></script>
+    <script type="module" src="./main.js?v=20261105-preserve-event"></script>
+  </body>
+</html>

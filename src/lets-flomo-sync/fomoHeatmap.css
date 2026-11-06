@@ -1,0 +1,38 @@
+.fomo-heatmap {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px 16px;
+  background: var(--b3-theme-surface);
+  border-radius: 8px;
+  border: 1px solid var(--b3-border-color);
+  width: 100%;
+  box-sizing: border-box;
+  position: relative;
+}
+
+.fomo-heatmap .heatmap-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 2px;
+}
+
+.fomo-heatmap .heatmap-title {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--b3-theme-on-surface);
+  opacity: 0.8;
+}
+
+.fomo-heatmap .heatmap-total,
+.fomo-heatmap .heatmap-status {
+  font-size: 0.78rem;
+  color: var(--b3-theme-on-surface);
+  opacity: 0.55;
+}
+
+.fomo-heatmap .heatmap-status.error {
+  color: var(--b3-theme-error, #d95c5c);
+  opacity: 1;
+}

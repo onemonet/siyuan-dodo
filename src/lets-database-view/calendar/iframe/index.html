@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Dodo · FullCalendar 日历视图</title>
+  <link rel="stylesheet" href="./main.css"/>
+</head>
+<body>
+  <main class="dodo-calendar-preview">
+    <div id="calendar" aria-label="思源数据库日历视图"></div>
+    <div id="calendar-quick" class="dodo-calendar-quick" hidden>
+      <div id="calendar-quick-fields">
+        <input id="calendar-quick-name" type="text" placeholder="输入日程名称，Ctrl+Enter 创建" maxlength="500" required aria-label="新建日程名称"/>
+        <div class="dodo-calendar-quick-actions">
+          <button id="calendar-quick-cancel" type="button">取消</button>
+          <button id="calendar-quick-details" type="button">更多选项</button>
+          <button id="calendar-quick-save" type="button" class="primary">创建</button>
+        </div>
+        <p id="calendar-quick-error" class="dodo-calendar-error" role="alert" hidden></p>
+      </div>
+    </div>
+    <div id="calendar-warning" role="status" hidden></div>
+    <dialog id="calendar-create-dialog" class="dodo-calendar-dialog" aria-labelledby="calendar-create-title">
+      <div id="calendar-create-fields">
+        <h2 id="calendar-create-title">新建日程</h2>
+        <label>日程名称
+          <input id="calendar-create-name" type="text" maxlength="500" required autocomplete="off" placeholder="输入日程名称"/>
+        </label>
+        <label class="dodo-calendar-checkbox">
+          <input id="calendar-create-allday" type="checkbox" checked/> 全天日程
+        </label>
+        <div class="dodo-calendar-dates">
+          <label>开始日期 / 时间
+            <input id="calendar-create-start" type="date" required/>
+          </label>
+          <label>结束日期 / 时间
+            <input id="calendar-create-end" type="date" required/>
+          </label>
+        </div>
+        <p class="dodo-calendar-hint">全天日程的结束日期包含当天；有时间的日程精确到分钟。点击创建或按 Ctrl+Enter 保存。</p>
+        <p id="calendar-create-error" class="dodo-calendar-error" role="alert" hidden></p>
+        <div class="dodo-calendar-dialog-actions">
+          <button id="calendar-create-cancel" type="button">取消</button>
+          <button id="calendar-create-save" type="button" class="primary">创建</button>
+        </div>
+      </div>
+    </dialog>
+  </main>
+  <script src="./main.js"></script>
+</body>
+</html>

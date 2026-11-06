@@ -1,0 +1,132 @@
+.fomo-filter-panel {
+  padding: 12px 14px;
+  border: 1px solid var(--b3-border-color);
+  border-radius: 12px;
+  background: var(--b3-theme-surface);
+  max-height: min(72vh, 680px);
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+
+.fomo-filter-panel,
+.fomo-filter-panel .filter-group,
+.fomo-filter-panel .filter-inline-group,
+.fomo-filter-panel .filter-custom-panel,
+.fomo-filter-panel .tag-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.fomo-filter-panel.floating-panel {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  left: auto;
+  z-index: 20;
+  width: min(560px, calc(100vw - 32px));
+  min-width: min(420px, calc(100vw - 32px));
+  max-width: calc(100vw - 32px);
+  box-shadow: 0 12px 32px color-mix(in srgb, black 18%, transparent);
+}
+
+.fomo-filter-panel .filter-group,
+.fomo-filter-panel .filter-inline-group,
+.fomo-filter-panel .filter-split-row,
+.fomo-filter-panel .filter-actions-row {
+  flex-direction: row;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.fomo-filter-panel .filter-split-row,
+.fomo-filter-panel .filter-actions-row {
+  display: flex;
+  gap: 10px;
+}
+
+.fomo-filter-panel .filter-group-label,
+.fomo-filter-panel .filter-summary,
+.fomo-filter-panel .filter-custom-hint {
+  font-size: 12px;
+  color: var(--b3-theme-on-surface);
+  opacity: 0.7;
+}
+
+.fomo-filter-panel .tag-panel .tag-cloud {
+  padding: 0;
+  border: none;
+  background: transparent;
+}
+
+.fomo-filter-panel .filter-button {
+  border: 1px solid var(--b3-border-color);
+  border-radius: 999px;
+  padding: 6px 12px;
+  background: var(--b3-theme-surface);
+  color: var(--b3-theme-on-surface);
+  cursor: pointer;
+  font: inherit;
+  transition:
+    border-color 120ms ease,
+    background 120ms ease,
+    color 120ms ease;
+}
+
+.fomo-filter-panel .filter-button:hover,
+.fomo-filter-panel .filter-select:focus,
+.fomo-filter-panel .filter-textarea:focus {
+  border-color: var(--b3-theme-primary);
+  outline: none;
+}
+
+.fomo-filter-panel .filter-button.active,
+.fomo-filter-panel .filter-apply-button {
+  background: color-mix(in srgb, var(--b3-theme-primary) 16%, transparent);
+  border-color: var(--b3-theme-primary);
+  color: var(--b3-theme-primary);
+}
+
+.fomo-filter-panel .filter-limit-select {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.fomo-filter-panel .filter-select,
+.fomo-filter-panel .filter-textarea {
+  border: 1px solid var(--b3-border-color);
+  border-radius: 10px;
+  background: var(--b3-theme-background);
+  color: var(--b3-theme-on-surface);
+  box-sizing: border-box;
+  font: inherit;
+}
+
+.fomo-filter-panel .filter-select {
+  min-width: 86px;
+  color-scheme: light dark;
+  padding: 6px 10px;
+}
+
+.fomo-filter-panel .filter-actions-spacer {
+  flex: 1;
+}
+
+.fomo-filter-panel .filter-textarea {
+  width: 100%;
+  min-height: 120px;
+  resize: vertical;
+  padding: 10px 12px;
+}
+
+@media (max-width: 720px) {
+  .fomo-filter-panel .filter-split-row,
+  .fomo-filter-panel .filter-actions-row {
+    align-items: stretch;
+  }
+
+  .fomo-filter-panel .filter-actions-spacer {
+    display: none;
+  }
+}

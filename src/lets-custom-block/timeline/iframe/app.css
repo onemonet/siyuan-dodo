@@ -1,0 +1,611 @@
+:root {
+  color-scheme: light;
+  /* ---- 页面与卡片（Open Color） ---- */
+  --page-bg: #f1f3f5;           /* oc-gray-1 */
+  --card-bg: #ffffff;
+  --card-border: #e9ecef;       /* oc-gray-2 */
+  --card-text: #212529;         /* oc-gray-9 */
+  --card-muted: #868e96;        /* oc-gray-6 */
+  --error-bg: #fff5f5;          /* oc-red-0 */
+  --error-border: #ffc9c9;      /* oc-red-2 */
+  --error-text: #c92a2a;        /* oc-red-9 */
+  --error-soft-border: #ffe3e3; /* oc-red-1 */
+  --error-button-bg: rgba(255, 255, 255, 0.78);
+  --error-button-bg-hover: rgba(255, 255, 255, 0.92);
+  --error-code-bg: #f8f9fa;     /* oc-gray-0 */
+
+  /* ---- TimelineJS3 语义色（Open Color） ---- */
+  --tl-canvas: #ffffff;
+  --tl-heading: #212529;
+  --tl-on-light-bg: #212529;
+  --tl-on-light-muted: #495057;
+  --tl-muted: #495057;
+  --tl-nav-bg: #f8f9fa;
+  --tl-nav-border: #dee2e6;
+  --tl-nav-line: #dee2e6;
+  --tl-tick: #ced4da;
+  --tl-group-bg: #e9ecef;
+  --tl-group-text: #495057;
+  /* Open Color 0: blue, orange, teal, grape, cyan, yellow, green, pink */
+  --tl-group-palette-0: #e7f5ff; /* blue-0 */
+  --tl-group-palette-1: #fff4e6; /* orange-0 */
+  --tl-group-palette-2: #e6fcf5; /* teal-0 */
+  --tl-group-palette-3: #f8f0fc; /* grape-0 */
+  --tl-group-palette-4: #e3fafc; /* cyan-0 */
+  --tl-group-palette-5: #fff9db; /* yellow-0 */
+  --tl-group-palette-6: #ebfbee; /* green-0 */
+  --tl-group-palette-7: #fff0f6; /* pink-0 */
+  --tl-marker-bg: #ffffff;
+  --tl-marker-border: #dee2e6;
+  --tl-marker-text: #343a40;
+  --tl-marker-hover-bg: #f1f3f5;
+  --tl-marker-hover-text: #212529;
+  --tl-marker-active-bg: #e7f5ff;
+  --tl-marker-active-border: #a5d8ff;
+  --tl-marker-active-text: #1864ab;
+  --tl-menubar-bg: rgba(248, 249, 250, 0.9);
+  --tl-menubar-text: #868e96;
+  --tl-menubar-hover-bg: #343a40;
+  --tl-slidenav: #343a40;
+  --tl-shadow: rgba(33, 37, 41, 0.08);
+
+  /* 轴线上的连线 / 圆点 / 跨度条 */
+  --tl-line: #dee2e6;            /* oc-gray-3 */
+  --tl-line-hover: #ced4da;      /* oc-gray-4 */
+  --tl-line-active: #228be6;     /* oc-blue-6 */
+  --tl-dot: #adb5bd;             /* oc-gray-5 */
+  --tl-dot-hover: #495057;       /* oc-gray-7 */
+  --tl-dot-active: #1c7ed6;      /* oc-blue-7 */
+  --tl-span: #e9ecef;            /* oc-gray-2 */
+  --tl-span-hover: #ced4da;      /* oc-gray-4 */
+  --tl-span-active: #a5d8ff;     /* oc-blue-2 */
+  --tl-timespan-hover-bg: rgba(134, 142, 150, 0.18);
+  --tl-timespan-active-bg: rgba(231, 245, 255, 0.55);
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  /* ---- 页面与卡片（Open Color） ---- */
+  --page-bg: #212529;           /* oc-gray-9 */
+  --card-bg: #343a40;           /* oc-gray-8 */
+  --card-border: rgba(233, 236, 239, 0.12);
+  --card-text: #e9ecef;         /* oc-gray-2 */
+  --card-muted: #adb5bd;        /* oc-gray-5 */
+  --error-bg: rgba(250, 82, 82, 0.14);       /* oc-red-5 */
+  --error-border: rgba(255, 135, 135, 0.28); /* oc-red-4 */
+  --error-text: #ffc9c9;        /* oc-red-2 */
+  --error-soft-border: rgba(255, 201, 201, 0.18);
+  --error-button-bg: rgba(33, 37, 41, 0.68);
+  --error-button-bg-hover: rgba(33, 37, 41, 0.86);
+  --error-code-bg: rgba(33, 37, 41, 0.46);
+
+  /* ---- TimelineJS3 语义色（Open Color） ---- */
+  --tl-canvas: #212529;
+  --tl-heading: #f8f9fa;
+  --tl-muted: #adb5bd;
+  --tl-nav-bg: #212529;
+  --tl-nav-border: #495057;
+  --tl-nav-line: #495057;
+  --tl-tick: #868e96;
+  --tl-group-bg: #343a40;
+  --tl-group-text: #dee2e6;
+  /* Open Color 9: corresponding hues mixed with dark navigation background */
+  --tl-group-palette-0: color-mix(in srgb, #1864ab 22%, var(--tl-nav-bg)); /* blue-9 */
+  --tl-group-palette-1: color-mix(in srgb, #d9480f 22%, var(--tl-nav-bg)); /* orange-9 */
+  --tl-group-palette-2: color-mix(in srgb, #087f5b 22%, var(--tl-nav-bg)); /* teal-9 */
+  --tl-group-palette-3: color-mix(in srgb, #862e9c 22%, var(--tl-nav-bg)); /* grape-9 */
+  --tl-group-palette-4: color-mix(in srgb, #0b7285 22%, var(--tl-nav-bg)); /* cyan-9 */
+  --tl-group-palette-5: color-mix(in srgb, #e67700 22%, var(--tl-nav-bg)); /* yellow-9 */
+  --tl-group-palette-6: color-mix(in srgb, #2b8a3e 22%, var(--tl-nav-bg)); /* green-9 */
+  --tl-group-palette-7: color-mix(in srgb, #a61e4d 22%, var(--tl-nav-bg)); /* pink-9 */
+  --tl-marker-bg: #343a40;
+  --tl-marker-border: #495057;
+  --tl-marker-text: #e9ecef;
+  --tl-marker-hover-bg: #495057;
+  --tl-marker-hover-text: #f8f9fa;
+  --tl-marker-active-bg: #1864ab;     /* oc-blue-9 */
+  --tl-marker-active-border: #1c7ed6; /* oc-blue-7 */
+  --tl-marker-active-text: #e7f5ff;   /* oc-blue-0 */
+  --tl-menubar-bg: rgba(52, 58, 64, 0.9);
+  --tl-menubar-text: #adb5bd;
+  --tl-menubar-hover-bg: #495057;
+  --tl-slidenav: #ced4da;
+  --tl-shadow: rgba(0, 0, 0, 0.45);
+
+  /* 轴线上的连线 / 圆点 / 跨度条 */
+  --tl-line: #495057;            /* oc-gray-7 */
+  --tl-line-hover: #868e96;      /* oc-gray-6 */
+  --tl-line-active: #4dabf7;     /* oc-blue-4 */
+  --tl-dot: #868e96;             /* oc-gray-6 */
+  --tl-dot-hover: #ced4da;       /* oc-gray-4 */
+  --tl-dot-active: #4dabf7;      /* oc-blue-4 */
+  --tl-span: #495057;            /* oc-gray-7 */
+  --tl-span-hover: #868e96;      /* oc-gray-6 */
+  --tl-span-active: #1c7ed6;     /* oc-blue-7 */
+  --tl-timespan-hover-bg: rgba(173, 181, 189, 0.15);
+  --tl-timespan-active-bg: rgba(24, 100, 171, 0.28);
+}
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+body {
+  background: var(--page-bg);
+  color: var(--card-text);
+  font-family: "Segoe UI", "PingFang SC", "Noto Sans CJK SC", sans-serif;
+}
+
+.timeline-page {
+  box-sizing: border-box;
+  display: flex;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  overflow: hidden;
+}
+
+.status-card,
+/* 一键创建并绑定：主操作按钮（Open Color 蓝色强调） */
+.status-card__button--primary {
+  background: var(--tl-marker-active-bg);
+  border-color: var(--tl-marker-active-border);
+  color: var(--tl-marker-active-text);
+}
+
+.status-card__button--primary:hover:not(:disabled) {
+  background: var(--tl-marker-active-border);
+  color: #ffffff;
+}
+
+#timeline {
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 0;
+  border-radius: 12px;
+  border: 1px solid var(--card-border);
+  background: var(--card-bg);
+}
+
+.status-card {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  text-align: center;
+  line-height: 1.6;
+  color: var(--card-muted);
+}
+
+.status-card--error {
+  background: var(--error-bg);
+  border-color: var(--error-border);
+  color: var(--error-text);
+  font-weight: 600;
+}
+
+.status-card__content {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+  width: min(720px, 100%);
+  text-align: left;
+}
+
+.status-card__title {
+  margin: 0;
+  font-size: 18px;
+  line-height: 1.4;
+}
+
+.status-card__message,
+.status-card__desc,
+.status-card__hint {
+  margin: 0;
+}
+
+.status-card__message {
+  font-size: 14px;
+}
+
+.status-card__desc,
+.status-card__hint {
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.status-card__actions {
+  display: flex;
+  width: 100%;
+  justify-content: flex-start;
+}
+
+.status-card__button {
+  border: 1px solid var(--error-soft-border);
+  border-radius: 8px;
+  background: var(--error-button-bg);
+  color: inherit;
+  cursor: pointer;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1;
+  padding: 10px 14px;
+  transition: background-color 120ms ease, transform 120ms ease, opacity 120ms ease;
+}
+
+.status-card__button:hover:not(:disabled) {
+  background: var(--error-button-bg-hover);
+  transform: translateY(-1px);
+}
+
+.status-card__button:disabled {
+  cursor: default;
+  opacity: 0.72;
+}
+
+#timeline {
+  overflow: hidden;
+}
+
+#timeline.tl-timeline {
+  box-sizing: border-box;
+}
+
+/* =============================
+   TimelineJS3 颜色优化（Open Color）
+   vendor 的 timeline.css 为硬编码配色，这里用语义变量
+   统一覆盖亮/暗两套表面与文字颜色。
+   颜色基准：--tl-* 变量，亮/暗取值见文件头部的 :root 定义。
+   ============================= */
+
+/* 画布底色（与 renderer 的 default_bg_color 保持一致） */
+#timeline.tl-timeline {
+  background-color: var(--tl-canvas);
+}
+
+/* 标题与日期 */
+.tl-timeline h1,
+.tl-timeline h2,
+.tl-timeline h3,
+.tl-timeline h4,
+.tl-timeline h5,
+.tl-timeline h6 {
+  color: var(--tl-heading) !important;
+}
+
+.tl-text .tl-headline-date,
+.tl-text h3.tl-headline-date,
+.tl-text .tl-headline-date small,
+.tl-text h3.tl-headline-date small {
+  color: var(--tl-muted) !important;
+}
+
+/* 底部时间轴导航条 */
+.tl-timenav {
+  background-color: var(--tl-nav-bg) !important;
+  border-top-color: var(--tl-nav-border);
+}
+
+.tl-timenav .tl-timenav-line {
+  background-color: var(--tl-nav-line) !important;
+}
+
+/* 导航条上的时代分组条 */
+/* TimelineJS 的相邻 group 是绝对定位的行，不能使用 :nth-child 计算颜色，
+   因为父层还有 marker/axis 节点。使用渲染时按行顺序标记的 data 属性。 */
+#timeline .tl-timegroup,
+#timeline .tl-timegroup.tl-timegroup-alternate {
+  background-color: var(--tl-group-bg) !important;
+  box-shadow: inset 0 -1px 0 var(--tl-nav-border);
+}
+
+/* Open Color 8 色轮换；所有行及 alternate 行都使用同一套索引。 */
+#timeline .tl-timegroup[data-dodo-group-color="0"] { background-color: var(--tl-group-palette-0) !important; }
+#timeline .tl-timegroup[data-dodo-group-color="1"] { background-color: var(--tl-group-palette-1) !important; }
+#timeline .tl-timegroup[data-dodo-group-color="2"] { background-color: var(--tl-group-palette-2) !important; }
+#timeline .tl-timegroup[data-dodo-group-color="3"] { background-color: var(--tl-group-palette-3) !important; }
+#timeline .tl-timegroup[data-dodo-group-color="4"] { background-color: var(--tl-group-palette-4) !important; }
+#timeline .tl-timegroup[data-dodo-group-color="5"] { background-color: var(--tl-group-palette-5) !important; }
+#timeline .tl-timegroup[data-dodo-group-color="6"] { background-color: var(--tl-group-palette-6) !important; }
+#timeline .tl-timegroup[data-dodo-group-color="7"] { background-color: var(--tl-group-palette-7) !important; }
+
+/* TimelineJS actual group label is .tl-timegroup-message (not h2.tl-headline). */
+#timeline .tl-timegroup .tl-timegroup-message,
+#timeline .tl-timegroup .tl-timegroup-message * {
+  color: var(--tl-group-text) !important;
+  text-shadow: none !important;
+  opacity: 1 !important;
+}
+
+/* 刻度线与刻度文字 */
+.tl-timeaxis .tl-timeaxis-content-container .tl-timeaxis-major .tl-timeaxis-tick:before,
+.tl-timeaxis .tl-timeaxis-content-container .tl-timeaxis-minor .tl-timeaxis-tick:before {
+  border-left-color: var(--tl-tick);
+}
+
+.tl-timeaxis {
+  color: var(--tl-muted) !important;
+}
+
+/* 事件标记：基础态（默认 #bfbfbf 文字对比度不足，改用正文色） */
+.tl-timemarker .tl-timemarker-content-container {
+  background-color: var(--tl-marker-bg) !important;
+  border-color: var(--tl-marker-border) !important;
+  box-shadow: 1px 1px 1px var(--tl-shadow);
+}
+
+.tl-timemarker
+  .tl-timemarker-content-container
+  .tl-timemarker-content
+  .tl-timemarker-text
+  h2.tl-headline,
+.tl-timemarker
+  .tl-timemarker-content-container
+  .tl-timemarker-content
+  .tl-timemarker-text
+  h2.tl-headline
+  p {
+  color: var(--tl-marker-text) !important;
+}
+
+.tl-timemarker
+  .tl-timemarker-content-container
+  .tl-timemarker-content
+  .tl-timemarker-text
+  h2.tl-headline.tl-headline-fadeout:after,
+.tl-timemarker
+  .tl-timemarker-content-container
+  .tl-timemarker-content
+  .tl-timemarker-text
+  h2.tl-headline
+  p.tl-headline-fadeout:after {
+  background: linear-gradient(
+    to bottom,
+    var(--tl-marker-bg) 0%,
+    var(--tl-marker-bg) 80%
+  ) !important;
+}
+
+/* 事件标记：悬停 / 聚焦态 */
+.tl-timemarker:hover .tl-timemarker-content-container,
+.tl-timemarker:focus .tl-timemarker-content-container {
+  background-color: var(--tl-marker-hover-bg) !important;
+  border-color: var(--tl-marker-border) !important;
+}
+
+.tl-timemarker:hover
+  .tl-timemarker-content-container
+  .tl-timemarker-content
+  .tl-timemarker-text
+  h2.tl-headline,
+.tl-timemarker:focus
+  .tl-timemarker-content-container
+  .tl-timemarker-content
+  .tl-timemarker-text
+  h2.tl-headline {
+  color: var(--tl-marker-hover-text) !important;
+}
+
+/* 事件标记：选中态（TL3 原设计为白底反色，改为主题强调色） */
+.tl-timemarker.tl-timemarker-active .tl-timemarker-content-container {
+  background-color: var(--tl-marker-active-bg) !important;
+  border-color: var(--tl-marker-active-border) !important;
+}
+
+.tl-timemarker.tl-timemarker-active
+  .tl-timemarker-content-container
+  .tl-timemarker-content
+  .tl-timemarker-text
+  h2.tl-headline,
+.tl-timemarker.tl-timemarker-active
+  .tl-timemarker-content-container
+  .tl-timemarker-content
+  .tl-timemarker-text
+  h2.tl-headline
+  p {
+  color: var(--tl-marker-active-text) !important;
+}
+
+.tl-timemarker.tl-timemarker-active
+  .tl-timemarker-content-container
+  .tl-timemarker-content
+  .tl-timemarker-text
+  h2.tl-headline.tl-headline-fadeout:after {
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0) 0%,
+    var(--tl-marker-active-bg) 80%
+  ) !important;
+}
+
+/* 右下角导航按钮 */
+.tl-menubar-button {
+  background-color: var(--tl-menubar-bg) !important;
+  color: var(--tl-menubar-text) !important;
+}
+
+.tl-menubar-button:hover,
+.tl-menubar-button:focus-visible {
+  background: var(--tl-menubar-hover-bg) !important;
+  color: #fff !important;
+}
+
+/* 左右切换箭头与相邻事件提示 */
+.tl-slidenav-previous .tl-slidenav-content-container .tl-slidenav-icon,
+.tl-slidenav-next .tl-slidenav-content-container .tl-slidenav-icon {
+  color: var(--tl-slidenav) !important;
+}
+
+.tl-slidenav-previous .tl-slidenav-title,
+.tl-slidenav-next .tl-slidenav-title,
+.tl-slidenav-previous .tl-slidenav-description,
+.tl-slidenav-next .tl-slidenav-description {
+  color: var(--tl-muted) !important;
+  /* TL3 原始透明度 0.15 几乎不可读，提高到 0.85 */
+  opacity: 0.85 !important;
+}
+
+/* =============================
+   轴线上的标记元素（连线 / 圆点 / 跨度条）
+   选中态与标记卡片同用蓝色强调色。
+   ============================= */
+
+.tl-timemarker .tl-timemarker-line-left,
+.tl-timemarker .tl-timemarker-line-right {
+  border-left-color: var(--tl-line) !important;
+  box-shadow: 1px 1px 1px var(--tl-shadow);
+}
+
+.tl-timemarker .tl-timemarker-line-left:after,
+.tl-timemarker .tl-timemarker-line-right:after {
+  background-color: var(--tl-dot) !important;
+}
+
+.tl-timemarker .tl-timemarker-timespan .tl-timemarker-timespan-content {
+  background-color: var(--tl-span) !important;
+}
+
+/* 悬停 / 聚焦 */
+.tl-timemarker:hover .tl-timemarker-timespan,
+.tl-timemarker:focus .tl-timemarker-timespan {
+  background-color: var(--tl-timespan-hover-bg) !important;
+}
+
+.tl-timemarker:hover .tl-timemarker-timespan .tl-timemarker-timespan-content,
+.tl-timemarker:focus .tl-timemarker-timespan .tl-timemarker-timespan-content {
+  background-color: var(--tl-span-hover) !important;
+}
+
+.tl-timemarker:hover .tl-timemarker-timespan .tl-timemarker-line-left,
+.tl-timemarker:focus .tl-timemarker-timespan .tl-timemarker-line-left,
+.tl-timemarker:hover .tl-timemarker-timespan .tl-timemarker-line-right,
+.tl-timemarker:focus .tl-timemarker-timespan .tl-timemarker-line-right {
+  border-left-color: var(--tl-line-hover) !important;
+}
+
+.tl-timemarker:hover .tl-timemarker-timespan .tl-timemarker-line-left:after,
+.tl-timemarker:focus .tl-timemarker-timespan .tl-timemarker-line-left:after,
+.tl-timemarker:hover .tl-timemarker-timespan .tl-timemarker-line-right:after,
+.tl-timemarker:focus .tl-timemarker-timespan .tl-timemarker-line-right:after {
+  background-color: var(--tl-dot-hover) !important;
+}
+
+/* 选中态：与激活卡片一致的蓝色强调 */
+.tl-timemarker.tl-timemarker-active .tl-timemarker-timespan {
+  background-color: var(--tl-timespan-active-bg) !important;
+}
+
+.tl-timemarker.tl-timemarker-active .tl-timemarker-timespan .tl-timemarker-timespan-content {
+  background-color: var(--tl-span-active) !important;
+}
+
+.tl-timemarker.tl-timemarker-active .tl-timemarker-line-left,
+.tl-timemarker.tl-timemarker-active .tl-timemarker-line-right {
+  border-left-color: var(--tl-line-active) !important;
+  box-shadow: 0px 1px 3px var(--tl-shadow);
+}
+
+.tl-timemarker.tl-timemarker-active .tl-timemarker-line-left:after,
+.tl-timemarker.tl-timemarker-active .tl-timemarker-line-right:after {
+  background-color: var(--tl-dot-active) !important;
+}
+
+/* 悬停一个已选中的标记：保持蓝色强调，不回落到黑色 */
+.tl-timemarker:hover.tl-timemarker-active .tl-timemarker-content-container {
+  border-color: var(--tl-marker-active-border) !important;
+}
+
+.tl-timemarker:hover.tl-timemarker-active .tl-timemarker-line-left,
+.tl-timemarker:focus.tl-timemarker-active .tl-timemarker-line-left,
+.tl-timemarker:hover.tl-timemarker-active .tl-timemarker-line-right,
+.tl-timemarker:focus.tl-timemarker-active .tl-timemarker-line-right {
+  border-left-color: var(--tl-line-active) !important;
+}
+
+.tl-timemarker:hover.tl-timemarker-active .tl-timemarker-line-left:after,
+.tl-timemarker:focus.tl-timemarker-active .tl-timemarker-line-left:after,
+.tl-timemarker:hover.tl-timemarker-active .tl-timemarker-line-right:after,
+.tl-timemarker:focus.tl-timemarker-active .tl-timemarker-line-right:after {
+  background-color: var(--tl-dot-active) !important;
+}
+
+/* =============================
+   带结束日期的标记（tl-timemarker-with-end）
+   轴上横条实际是 timespan:after，且 TL3 对选中圆点写了
+   !important——需要 with-end 同级优先级 + !important 才能覆盖。
+   ============================= */
+
+/* 跨度横条：基础 / 悬停 / 选中 */
+.tl-timemarker.tl-timemarker-with-end .tl-timemarker-timespan:after {
+  background-color: var(--tl-span) !important;
+}
+
+.tl-timemarker.tl-timemarker-with-end:hover .tl-timemarker-timespan:after {
+  background-color: var(--tl-span-hover) !important;
+}
+
+.tl-timemarker.tl-timemarker-with-end.tl-timemarker-active .tl-timemarker-timespan:after,
+.tl-timemarker.tl-timemarker-with-end.tl-timemarker-active:hover .tl-timemarker-timespan:after {
+  background-color: var(--tl-span-active) !important;
+}
+
+/* with-end 选中态圆点（TL3 为 #333 !important） */
+.tl-timemarker.tl-timemarker-with-end.tl-timemarker-active .tl-timemarker-line-left:after,
+.tl-timemarker.tl-timemarker-with-end.tl-timemarker-active .tl-timemarker-line-right:after {
+  background-color: var(--tl-dot-active) !important;
+}
+
+/* with-end 悬停圆点 */
+.tl-timemarker.tl-timemarker-with-end:hover .tl-timemarker-line-left:after,
+.tl-timemarker.tl-timemarker-with-end:hover .tl-timemarker-line-right:after {
+  background-color: var(--tl-dot-hover) !important;
+}
+
+/* Database timeline: only event slide headlines with a valid row identity can
+   open native SiYuan entries. The intro title and timenav markers stay normal. */
+.tl-slide .tl-headline.dodo-timeline-record-link { cursor: pointer; }
+.tl-slide .tl-headline.dodo-timeline-record-link:hover {
+  text-decoration: underline;
+  text-decoration-color: var(--tl-line-active);
+  text-underline-offset: 4px;
+}
+.tl-slide .tl-headline.dodo-timeline-record-link:focus-visible {
+  outline: 2px solid var(--tl-line-active);
+  outline-offset: 4px;
+  border-radius: 3px;
+}
+
+/* TimelineJS inverts all solid backgrounds (including white).
+   Apply high-contrast dark text only to slides classified as light. */
+#timeline .tl-slide.tl-full-color-background.dodo-timeline-light-bg,
+#timeline .tl-slide.tl-full-color-background.dodo-timeline-light-bg .tl-text,
+#timeline .tl-slide.tl-full-color-background.dodo-timeline-light-bg .tl-text p,
+#timeline .tl-slide.tl-full-color-background.dodo-timeline-light-bg .tl-text h1,
+#timeline .tl-slide.tl-full-color-background.dodo-timeline-light-bg .tl-text h2,
+#timeline .tl-slide.tl-full-color-background.dodo-timeline-light-bg .tl-text h3,
+#timeline .tl-slide.tl-full-color-background.dodo-timeline-light-bg .tl-text h4,
+#timeline .tl-slide.tl-full-color-background.dodo-timeline-light-bg .tl-text h5,
+#timeline .tl-slide.tl-full-color-background.dodo-timeline-light-bg .tl-text h6,
+#timeline .tl-slide.tl-full-color-background.dodo-timeline-light-bg .tl-text a {
+  color: var(--tl-on-light-bg) !important;
+  text-shadow: none !important;
+}
+
+#timeline .tl-slide.tl-full-color-background.dodo-timeline-light-bg .tl-text .tl-headline-date,
+#timeline .tl-slide.tl-full-color-background.dodo-timeline-light-bg .tl-text .tl-headline-date small {
+  color: var(--tl-on-light-muted) !important;
+  text-shadow: none !important;
+}

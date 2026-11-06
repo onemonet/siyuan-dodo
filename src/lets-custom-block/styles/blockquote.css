@@ -1,0 +1,258 @@
+/* =============================
+   段落块数学计算样式 (math)
+   
+   功能：
+   - 为 custom-dodo-block="math" 的段落块添加计算结果显示
+   - 使用伪元素在右侧显示计算结果
+   ============================= */
+
+/* 使用伪元素显示计算结果 */
+.protyle-wysiwyg [data-type="NodeParagraph"][custom-dodo-block="math"] > [spellcheck][data-math-result]:not(:empty)::after,
+.b3-typography [data-type="NodeParagraph"][custom-dodo-block="math"] > [spellcheck][data-math-result]:not(:empty)::after {
+  content: "= " attr(data-math-result);
+  margin-left: 0.5em;
+  color: var(--b3-theme-primary);
+}
+
+/* 错误状态样式 */
+.protyle-wysiwyg [data-type="NodeParagraph"][custom-dodo-block="math"] > [spellcheck][data-math-result^="错误"]:not(:empty)::after,
+.b3-typography [data-type="NodeParagraph"][custom-dodo-block="math"] > [spellcheck][data-math-result^="错误"]:not(:empty)::after {
+  color: rgba(239, 68, 68, 0.9);
+  background: rgba(239, 68, 68, 0.1);
+  border-color: rgba(239, 68, 68, 0.2);
+}
+
+/* 移动端适配 */
+.mobile .protyle-wysiwyg [data-type="NodeParagraph"][custom-dodo-block="math"],
+.mobile .b3-typography [data-type="NodeParagraph"][custom-dodo-block="math"] {
+  padding-right: 100px;
+}
+
+/* 计算块外框标识：使用阴影避免改变段落布局 */
+.protyle-wysiwyg [data-type="NodeParagraph"][custom-dodo-block="math"],
+.b3-typography [data-type="NodeParagraph"][custom-dodo-block="math"] {
+  position: relative;
+  border-radius: 6px;
+  box-shadow: 0 0 0 1px var(--b3-border-color);
+}
+
+.mobile .protyle-wysiwyg [data-type="NodeParagraph"][custom-dodo-block="math"] > [spellcheck][data-math-result]:not(:empty)::after,
+.mobile .b3-typography [data-type="NodeParagraph"][custom-dodo-block="math"] > [spellcheck][data-math-result]:not(:empty)::after {
+  font-size: 12px;
+  padding: 3px 8px;
+}
+
+/* Toggle blockquote fold button */
+.protyle-wysiwyg [data-type="NodeBlockquote"][custom-dodo-block="toggle"],
+.b3-typography [data-type="NodeBlockquote"][custom-dodo-block="toggle"] {
+  --dodo-toggle-text-offset: 2em;
+  --dodo-toggle-hit-area: 2em;
+  --dodo-toggle-icon-size: 18px;
+  --dodo-toggle-outline-width: 1px;
+  --dodo-toggle-outline-radius: 8px;
+  --dodo-toggle-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M2.835 3.25a.8.8 0 0 0-.69 1.203l5.164 8.854a.8.8 0 0 0 1.382 0l5.165-8.854a.8.8 0 0 0-.691-1.203z' fill='black'/%3E%3C/svg%3E");
+  position: relative;
+  border-radius: var(--dodo-toggle-outline-radius);
+  box-shadow: 0 0 0 var(--dodo-toggle-outline-width) var(--b3-border-color);
+}
+
+.protyle-wysiwyg [data-type="NodeBlockquote"][custom-dodo-block="toggle"].protyle-wysiwyg--select,
+.b3-typography [data-type="NodeBlockquote"][custom-dodo-block="toggle"].protyle-wysiwyg--select {
+  background-color: var(--b3-theme-primary-lightest) !important;
+}
+
+.protyle-wysiwyg [data-type="NodeBlockquote"][custom-dodo-block="toggle"]::before,
+.b3-typography [data-type="NodeBlockquote"][custom-dodo-block="toggle"]::before {
+  content: "";
+  position: absolute;
+  top: 0.35em;
+  left: 0;
+  bottom: auto;
+  width: var(--dodo-toggle-hit-area);
+  height: var(--dodo-toggle-hit-area);
+  border-radius: var(--dodo-toggle-outline-radius);
+  background: transparent;
+  z-index: 3;
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+.protyle-wysiwyg [data-type="NodeBlockquote"][custom-dodo-block="toggle"][fold="1"],
+.b3-typography [data-type="NodeBlockquote"][custom-dodo-block="toggle"][fold="1"] {
+  height: 38px !important;
+  opacity: 1 !important;
+}
+
+.protyle-wysiwyg [data-type="NodeBlockquote"][custom-dodo-block="toggle"] > [data-type] > div[contenteditable]:not(.protyle-attr),
+.b3-typography [data-type="NodeBlockquote"][custom-dodo-block="toggle"] > [data-type] > div[contenteditable]:not(.protyle-attr) {
+  padding-left: 1.2em;
+}
+
+.protyle-wysiwyg [data-type="NodeBlockquote"][custom-dodo-block="toggle"]::after,
+.b3-typography [data-type="NodeBlockquote"][custom-dodo-block="toggle"]::after {
+  content: "";
+  position: absolute;
+  top: 0.5em;
+  left: 0;
+  width: var(--dodo-toggle-hit-area);
+  height: var(--dodo-toggle-hit-area);
+  background-color: var(--b3-theme-on-background);
+  -webkit-mask-image: var(--dodo-toggle-icon);
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  -webkit-mask-size: var(--dodo-toggle-icon-size);
+  mask-image: var(--dodo-toggle-icon);
+  mask-repeat: no-repeat;
+  mask-position: center;
+  mask-size: var(--dodo-toggle-icon-size);
+  z-index: 2;
+  opacity: 0.5;
+  pointer-events: none;
+  user-select: none;
+  transform-origin: center;
+  transition: transform 200ms ease-out, opacity 120ms ease;
+}
+
+.protyle-wysiwyg [data-type="NodeBlockquote"][custom-dodo-block="toggle"][fold="1"]::after,
+.b3-typography [data-type="NodeBlockquote"][custom-dodo-block="toggle"][fold="1"]::after,
+.protyle-wysiwyg [data-type="NodeBlockquote"][custom-dodo-block="toggle"].folded::after,
+.b3-typography [data-type="NodeBlockquote"][custom-dodo-block="toggle"].folded::after {
+  transform: rotate(-90deg);
+}
+
+.protyle-wysiwyg [data-type="NodeBlockquote"][custom-dodo-block="toggle"]:hover::before,
+.b3-typography [data-type="NodeBlockquote"][custom-dodo-block="toggle"]:hover::before {
+  background: none;
+}
+
+.protyle-wysiwyg [data-type="NodeBlockquote"][custom-dodo-block="toggle"].dodo-toggle-disabled::after,
+.b3-typography [data-type="NodeBlockquote"][custom-dodo-block="toggle"].dodo-toggle-disabled::after {
+  opacity: 0.35;
+}
+
+.protyle-wysiwyg [data-type="NodeBlockquote"][custom-dodo-block="toggle"].dodo-toggle-loading::after,
+.b3-typography [data-type="NodeBlockquote"][custom-dodo-block="toggle"].dodo-toggle-loading::after {
+  opacity: 0.55;
+}
+
+.mobile .protyle-wysiwyg [data-type="NodeBlockquote"][custom-dodo-block="toggle"],
+.mobile .b3-typography [data-type="NodeBlockquote"][custom-dodo-block="toggle"] {
+  --dodo-toggle-text-offset: 2.1em;
+  --dodo-toggle-hit-area: 1.8em;
+  --dodo-toggle-icon-size: 16px;
+}
+
+/* 地图块右上角设置入口 */
+.protyle-wysiwyg [data-node-id][custom-dodo-block="map"] {
+  position: relative;
+}
+.protyle-wysiwyg [data-node-id][custom-dodo-block="map"] iframe {
+  pointer-events: auto;
+}
+.protyle-wysiwyg [data-node-id][custom-dodo-block="map"]:hover > .protyle-icons {
+  opacity: 0.86;
+}
+@media (hover: none) {
+  .protyle-wysiwyg [data-node-id][custom-dodo-block="map"] > .protyle-icons {
+    opacity: 0.86;
+  }
+}
+
+/* 相册块右上角设置入口 */
+.protyle-wysiwyg [data-node-id][custom-dodo-block="gallery"] {
+  position: relative;
+}
+
+.protyle-wysiwyg [data-node-id][custom-dodo-block="gallery"]:hover > .protyle-icons {
+  opacity: 0.86;
+}
+
+@media (hover: none) {
+  .protyle-wysiwyg [data-node-id][custom-dodo-block="gallery"] > .protyle-icons {
+    opacity: 0.86;
+  }
+}
+
+/* 文件块右上角设置入口 */
+.protyle-wysiwyg [data-node-id][custom-dodo-block="file"] {
+  position: relative;
+  touch-action: manipulation;
+}
+
+/* 未激活时提示交互方式；遮罩不接收事件，双击仍由父块处理 */
+.protyle-wysiwyg [data-node-id][custom-dodo-block="file"]::before {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  content: "双击激活";
+  padding: 8px 14px;
+  border-radius: 4px;
+  color: #fff;
+  background: rgba(0, 0, 0, 0.55);
+  font-size: 16px;
+  font-weight: 500;
+  letter-spacing: 0;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.75);
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+  transition: opacity 0.16s ease, visibility 0.16s ease;
+}
+
+.protyle-wysiwyg
+  [data-node-id][custom-dodo-block="file"][data-file-active="true"]::before {
+  visibility: hidden;
+  opacity: 0;
+}
+
+.protyle-wysiwyg [data-node-id][custom-dodo-block="file"] > .protyle-icons {
+  z-index: 2;
+}
+
+/* 文件预览默认只展示；双击激活后才把交互事件交给 iframe */
+.protyle-wysiwyg [data-node-id][custom-dodo-block="file"] iframe {
+  pointer-events: none;
+}
+
+.protyle-wysiwyg
+  [data-node-id][custom-dodo-block="file"][data-file-active="true"]
+  iframe {
+  pointer-events: auto;
+}
+
+.protyle-wysiwyg [data-node-id][custom-dodo-block="file"]:hover > .protyle-icons {
+  opacity: 0.86;
+}
+
+@media (hover: none) {
+  .protyle-wysiwyg [data-node-id][custom-dodo-block="file"] > .protyle-icons {
+    opacity: 0.86;
+  }
+}
+
+
+/* =============================
+   时间线块右上角 ⚙ 设置图标条
+
+   iframe 块没有思源原生图标条，由插件注入一个 .protyle-icons
+   （内含 ⚙，原生 protyle-icon 样式）。思源的悬停显示规则
+   仅覆盖 .render-node 块，这里为时间线块补一条等价规则。
+   ============================= */
+
+.protyle-wysiwyg [data-node-id][custom-dodo-block="timeline"] {
+  position: relative;
+}
+
+.protyle-wysiwyg [data-node-id][custom-dodo-block="timeline"]:hover > .protyle-icons {
+  opacity: 0.86;
+}
+
+/* 触屏设备无 hover：常显 */
+@media (hover: none) {
+  .protyle-wysiwyg [data-node-id][custom-dodo-block="timeline"] > .protyle-icons {
+    opacity: 0.86;
+  }
+}

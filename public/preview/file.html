@@ -1,0 +1,1510 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>文件块</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        background: var(--b3-theme-surface, #fff);
+        font-family:
+          -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      }
+
+      #preview-container {
+        width: 100%;
+        height: calc(100% - 30px); /* 留出导航栏高度 */
+        margin-top: 30px;
+        overflow: auto;
+      }
+
+      /* 固定导航栏 */
+      #navbar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 30px;
+        background: var(--b3-theme-background, #fff);
+        border-bottom: 1px solid var(--b3-border-color, #e0e0e0);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 20px;
+        z-index: 1000;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+      }
+
+      #navbar .filename {
+        font-size: 13px;
+        font-weight: 500;
+        color: var(--b3-theme-on-background, #333);
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        flex: 1;
+      }
+
+      #navbar .open-btn {
+        background: transparent;
+        color: var(--b3-theme-on-background, #333);
+        border: none;
+        border-radius: 4px;
+        padding: 4px 8px;
+        font-size: 12px;
+        cursor: pointer;
+        margin-left: 10px;
+        transition: background-color 0.2s;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+      }
+
+      #navbar .open-btn:hover {
+        background: var(--b3-theme-surface-lighter, #f5f5f5);
+      }
+
+      #navbar .open-btn svg {
+        width: 14px;
+        height: 14px;
+      }
+
+      .loading {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        color: var(--b3-theme-on-surface, #333);
+        font-size: 14px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .loading-spinner {
+        width: 32px;
+        height: 32px;
+        border: 3px solid #e0e0e0;
+        border-top-color: #4285f4;
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+      }
+
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      .error {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        color: #ff6b6b;
+        font-size: 14px;
+        text-align: center;
+        padding: 20px;
+        max-width: 80%;
+      }
+
+      #preview-container.file-empty-preview {
+        display: flex;
+        height: 100%;
+        margin-top: 0;
+        overflow: hidden;
+      }
+
+      #preview-container.file-empty-preview .gallery-empty-dropzone {
+        flex: 1;
+      }
+
+      .unsupported {
+        color: #666;
+      }
+
+      /* Excel 预览样式调整 */
+      .x-spreadsheet {
+        width: 100% !important;
+        height: 100% !important;
+      }
+
+      /* Docx 预览样式调整 */
+      .docx-wrapper {
+        padding: 20px;
+      }
+
+      #preview-container.epub-preview {
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        background: var(--b3-theme-background, #fff);
+      }
+
+      .epub-reader {
+        display: flex;
+        min-height: 0;
+        height: 100%;
+        flex-direction: column;
+      }
+
+      .epub-toolbar {
+        display: flex;
+        min-height: 38px;
+        flex: 0 0 auto;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        padding: 4px 8px;
+        border-bottom: 1px solid var(--b3-border-color, #e0e0e0);
+      }
+
+      .epub-toolbar-group,
+      .epub-toolbar-meta {
+        display: flex;
+        min-width: 0;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .epub-toolbar-meta {
+        flex: 1;
+        justify-content: flex-end;
+        color: var(--b3-theme-on-surface-light, #777);
+        font-size: 12px;
+      }
+
+      .epub-chapter {
+        overflow: hidden;
+        max-width: min(42vw, 360px);
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .epub-toolbar button {
+        min-height: 28px;
+        border: 1px solid var(--b3-border-color, #d9d9d9);
+        border-radius: 4px;
+        padding: 3px 9px;
+        color: var(--b3-theme-on-background, #333);
+        background: var(--b3-theme-surface, #fff);
+        cursor: pointer;
+      }
+
+      .epub-toolbar button:hover {
+        background: var(--b3-theme-surface-lighter, #f5f5f5);
+      }
+
+      .epub-toolbar button:focus-visible,
+      .epub-toc-link:focus-visible,
+      .epub-toc-toggle:focus-visible {
+        outline: 2px solid var(--b3-theme-primary, #4285f4);
+        outline-offset: 1px;
+      }
+
+      .epub-toolbar button:disabled {
+        cursor: default;
+        opacity: 0.45;
+      }
+
+      .epub-body {
+        display: block;
+        min-height: 0;
+        flex: 1;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .epub-toc-panel {
+        position: absolute;
+        top: 8px;
+        bottom: 8px;
+        left: 8px;
+        z-index: 10;
+        display: flex;
+        width: min(260px, calc(100% - 16px));
+        max-width: calc(100% - 16px);
+        flex-direction: column;
+        overflow: hidden;
+        border: 1px solid var(--b3-border-color, #e0e0e0);
+        border-radius: 4px;
+        background: var(--b3-theme-surface, #fff);
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.16);
+      }
+
+      .epub-toc-panel[hidden] {
+        display: none;
+      }
+
+      .epub-toc-header {
+        display: flex;
+        min-height: 34px;
+        align-items: center;
+        justify-content: space-between;
+        padding: 4px 8px 4px 12px;
+        border-bottom: 1px solid var(--b3-border-color, #e0e0e0);
+        color: var(--b3-theme-on-surface, #333);
+        font-size: 12px;
+        font-weight: 600;
+      }
+
+      .epub-toc-close {
+        width: 26px;
+        height: 26px;
+        padding: 0;
+        border: 0;
+        border-radius: 4px;
+        color: var(--b3-theme-on-surface-light, #777);
+        background: transparent;
+        cursor: pointer;
+        font-size: 18px;
+        line-height: 1;
+      }
+
+      .epub-toc-close:hover {
+        background: var(--b3-theme-surface-lighter, #f5f5f5);
+      }
+
+      .epub-toc-list {
+        min-height: 0;
+        flex: 1;
+        overflow: hidden;
+      }
+
+      .epub-toc-list.is-scrollable {
+        overflow-y: auto;
+      }
+
+      .epub-toc-item {
+        display: flex;
+        min-width: 0;
+        flex-wrap: wrap;
+        align-items: stretch;
+      }
+
+      .epub-toc-row {
+        display: flex;
+        width: 100%;
+        min-width: 0;
+        align-items: center;
+      }
+
+      .epub-toc-toggle {
+        width: 24px;
+        min-width: 24px;
+        height: 28px;
+        padding: 0;
+        border: 0;
+        color: var(--b3-theme-on-surface-light, #777);
+        background: transparent;
+        cursor: pointer;
+        font-size: 16px;
+        line-height: 1;
+      }
+
+      .epub-toc-toggle.is-empty {
+        cursor: default;
+        opacity: 0;
+      }
+
+      .epub-toc-link {
+        min-width: 0;
+        flex: 1;
+        padding: 6px 10px 6px 2px;
+        border: 0;
+        color: var(--b3-theme-on-surface, #333);
+        background: transparent;
+        cursor: pointer;
+        font: inherit;
+        font-size: 12px;
+        line-height: 1.35;
+        overflow-wrap: anywhere;
+        text-align: left;
+      }
+
+      .epub-toc-link:hover {
+        background: var(--b3-theme-surface-lighter, #f5f5f5);
+      }
+
+      .epub-toc-link.is-active {
+        color: var(--b3-theme-primary, #4285f4);
+        background: var(--b3-theme-primary-lightest, rgba(66, 133, 244, 0.1));
+      }
+
+      .epub-toc-children {
+        width: 100%;
+      }
+
+      .epub-toc-item.is-collapsed > .epub-toc-children {
+        display: none;
+      }
+
+      .epub-toc-empty {
+        padding: 16px 12px;
+        color: var(--b3-theme-on-surface-light, #777);
+        font-size: 12px;
+        line-height: 1.5;
+        text-align: center;
+      }
+
+      #epub-viewer {
+        width: 100%;
+        height: 100%;
+        min-width: 0;
+        min-height: 0;
+        overflow: hidden;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- 固定导航栏 -->
+    <div id="navbar">
+      <div class="filename" id="filename">正在加载...</div>
+      <button class="open-btn" id="open-file-btn">
+        <svg
+          class="b3-menu__icon"
+          style="width: 14px; height: 14px"
+          viewBox="0 0 32 32"
+          fill="none"
+        >
+          <path
+            d="M25.007 15.007L16.993 6.993 15.007 8.993 21.007 14.993H7.00002V16.993H21.007L15.007 22.993L16.993 24.993L25.007 16.993V15.007Z"
+            fill="currentColor"
+          ></path>
+        </svg>
+        <span>打开</span>
+      </button>
+    </div>
+
+    <div id="preview-container">
+      <div class="loading" id="loading">
+        <div class="loading-spinner"></div>
+        <span>正在加载文件...</span>
+      </div>
+    </div>
+
+    <script>
+      // 从 URL 参数获取块 ID
+      const urlParams = new URLSearchParams(window.location.search);
+      const blockId = urlParams.get("blockId");
+
+      // 存储当前文件路径
+      let currentFilePath = null;
+      let epubBook = null;
+      let epubRendition = null;
+      let epubTocRows = [];
+      let epubRelocatedHandler = null;
+      let epubBoundDocuments = new WeakSet();
+      let epubSavedProgressKey = "";
+      let epubProgressTimer = null;
+      let epubProgressPending = null;
+      let epubProgressGeneration = 0;
+      let requestSeq = 0;
+      const pendingRequests = new Map();
+      const pendingFileUploads = new Map();
+      const loadedScripts = new Map();
+      const loadedStylesheets = new Map();
+      const loadedModules = new Map();
+      const blobUrls = new Set();
+      const PREVIEW_REQUEST_TYPE = "dodoPreviewRequest";
+      const PREVIEW_RESPONSE_TYPE = "dodoPreviewResponse";
+      const FILE_UPLOAD_RESULT_TYPE = "dodoFileUploadResult";
+      const FILE_REFRESH_MESSAGE_TYPE = "dodoFileRefresh";
+      const FILE_CONFIG_ATTR = "custom-dodo-file-config";
+
+      // 支持的文件类型
+      const FILE_TYPES = {
+        excel: [".xlsx", ".xls"],
+        docx: [".docx"],
+        epub: [".epub"],
+        pptx: [".pptx"],
+        model3d: [".glb", ".gltf"],
+        txt: [".txt"],
+      };
+
+      /**
+       * 从路径中提取并处理文件名
+       * 移除思源自动添加的时间戳-随机码后缀
+       */
+      function extractFileName(path) {
+        // 获取文件名
+        const fileName = path.split("/").pop();
+
+        // 匹配思源的时间戳格式: -YYYYMMDDHHmmss-7位随机码.扩展名
+        // 例如: test-20251126202008-fy0iplp.docx -> test.docx
+        // 正则说明: 捕获开头到倒数第二个连字符之前的内容 + 扩展名
+        const match = fileName.match(/^(.+)-\d{14}-[a-z0-9]{7}(\.\w+)$/i);
+
+        if (match) {
+          return match[1] + match[2]; // 原始名称 + 扩展名
+        }
+
+        return fileName; // 如果不匹配，返回原始文件名
+      }
+
+      /**
+       * 更新导航栏文件名
+       */
+      function updateFileName(path) {
+        const fileName = extractFileName(path);
+        document.getElementById("filename").textContent = fileName;
+      }
+
+      /**
+       * 获取文件类型
+       */
+      function getFileType(path) {
+        const lowerPath = path.toLowerCase();
+        for (const [type, extensions] of Object.entries(FILE_TYPES)) {
+          if (extensions.some((ext) => lowerPath.endsWith(ext))) {
+            return type;
+          }
+        }
+        return null;
+      }
+
+      window.addEventListener("message", (event) => {
+        const data = event.data || {};
+        if (data.type === FILE_UPLOAD_RESULT_TYPE && data.requestId) {
+          const pending = pendingFileUploads.get(data.requestId);
+          if (!pending) {
+            return;
+          }
+
+          pendingFileUploads.delete(data.requestId);
+          if (!data.success) {
+            pending.reject(new Error(data.message || "文件上传失败"));
+            return;
+          }
+
+          pending.resolve(data);
+          return;
+        }
+
+        if (data.type !== PREVIEW_RESPONSE_TYPE || !data.requestId) {
+          return;
+        }
+
+        const pending = pendingRequests.get(data.requestId);
+        if (!pending) {
+          return;
+        }
+
+        pendingRequests.delete(data.requestId);
+        if (data.error) {
+          pending.reject(new Error(data.error));
+          return;
+        }
+
+        pending.resolve(data);
+      });
+
+      function requestParent(action, payload) {
+        const requestId = `${Date.now()}-${++requestSeq}`;
+        return new Promise((resolve, reject) => {
+          pendingRequests.set(requestId, { resolve, reject });
+          window.parent.postMessage(
+            {
+              type: PREVIEW_REQUEST_TYPE,
+              requestId,
+              action,
+              ...payload,
+            },
+            "*",
+          );
+          setTimeout(() => {
+            if (!pendingRequests.has(requestId)) {
+              return;
+            }
+
+            pendingRequests.delete(requestId);
+            reject(new Error("预览请求超时"));
+          }, 15000);
+        });
+      }
+
+      async function fetchPreviewResource(path) {
+        const response = await requestParent("getPreviewResource", { path });
+        if (!(response.arrayBuffer instanceof ArrayBuffer)) {
+          throw new Error("预览资源数据无效");
+        }
+        return response;
+      }
+
+      function createResourceBlobUrl(resource, fallbackType) {
+        const blob = new Blob([resource.arrayBuffer], {
+          type: resource.contentType || fallbackType,
+        });
+        const url = URL.createObjectURL(blob);
+        blobUrls.add(url);
+        return url;
+      }
+
+      function loadScript(path) {
+        const key = `script:${path}`;
+        const loaded = loadedScripts.get(key);
+        if (loaded) {
+          return loaded;
+        }
+
+        const promise = (async () => {
+          const resource = await fetchPreviewResource(path);
+          const script = document.createElement("script");
+          script.src = createResourceBlobUrl(resource, "text/javascript");
+          await new Promise((resolve, reject) => {
+            script.onload = resolve;
+            script.onerror = () => reject(new Error(`预览库加载失败: ${path}`));
+            document.head.appendChild(script);
+          });
+        })();
+        loadedScripts.set(key, promise);
+        promise.catch(() => loadedScripts.delete(key));
+        return promise;
+      }
+
+      function loadStylesheet(path) {
+        const key = `style:${path}`;
+        const loaded = loadedStylesheets.get(key);
+        if (loaded) {
+          return loaded;
+        }
+
+        const promise = (async () => {
+          const resource = await fetchPreviewResource(path);
+          const link = document.createElement("link");
+          link.rel = "stylesheet";
+          link.href = createResourceBlobUrl(resource, "text/css");
+          await new Promise((resolve, reject) => {
+            link.onload = resolve;
+            link.onerror = () => reject(new Error(`预览样式加载失败: ${path}`));
+            document.head.appendChild(link);
+          });
+        })();
+        loadedStylesheets.set(key, promise);
+        promise.catch(() => loadedStylesheets.delete(key));
+        return promise;
+      }
+
+      function loadModule(path) {
+        const key = `module:${path}`;
+        const loaded = loadedModules.get(key);
+        if (loaded) {
+          return loaded;
+        }
+
+        const promise = (async () => {
+          const resource = await fetchPreviewResource(path);
+          await import(createResourceBlobUrl(resource, "text/javascript"));
+        })();
+        loadedModules.set(key, promise);
+        promise.catch(() => loadedModules.delete(key));
+        return promise;
+      }
+
+      /**
+       * 通过思源 API 获取块属性
+       */
+      async function fetchBlockAttrs(blockId) {
+        const response = await requestParent("getBlockAttrs", { blockId });
+        return response.attrs || {};
+      }
+
+      async function waitForBlockAttrs(blockId) {
+        for (let attempt = 0; attempt < 8; attempt += 1) {
+          const attrs = await fetchBlockAttrs(blockId);
+          if (
+            attrs["custom-dodo-block"] === "file" ||
+            attrs["custom-data-assets-backup-0"]
+          ) {
+            return attrs;
+          }
+          await new Promise((resolve) => setTimeout(resolve, 150));
+        }
+        return fetchBlockAttrs(blockId);
+      }
+
+      /**
+       * 从块属性中提取第一个文件
+       */
+      function extractFile(attrs) {
+        const path = attrs["custom-data-assets-backup-0"];
+        const type = path ? getFileType(path) : null;
+        return path && type ? { path, type } : null;
+      }
+
+      /**
+       * 获取文件的完整 URL
+       */
+      async function getFileUrl(path) {
+        if (path.startsWith("http://") || path.startsWith("https://")) {
+          return path;
+        }
+        if (path.startsWith("assets/")) {
+          return createAssetBlobUrl(path);
+        }
+        if (!path.startsWith("/")) {
+          return "/" + path;
+        }
+        return path;
+      }
+
+      async function getAssetResource(path) {
+        const response = await requestParent("getAsset", { path });
+        if (!(response.arrayBuffer instanceof ArrayBuffer)) {
+          throw new Error("文件数据无效");
+        }
+        return response;
+      }
+
+      async function createAssetBlobUrl(path) {
+        return createResourceBlobUrl(
+          await getAssetResource(path),
+          "application/octet-stream",
+        );
+      }
+
+      /**
+       * 渲染 Excel 文件
+       */
+      async function renderExcel(fileUrl) {
+        const container = document.getElementById("preview-container");
+        container.innerHTML = "";
+
+        try {
+          await loadStylesheet("src/js-preview/excel.css");
+          await loadScript("src/js-preview/excel.umd.js");
+          // 使用 @js-preview/excel
+          const previewer = window.jsPreviewExcel?.init(container);
+          if (!previewer) {
+            throw new Error("Excel 预览库未加载");
+          }
+          await previewer.preview(fileUrl);
+        } catch (error) {
+          console.error("Excel 预览失败:", error);
+          container.innerHTML = `<div class="error">Excel 预览失败: ${error.message}</div>`;
+        }
+      }
+
+      /**
+       * 渲染 Word 文件
+       */
+      async function renderDocx(fileUrl) {
+        const container = document.getElementById("preview-container");
+        container.innerHTML = "";
+
+        try {
+          await loadStylesheet("src/js-preview/docx.css");
+          await loadScript("src/js-preview/docx.umd.js");
+          // 使用 @js-preview/docx
+          const previewer = window.jsPreviewDocx?.init(container);
+          if (!previewer) {
+            throw new Error("Word 预览库未加载");
+          }
+          await previewer.preview(fileUrl);
+        } catch (error) {
+          console.error("Word 预览失败:", error);
+          container.innerHTML = `<div class="error">Word 预览失败: ${error.message}</div>`;
+        }
+      }
+
+      /**
+       * 渲染 PowerPoint 文件
+       */
+      async function renderPptx(fileUrl) {
+        const container = document.getElementById("preview-container");
+        container.innerHTML =
+          '<div class="loading"><div class="loading-spinner"></div><span>正在加载 PPT...</span></div>';
+
+        try {
+          await loadScript("src/js-preview/pptx-preview.umd.js");
+          // pptx-preview 需要 ArrayBuffer，先 fetch 文件
+          const response = await fetch(fileUrl);
+          if (!response.ok) {
+            throw new Error(`文件加载失败: ${response.status}`);
+          }
+          const arrayBuffer = await response.arrayBuffer();
+
+          container.innerHTML = "";
+
+          // 使用 pptx-preview，传入容器尺寸配置
+          const previewer = window.pptxPreview?.init(container, {
+            width: container.clientWidth || window.innerWidth,
+            height: container.clientHeight || window.innerHeight,
+          });
+          if (!previewer) {
+            throw new Error("PPT 预览库未加载");
+          }
+          await previewer.preview(arrayBuffer);
+        } catch (error) {
+          console.error("PPT 预览失败:", error);
+          container.innerHTML = `<div class="error">PPT 预览失败: ${error.message}</div>`;
+        }
+      }
+
+      function destroyEpub() {
+        epubProgressGeneration += 1;
+        if (epubProgressTimer !== null) {
+          window.clearTimeout(epubProgressTimer);
+        }
+        epubProgressTimer = null;
+        epubProgressPending = null;
+        epubSavedProgressKey = "";
+        if (epubRendition && epubRelocatedHandler) {
+          try {
+            epubRendition.off("relocated", epubRelocatedHandler);
+          } catch (error) {
+            console.warn("EPUB 阅读位置监听清理失败:", error);
+          }
+        }
+        try {
+          epubRendition?.destroy();
+        } catch (error) {
+          console.warn("EPUB 阅读器清理失败:", error);
+        }
+        try {
+          epubBook?.destroy();
+        } catch (error) {
+          console.warn("EPUB 文档清理失败:", error);
+        }
+        epubRendition = null;
+        epubBook = null;
+        epubTocRows = [];
+        epubRelocatedHandler = null;
+        epubBoundDocuments = new WeakSet();
+      }
+
+      function readEpubProgress(attrs, assetPath) {
+        try {
+          const config = JSON.parse(attrs?.[FILE_CONFIG_ATTR] || "{}");
+          if (!config || typeof config !== "object" || Array.isArray(config)) {
+            return null;
+          }
+          if (config.asset && config.asset !== assetPath) {
+            return null;
+          }
+
+          const source = config.epub?.progress;
+          if (!source || typeof source !== "object" || Array.isArray(source)) {
+            return null;
+          }
+
+          const progress = {};
+          if (typeof source.cfi === "string" && source.cfi) {
+            progress.cfi = source.cfi;
+          }
+          if (typeof source.href === "string" && source.href) {
+            progress.href = source.href;
+          }
+          if (typeof source.percentage === "number" && Number.isFinite(source.percentage)) {
+            progress.percentage = source.percentage;
+          }
+          return progress.cfi || progress.href ? progress : null;
+        } catch (error) {
+          console.warn("EPUB 阅读进度读取失败:", error);
+          return null;
+        }
+      }
+
+      function getEpubPercentage(location) {
+        const cfi = location?.start?.cfi;
+        if (typeof cfi === "string" && cfi) {
+          const calculated = epubBook?.locations?.percentageFromCfi?.(cfi);
+          if (typeof calculated === "number" && Number.isFinite(calculated)) {
+            return calculated;
+          }
+        }
+
+        const raw = location?.start?.percentage;
+        return typeof raw === "number" && Number.isFinite(raw) ? raw : null;
+      }
+
+      function getEpubProgress(location) {
+        const start = location?.start;
+        if (!start) {
+          return null;
+        }
+
+        const progress = {};
+        if (typeof start.cfi === "string" && start.cfi) {
+          progress.cfi = start.cfi;
+        }
+        if (typeof start.href === "string" && start.href) {
+          progress.href = start.href;
+        }
+        const percentage = getEpubPercentage(location);
+        if (percentage !== null) {
+          progress.percentage = percentage;
+        }
+        return progress.cfi || progress.href ? progress : null;
+      }
+
+      function queueEpubProgress(location) {
+        const progress = getEpubProgress(location);
+        if (!progress || !currentFilePath) {
+          return;
+        }
+
+        const key = JSON.stringify(progress);
+        if (key === epubSavedProgressKey) {
+          return;
+        }
+
+        epubProgressPending = {
+          asset: currentFilePath,
+          generation: epubProgressGeneration,
+          key,
+          progress,
+        };
+        if (epubProgressTimer !== null) {
+          window.clearTimeout(epubProgressTimer);
+        }
+        epubProgressTimer = window.setTimeout(() => {
+          epubProgressTimer = null;
+          const pending = epubProgressPending;
+          epubProgressPending = null;
+          if (!pending || pending.generation !== epubProgressGeneration) {
+            return;
+          }
+
+          void requestParent("setEpubProgress", {
+            asset: pending.asset,
+            progress: pending.progress,
+          })
+            .then(() => {
+              if (
+                pending.generation === epubProgressGeneration &&
+                pending.asset === currentFilePath
+              ) {
+                epubSavedProgressKey = pending.key;
+              }
+            })
+            .catch((error) => {
+              console.warn("EPUB 阅读进度保存失败:", error);
+            });
+        }, 800);
+      }
+
+      function decodeEpubHref(href) {
+        try {
+          return decodeURIComponent(String(href || ""));
+        } catch (error) {
+          return String(href || "");
+        }
+      }
+
+      function normalizeEpubHref(href, includeFragment = false) {
+        const value = decodeEpubHref(href).replace(/\\/g, "/");
+        const [path, fragment = ""] = value.split("#");
+        const normalizedPath = path.replace(/^\.\//, "").replace(/^\/+/, "");
+        return includeFragment && fragment ? `${normalizedPath}#${fragment}` : normalizedPath;
+      }
+
+      function epubHrefMatches(itemHref, currentHref, includeFragment = false) {
+        const item = normalizeEpubHref(itemHref, includeFragment);
+        const current = normalizeEpubHref(currentHref, includeFragment);
+        if (!item || !current) {
+          return false;
+        }
+        return (
+          item === current ||
+          item.endsWith(`/${current}`) ||
+          current.endsWith(`/${item}`)
+        );
+      }
+
+      function setEpubTocOpen(open) {
+        const panel = document.getElementById("epub-toc-panel");
+        const toggle = document.getElementById("epub-toc-toggle");
+        if (!panel || !toggle || toggle.disabled) {
+          return;
+        }
+
+        panel.hidden = !open;
+        panel.setAttribute("aria-hidden", String(!open));
+        toggle.setAttribute("aria-expanded", String(open));
+      }
+
+      async function openEpubTocItem(item) {
+        if (!epubRendition || !item?.href) {
+          return;
+        }
+
+        try {
+          await epubRendition.display(item.href);
+          setEpubTocOpen(false);
+        } catch (error) {
+          console.warn("EPUB 目录跳转失败:", error);
+        }
+      }
+
+      function renderEpubToc(items, parent, depth = 0, ancestors = []) {
+        if (!Array.isArray(items)) {
+          return;
+        }
+
+        items.forEach((item) => {
+          const children = Array.isArray(item.subitems) ? item.subitems : [];
+          const hasChildren = children.length > 0;
+          const itemElement = document.createElement("div");
+          itemElement.className = "epub-toc-item";
+
+          const row = document.createElement("div");
+          row.className = "epub-toc-row";
+          row.style.paddingLeft = `${Math.min(depth, 8) * 12}px`;
+
+          const toggle = document.createElement("button");
+          toggle.type = "button";
+          toggle.className = `epub-toc-toggle${hasChildren ? "" : " is-empty"}`;
+          toggle.textContent = hasChildren ? "⌄" : "·";
+          toggle.setAttribute("aria-label", hasChildren ? "收起章节" : "无子章节");
+          toggle.setAttribute("aria-expanded", "true");
+          toggle.disabled = !hasChildren;
+          toggle.addEventListener("click", (event) => {
+            event.stopPropagation();
+            if (!hasChildren) {
+              return;
+            }
+            const collapsed = itemElement.classList.toggle("is-collapsed");
+            toggle.textContent = collapsed ? "›" : "⌄";
+            toggle.setAttribute("aria-expanded", String(!collapsed));
+            toggle.setAttribute("aria-label", collapsed ? "展开章节" : "收起章节");
+          });
+
+          const link = document.createElement("button");
+          link.type = "button";
+          link.className = "epub-toc-link";
+          link.textContent = String(item.label || "未命名章节").trim();
+          link.title = link.textContent;
+          link.addEventListener("click", () => {
+            void openEpubTocItem(item);
+          });
+
+          row.append(toggle, link);
+          itemElement.append(row);
+
+          const entry = { item, link, itemElement, ancestors };
+          epubTocRows.push(entry);
+          parent.append(itemElement);
+
+          if (hasChildren) {
+            const childrenElement = document.createElement("div");
+            childrenElement.className = "epub-toc-children";
+            itemElement.append(childrenElement);
+            renderEpubToc(children, childrenElement, depth + 1, [
+              ...ancestors,
+              itemElement,
+            ]);
+          }
+        });
+      }
+
+      async function loadEpubToc(book) {
+        const list = document.getElementById("epub-toc-list");
+        const toggle = document.getElementById("epub-toc-toggle");
+        if (!list || !toggle) {
+          return false;
+        }
+
+        list.innerHTML = "";
+        list.classList.remove("is-scrollable");
+        epubTocRows = [];
+
+        let navigation = null;
+        try {
+          navigation = await book.loaded.navigation;
+        } catch (error) {
+          console.warn("EPUB 目录加载失败:", error);
+        }
+        const toc = Array.isArray(navigation?.toc)
+          ? navigation.toc
+          : Array.isArray(book.navigation?.toc)
+            ? book.navigation.toc
+            : [];
+
+        if (!toc.length) {
+          const empty = document.createElement("div");
+          empty.className = "epub-toc-empty";
+          empty.textContent = "此 EPUB 没有可用目录";
+          list.append(empty);
+          toggle.disabled = true;
+          return false;
+        }
+
+        list.classList.add("is-scrollable");
+        renderEpubToc(toc, list);
+        toggle.disabled = false;
+        return true;
+      }
+
+      function updateEpubLocation(location) {
+        const currentHref = location?.start?.href || "";
+        const exact = epubTocRows.find(({ item }) =>
+          epubHrefMatches(item.href, currentHref, true),
+        );
+        const active =
+          exact ||
+          epubTocRows.find(({ item }) => epubHrefMatches(item.href, currentHref));
+
+        epubTocRows.forEach((entry) => {
+          const isActive = entry === active;
+          entry.link.classList.toggle("is-active", isActive);
+          if (isActive) {
+            entry.link.setAttribute("aria-current", "page");
+            entry.ancestors.forEach((ancestor) => ancestor.classList.remove("is-collapsed"));
+          } else {
+            entry.link.removeAttribute("aria-current");
+          }
+        });
+
+        const chapter = document.getElementById("epub-chapter");
+        if (chapter) {
+          chapter.textContent = active?.item?.label?.trim() || "正在阅读";
+          chapter.title = chapter.textContent;
+        }
+
+        const page = location?.start?.displayed?.page;
+        const total = location?.start?.displayed?.total;
+        const rawPercentage = getEpubPercentage(location);
+        const percentage =
+          typeof rawPercentage === "number" && Number.isFinite(rawPercentage)
+            ? `${Math.round((rawPercentage <= 1 ? rawPercentage : rawPercentage / 100) * 100)}%`
+            : "";
+        const pageText =
+          Number.isFinite(page) && Number.isFinite(total) && total > 0
+            ? `${page} / ${total}`
+            : "";
+        const progress = document.getElementById("epub-progress");
+        if (progress) {
+          progress.textContent = [pageText, percentage].filter(Boolean).join(" · ") || "阅读中";
+        }
+
+        const previous = document.getElementById("epub-prev");
+        const next = document.getElementById("epub-next");
+        if (previous) {
+          previous.disabled = location?.atStart === true;
+        }
+        if (next) {
+          next.disabled = location?.atEnd === true;
+        }
+
+        queueEpubProgress(location);
+      }
+
+      async function moveEpubPage(direction) {
+        if (!epubRendition) {
+          return;
+        }
+        try {
+          await (direction === "previous" ? epubRendition.prev() : epubRendition.next());
+        } catch (error) {
+          console.warn("EPUB 翻页失败:", error);
+        }
+      }
+
+      function handleEpubKeydown(event) {
+        if (!epubRendition || event.defaultPrevented || event.isComposing) {
+          return;
+        }
+
+        let direction = "";
+        if (["ArrowLeft", "ArrowUp", "PageUp"].includes(event.key)) {
+          direction = "previous";
+        } else if (["ArrowRight", "ArrowDown", "PageDown"].includes(event.key)) {
+          direction = "next";
+        } else if (event.code === "Space") {
+          direction = event.shiftKey ? "previous" : "next";
+        }
+
+        if (!direction) {
+          return;
+        }
+
+        event.preventDefault();
+        void moveEpubPage(direction);
+      }
+
+      function bindEpubKeyboardHandlers() {
+        const contents = epubRendition?.getContents?.() || [];
+        contents.forEach((content) => {
+          const contentDocument = content?.document;
+          if (!contentDocument || epubBoundDocuments.has(contentDocument)) {
+            return;
+          }
+          contentDocument.addEventListener("keydown", handleEpubKeydown);
+          epubBoundDocuments.add(contentDocument);
+        });
+      }
+
+      /**
+       * 渲染 EPUB 文件
+       */
+      async function renderEpub(arrayBuffer, attrs, assetPath) {
+        const container = document.getElementById("preview-container");
+        destroyEpub();
+        const savedProgress = readEpubProgress(attrs, assetPath);
+        epubSavedProgressKey = JSON.stringify(savedProgress || {});
+        container.className = "epub-preview";
+        container.innerHTML = `
+          <div class="epub-reader">
+            <div class="epub-toolbar">
+              <div class="epub-toolbar-group">
+                <button id="epub-toc-toggle" type="button" aria-expanded="false" aria-controls="epub-toc-panel">目录</button>
+                <button id="epub-prev" type="button">上一页</button>
+                <button id="epub-next" type="button">下一页</button>
+              </div>
+              <div class="epub-toolbar-meta">
+                <span id="epub-chapter" class="epub-chapter">正在加载目录...</span>
+                <span id="epub-progress">阅读中</span>
+              </div>
+            </div>
+            <div class="epub-body">
+              <aside id="epub-toc-panel" class="epub-toc-panel" hidden aria-hidden="true">
+                <div class="epub-toc-header">
+                  <span>目录</span>
+                  <button id="epub-toc-close" class="epub-toc-close" type="button" title="关闭目录" aria-label="关闭目录">×</button>
+                </div>
+                <div id="epub-toc-list" class="epub-toc-list"></div>
+              </aside>
+              <div id="epub-viewer"></div>
+            </div>
+          </div>`;
+
+        try {
+          await loadScript("src/jszip.min.js");
+          await loadScript("src/epub.min.js");
+          if (typeof window.ePub !== "function") {
+            throw new Error("EPUB 阅读器资源未加载");
+          }
+
+          epubBook = window.ePub(arrayBuffer);
+          await epubBook.ready;
+          void loadEpubToc(epubBook).catch((error) => {
+            console.warn("EPUB 目录加载失败:", error);
+          });
+          epubRendition = epubBook.renderTo(document.getElementById("epub-viewer"), {
+            width: "100%",
+            height: "100%",
+            spread: "auto",
+          });
+
+          epubRelocatedHandler = (location) => updateEpubLocation(location);
+          epubRendition.on("relocated", epubRelocatedHandler);
+          epubRendition.on("rendered", bindEpubKeyboardHandlers);
+
+          document.getElementById("epub-toc-toggle").addEventListener("click", () => {
+            const panel = document.getElementById("epub-toc-panel");
+            setEpubTocOpen(Boolean(panel?.hidden));
+          });
+          document.getElementById("epub-toc-close").addEventListener("click", () => {
+            setEpubTocOpen(false);
+          });
+          document.getElementById("epub-prev").addEventListener("click", () => {
+            void moveEpubPage("previous");
+          });
+          document.getElementById("epub-next").addEventListener("click", () => {
+            void moveEpubPage("next");
+          });
+
+          const savedTarget = savedProgress?.cfi || savedProgress?.href;
+          if (savedTarget) {
+            try {
+              await epubRendition.display(savedTarget);
+            } catch (error) {
+              console.warn("EPUB 阅读进度恢复失败，从开头打开:", error);
+              await epubRendition.display();
+            }
+          } else {
+            await epubRendition.display();
+          }
+
+          try {
+            if (typeof epubBook.locations?.generate === "function") {
+              await epubBook.locations.generate(160);
+            }
+          } catch (error) {
+            console.warn("EPUB 阅读进度计算失败:", error);
+          }
+          bindEpubKeyboardHandlers();
+          try {
+            updateEpubLocation(await epubRendition.currentLocation());
+          } catch (error) {
+            console.warn("EPUB 阅读位置初始化失败:", error);
+          }
+        } catch (error) {
+          console.error("EPUB 预览失败:", error);
+          container.innerHTML = `<div class="error">EPUB 预览失败: ${error.message}</div>`;
+        }
+      }
+
+      /**
+       * 渲染 3D 模型
+       */
+      async function render3DModel(fileUrl) {
+        const container = document.getElementById("preview-container");
+        container.innerHTML = "";
+
+        try {
+          await loadModule("src/model-viewer/model-viewer.min.js");
+          // 创建 model-viewer 元素
+          const modelViewer = document.createElement("model-viewer");
+          modelViewer.setAttribute("src", fileUrl);
+          modelViewer.setAttribute("alt", "3D 模型预览");
+          modelViewer.setAttribute("camera-controls", "");
+          modelViewer.setAttribute("auto-rotate", "");
+          modelViewer.setAttribute("shadow-intensity", "1");
+          modelViewer.setAttribute("exposure", "0.8");
+          modelViewer.style.cssText =
+            "width: 100%; height: 100%; background-color: #f5f5f5;";
+
+          container.appendChild(modelViewer);
+        } catch (error) {
+          console.error("3D 模型预览失败:", error);
+          container.innerHTML = `<div class="error">3D 模型预览失败: ${error.message}</div>`;
+        }
+      }
+
+      /**
+       * 渲染 TXT 文件
+       */
+      async function renderTxt(fileUrl) {
+        const container = document.getElementById("preview-container");
+        container.innerHTML = "";
+
+        try {
+          const response = await fetch(fileUrl);
+          if (!response.ok) {
+            throw new Error(`文件加载失败: ${response.status}`);
+          }
+          const text = await response.text();
+
+          const pre = document.createElement("pre");
+          pre.style.cssText =
+            "padding: 20px; white-space: pre-wrap; word-wrap: break-word; font-family: monospace; font-size: 13px; line-height: 1.6; color: var(--b3-theme-on-background, #333); margin: 0;";
+          pre.textContent = text;
+          container.appendChild(pre);
+        } catch (error) {
+          console.error("TXT 预览失败:", error);
+          container.innerHTML = `<div class="error">TXT 预览失败: ${error.message}</div>`;
+        }
+      }
+
+      /**
+       * 显示错误
+       */
+      function showError(message) {
+        document.getElementById("preview-container").innerHTML =
+          `<div class="error">${message}</div>`;
+      }
+
+      /**
+       * 显示不支持的文件类型
+       */
+      function showUnsupported(path) {
+        const ext = path.split(".").pop() || "未知";
+        document.getElementById("preview-container").innerHTML =
+          `<div class="error unsupported">
+          <p>暂不支持预览 .${ext} 格式的文件</p>
+          <p style="margin-top: 10px; font-size: 12px; color: #999;">
+            支持的格式：xlsx、xls、docx、epub、pptx、glb、gltf、txt
+          </p>
+        </div>`;
+      }
+
+      function requestFileUpload(file) {
+        const requestId = `${Date.now()}-${++requestSeq}`;
+        return new Promise((resolve, reject) => {
+          pendingFileUploads.set(requestId, { resolve, reject });
+          window.parent.postMessage(
+            {
+              type: "dodoFileUpload",
+              requestId,
+              blockId,
+              file,
+            },
+            "*",
+          );
+          setTimeout(() => {
+            if (!pendingFileUploads.has(requestId)) {
+              return;
+            }
+
+            pendingFileUploads.delete(requestId);
+            reject(new Error("文件上传超时"));
+          }, 15000);
+        });
+      }
+
+      async function showEmptyFileState() {
+        try {
+          await loadStylesheet("gallery/iframe/app.css");
+        } catch (error) {
+          console.warn("文件块空状态样式加载失败:", error);
+        }
+
+        currentFilePath = null;
+        updateFileName("文件块");
+        document.getElementById("navbar").hidden = true;
+        document.getElementById("open-file-btn").hidden = true;
+
+        const container = document.getElementById("preview-container");
+        container.className = "gallery-page file-empty-preview";
+        container.innerHTML = `
+          <div class="gallery-empty-dropzone" id="file-empty-dropzone">
+            <input id="file-empty-input" type="file" accept=".docx,.epub,.glb,.gltf,.pptx,.txt,.xls,.xlsx" hidden />
+            <div class="gallery-empty-icon" aria-hidden="true"></div>
+            <div class="gallery-empty-title">在此上传或拖入文件</div>
+            <button id="file-empty-button" type="button">↑ 上传文件</button>
+          </div>`;
+
+        const dropzone = document.getElementById("file-empty-dropzone");
+        const input = document.getElementById("file-empty-input");
+        const button = document.getElementById("file-empty-button");
+        let busy = false;
+
+        const upload = async (file) => {
+          if (!file || busy) {
+            return;
+          }
+          busy = true;
+          button.disabled = true;
+          button.textContent = "上传中...";
+          try {
+            await requestFileUpload(file);
+            await initialize();
+          } catch (error) {
+            showError(error instanceof Error ? error.message : String(error));
+          } finally {
+            busy = false;
+            button.disabled = false;
+            button.textContent = "选择文件";
+            input.value = "";
+          }
+        };
+
+        button.addEventListener("click", () => input.click());
+        input.addEventListener("change", () => upload(input.files?.[0]));
+        dropzone.addEventListener("dragover", (event) => {
+          event.preventDefault();
+          if (!busy) {
+            container.classList.add("is-dragover");
+          }
+        });
+        dropzone.addEventListener("dragleave", (event) => {
+          if (event.relatedTarget instanceof Node && dropzone.contains(event.relatedTarget)) {
+            return;
+          }
+          container.classList.remove("is-dragover");
+        });
+        dropzone.addEventListener("drop", (event) => {
+          event.preventDefault();
+          container.classList.remove("is-dragover");
+          upload(event.dataTransfer?.files?.[0]);
+        });
+      }
+
+      /**
+       * 初始化
+       */
+      async function initialize() {
+        if (!blockId) {
+          showError("缺少 blockId 参数");
+          return;
+        }
+
+        const navbar = document.getElementById("navbar");
+        const container = document.getElementById("preview-container");
+        destroyEpub();
+        navbar.hidden = false;
+        container.className = "";
+
+        try {
+          const attrs = await waitForBlockAttrs(blockId);
+          const fileInfo = extractFile(attrs);
+
+          if (!fileInfo) {
+            await showEmptyFileState();
+            return;
+          }
+
+          currentFilePath = fileInfo.path;
+          updateFileName(fileInfo.path);
+          document.getElementById("open-file-btn").hidden = false;
+
+          if (fileInfo.type === "epub") {
+            const resource = await getAssetResource(fileInfo.path);
+            await renderEpub(resource.arrayBuffer, attrs, fileInfo.path);
+            return;
+          }
+
+          const fileUrl = await getFileUrl(fileInfo.path);
+
+          switch (fileInfo.type) {
+            case "excel":
+              await renderExcel(fileUrl);
+              break;
+            case "docx":
+              await renderDocx(fileUrl);
+              break;
+            case "pptx":
+              await renderPptx(fileUrl);
+              break;
+            case "model3d":
+              await render3DModel(fileUrl);
+              break;
+            case "txt":
+              await renderTxt(fileUrl);
+              break;
+            default:
+              showUnsupported(fileInfo.path);
+          }
+        } catch (error) {
+          showError(`加载失败：${error.message}`);
+        }
+      }
+
+      // 页面加载时初始化
+      initialize();
+
+      // "打开"按钮点击事件
+      document.getElementById("open-file-btn").addEventListener("click", () => {
+        if (!currentFilePath) {
+          alert("文件路径未加载");
+          return;
+        }
+        // 向父窗口发送打开文件的消息
+        window.parent.postMessage(
+          {
+            type: "openOfficeFile",
+            path: currentFilePath,
+          },
+          "*",
+        );
+      });
+
+      window.addEventListener("message", (event) => {
+        if (
+          event.data?.type === FILE_REFRESH_MESSAGE_TYPE &&
+          event.data.blockId === blockId
+        ) {
+          void initialize();
+        }
+      });
+
+      window.addEventListener("unload", () => {
+        blobUrls.forEach((url) => URL.revokeObjectURL(url));
+        blobUrls.clear();
+      });
+    </script>
+  </body>
+</html>

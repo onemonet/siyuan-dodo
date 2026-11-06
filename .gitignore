@@ -1,0 +1,37 @@
+# System / editor
+.DS_Store
+.idea/
+.vscode/
+Thumbs.db
+
+# Dependencies and local package caches
+node_modules/
+.pnpm-store/
+
+# Build output and temporary artifacts
+dist/
+dist-marketplace/
+dev/
+build/
+tmp/
+package.zip
+package-marketplace.zip
+*.tsbuildinfo
+temp.txt
+link.sh
+*.log
+
+# Python / browser-test caches
+__pycache__/
+*.py[cod]
+.pytest_cache/
+playwright-report/
+test-results/
+
+# Local environment and credentials
+.env
+.env.*
+!.env.example
+*.local
+
+# Keep pnpm-lock.yaml committed for reproducible installs.

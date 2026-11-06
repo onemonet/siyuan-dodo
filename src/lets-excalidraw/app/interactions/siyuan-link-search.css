@@ -1,0 +1,71 @@
+/* Native SiYuan-style block search results for the Excalidraw hyperlink editor. */
+.dodo-link-search-results {
+  position: fixed;
+  z-index: 10020;
+  width: min(640px, calc(100vw - 16px));
+  box-sizing: border-box;
+  max-height: min(380px, 55vh);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 7px;
+  border: 1px solid var(--b3-border-color, #dedee2);
+  border-radius: 9px;
+  background: var(--b3-theme-surface, #fff);
+  color: var(--b3-theme-on-surface, #303238);
+  box-shadow: var(--b3-dialog-shadow, 0 10px 32px #0002);
+  font: 14px/1.35 system-ui, "Microsoft YaHei", sans-serif;
+}
+.dodo-link-search-item {
+  width: 100%;
+  display: flex;
+  align-items: stretch;
+  padding: 8px 10px;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  color: inherit;
+  cursor: pointer;
+  text-align: left;
+  font: inherit;
+}
+.dodo-link-search-item[aria-selected="true"],
+.dodo-link-search-item:hover {
+  background: var(--b3-list-hover, #e7e7e9);
+}
+.dodo-link-search-status {
+  padding: 12px 10px;
+  color: var(--b3-theme-on-surface-light, #858993);
+  font-size: 13px;
+}
+.dodo-search-block-row { display: flex; flex-direction: column; gap: 4px; width: 100%; min-width: 0; }
+.dodo-search-block-main { display: flex; align-items: flex-start; gap: 10px; width: 100%; min-width: 0; }
+.dodo-search-type-icon { flex: none; width: 18px; height: 18px; color: var(--b3-theme-on-surface, #303238); margin-top: 1px; }
+.dodo-search-block-title {
+  display: block;
+  flex: 1 1 auto;
+  min-width: 0;
+  line-height: 1.45;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 14px;
+}
+.dodo-search-block-path {
+  display: block;
+  padding-left: 28px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--b3-theme-on-surface-light, #83868d);
+}
+.dodo-search-block-title mark {
+  background: var(--b3-theme-primary-lightest, #ffdc82);
+  color: inherit;
+  border-radius: 2px;
+  padding: 0 1px;
+}
+
+.dodo-search-type-emoji { flex: none; width: 18px; line-height: 18px; font-size: 16px; margin-top: 1px; text-align: center; }
+.dodo-search-block-count { margin-left: auto; flex: none; min-width: 16px; padding-left: 8px; color: var(--b3-theme-on-surface-light,#8b8b8e); font-size: 12px; font-weight: 400; line-height: 18px; text-align: right; }

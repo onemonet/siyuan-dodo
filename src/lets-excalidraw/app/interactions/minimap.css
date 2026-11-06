@@ -1,0 +1,59 @@
+/* Inserted into Excalidraw's native .zoom-actions as its first button.
+   The native .zoom-button selector supplies the exact size and background.
+   Transfer the leftmost radius from the zoom-out button to this button. */
+.excalidraw .zoom-actions .dodo-minimap-trigger {
+  display:inline-flex;align-items:center;justify-content:center;
+  flex:0 0 var(--lg-button-size);
+  width:var(--lg-button-size);height:var(--lg-button-size);
+  box-sizing:border-box;
+  border:0;outline-offset:-3px;
+  padding:0;
+  border-radius:var(--border-radius-lg) 0 0 var(--border-radius-lg)!important;
+  background-color:var(--color-surface-low)!important;
+  color:var(--text-primary-color);
+  cursor:pointer;
+}
+.excalidraw .zoom-actions .dodo-minimap-trigger:hover,
+.excalidraw .zoom-actions .dodo-minimap-trigger[aria-expanded="true"] {
+  background-color:var(--color-surface-high)!important;
+}
+.excalidraw .zoom-actions .dodo-minimap-trigger:focus-visible {
+  outline:2px solid var(--color-primary,#6965db);
+}
+.excalidraw .zoom-actions .dodo-minimap-trigger svg {
+  width:var(--lg-icon-size)!important;height:var(--lg-icon-size)!important;
+  display:block;fill:none;stroke:currentColor;
+}
+.excalidraw .zoom-actions.dodo-zoom-with-minimap .zoom-out-button,
+.excalidraw .zoom-actions.dodo-zoom-with-minimap .zoom-out-button .ToolIcon__icon {
+  border-top-left-radius:0!important;
+  border-bottom-left-radius:0!important;
+}
+.dodo-minimap-panel {
+  position:fixed;z-index:10040;box-sizing:border-box;
+  width:228px;height:146px;overflow:hidden;padding:0;
+  border:1px solid var(--color-border-outline,#c4c4cf);border-radius:9px;
+  background:var(--color-surface-lowest,#fff);
+  color:var(--color-on-surface,#292933);
+  box-shadow:0 5px 20px #0003;
+}
+.dodo-minimap-panel[hidden] { display:none; }
+.dodo-minimap-panel > svg {width:100%;height:100%;display:block;cursor:crosshair;touch-action:none;}
+.dodo-minimap-panel[data-dragging="true"] > svg { cursor:grabbing; }
+.dodo-minimap-shape {fill:#7777a838;stroke:#8175ad9c;stroke-width:1;}
+.dodo-minimap-text {fill:#72758caa;}
+.dodo-minimap-line {fill:none;stroke:#626d88;stroke-width:1.3;stroke-linejoin:round;stroke-linecap:round;}
+.dodo-minimap-image {fill:#9bc9c255;stroke:#609c96;stroke-width:1.1;}
+.dodo-minimap-frame {fill:transparent;stroke:#9186a7;stroke-width:1;stroke-dasharray:3 2;}
+.dodo-minimap-viewport { fill:#6965db16;stroke:#6965db;stroke-width:1.5;pointer-events:none; }
+@media (max-width:600px){
+  .dodo-minimap-panel {width:180px;height:116px;}
+}
+.dodo-minimap-panel[data-theme="dark"] {
+  background:#29292f;color:#e7e5ec;border-color:#50505c;
+  box-shadow:0 5px 20px #0008;
+}
+.dodo-minimap-panel[data-theme="dark"] .dodo-minimap-shape {fill:#9c91d355;stroke:#9c91d3;}
+.dodo-minimap-panel[data-theme="dark"] .dodo-minimap-text {fill:#c3bcddaa;}
+.dodo-minimap-panel[data-theme="dark"] .dodo-minimap-line {stroke:#b3b9d0;}
+.dodo-minimap-panel[data-theme="dark"] .dodo-minimap-viewport {fill:#a7a1ff20;stroke:#aaa4ff;}

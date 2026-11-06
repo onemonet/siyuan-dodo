@@ -1,0 +1,90 @@
+/* Native scene mind-map tools; scoped to our own overlays. */
+.dodo-mind-launcher {appearance:none; display:inline-flex;align-items:center;justify-content:center;
+  flex:0 0 36px;width:36px;height:36px;padding:0;margin-left:3px;background:transparent;
+  color:var(--color-on-surface,#24242b);border:0;border-radius:8px;cursor:pointer;}
+.dodo-mind-launcher:hover,.dodo-mind-launcher:focus-visible{background:var(--color-surface-high,#f0eefb);}
+.dodo-mind-handles{position:fixed;inset:0;pointer-events:none;z-index:21;}
+.dodo-mind-handles>button{position:fixed;display:flex;align-items:center;justify-content:center;
+  transform:translate(-50%,-50%);width:25px;height:25px;min-width:25px;min-height:25px;
+  border:1px solid #7568ec;border-radius:8px;background:#fff;color:#6355d8;
+  box-shadow:0 2px 7px #0002;pointer-events:auto;cursor:pointer;padding:2px;}
+.dodo-mind-handles>button:hover,.dodo-mind-handles>button:focus-visible{background:#f0eeff;outline:2px solid #7568ec44;}
+.dt-popover[data-tool-id="mind-map"]{min-width:224px;}
+.dodo-mind-panel{display:flex;flex-direction:column;gap:6px;min-width:210px;padding:4px 2px;color:inherit;font:12px system-ui,sans-serif;}
+.dodo-mind-panel>strong{font-size:14px;padding:4px 9px 6px;}
+.dodo-mind-panel>button{display:flex;align-items:center;justify-content:flex-start;gap:7px;white-space:nowrap;min-height:29px;}
+.dodo-mind-panel kbd{margin-left:auto;font-size:10px;opacity:.6;background:transparent;border:0;}
+.dodo-mind-panel-title{margin:8px 8px 2px;font-size:11px;opacity:.7;}
+.dodo-mind-choices{display:flex;gap:3px;padding:0 5px;}
+.dodo-mind-choices>button{flex:1;min-height:29px;white-space:nowrap;border:1px solid #dddde5;
+  border-radius:6px;background:transparent;color:inherit;cursor:pointer;font-size:11px;padding:2px 4px;}
+.dodo-mind-choices>button[aria-pressed="true"]{border-color:#7466ef;background:#7466ef19;color:#7565e5;}
+
+.dodo-mind-drop-preview {position:fixed;z-index:23;box-sizing:border-box;pointer-events:none;
+  border:2px dashed #7568ec;border-radius:9px;background:#7568ec12;}
+.dodo-mind-drop-preview[hidden]{display:none;}
+.dodo-mind-drop-preview-label{position:absolute;left:50%;bottom:calc(100% + 6px);
+  transform:translateX(-50%);border-radius:6px;padding:4px 9px;white-space:nowrap;
+  background:#5c4bdc;color:#fff;font:12px/1.2 system-ui,sans-serif;box-shadow:0 2px 8px #0002;}
+.dodo-mind-drop-preview[data-mode=before]{border-top:4px solid #7568ec;}
+.dodo-mind-drop-preview[data-mode=after]{border-bottom:4px solid #7568ec;}
+
+.dodo-mind-handles>button[data-fold="true"]{background:#ecebff;color:#6252c8;
+ border-color:#b3a9f4;border-radius:50%;width:23px;height:23px;
+ min-width:23px;min-height:23px;}
+.dodo-mind-handles>button[data-fold="true"]:hover{background:#dad6ff;}
+
+/* Precise sibling insertion cues: horizontal rules for right/left trees,
+   vertical rules for down trees. The dashed box is only for new children. */
+.dodo-mind-drop-preview[data-mode="before"],
+.dodo-mind-drop-preview[data-mode="after"]{background:transparent;border-color:transparent;}
+.dodo-mind-insertion-line{display:none;position:absolute;pointer-events:none;
+  background:#6d5df5;border-radius:3px;box-shadow:0 0 0 2px #ffffffbb;}
+.dodo-mind-drop-preview[data-mode="before"] .dodo-mind-insertion-line,
+.dodo-mind-drop-preview[data-mode="after"] .dodo-mind-insertion-line{display:block;}
+.dodo-mind-drop-preview[data-axis="y"] .dodo-mind-insertion-line{
+  height:3px;left:-13px;right:-13px;top:-2px;}
+.dodo-mind-drop-preview[data-axis="y"][data-mode="after"] .dodo-mind-insertion-line{
+  top:auto;bottom:-2px;}
+.dodo-mind-drop-preview[data-axis="x"] .dodo-mind-insertion-line{
+  width:3px;top:-12px;bottom:-12px;left:-2px;}
+.dodo-mind-drop-preview[data-axis="x"][data-mode="after"] .dodo-mind-insertion-line{
+  left:auto;right:-2px;}
+.dodo-mind-drop-preview[data-mode="child"]{border:2px solid #7767f3;
+  background:#7767f31c;box-shadow:0 0 0 3px #7767f322;}
+
+/* A pending split is marked on the moving root; no new scene element is
+   created until release, so all drag updates stay in Excalidraw's gesture. */
+.dodo-mind-drop-preview[data-mode="detach"] {border:2px dashed #6e9c8d;background:#6e9c8d16;}
+.dodo-mind-drop-preview[data-mode="detach"] .dodo-mind-drop-preview-label {background:#356e5b;}
+.dodo-mind-drop-preview[data-kind="cross"] {border:2px solid #539887;
+  background:#53988719;box-shadow:0 0 0 3px #53988720;}
+.dodo-mind-drop-preview[data-kind="cross"] .dodo-mind-drop-preview-label {background:#356e5b;}
+
+
+/* Persistent collapsed-branch counter, including all nested descendants.
+   Rendered above the canvas but outside the Excalidraw element scene. */
+.dodo-mind-handles>button.dodo-mind-fold-count {
+  box-sizing:border-box;min-width:29px;width:auto;height:29px;min-height:29px;
+  padding:0 6px;border:2px solid #fff;border-radius:999px;
+  background:#47677f;color:#fff;
+  font:600 12px/1 system-ui,sans-serif;
+  box-shadow:0 1px 4px #0003;
+  white-space:nowrap;
+}
+.dodo-mind-handles>button.dodo-mind-fold-count:hover,
+.dodo-mind-handles>button.dodo-mind-fold-count:focus-visible {
+  background:#31536c;color:#fff;outline:2px solid #47677f66;
+}
+.dodo-mind-handles>button.dodo-mind-fold-count::before {
+  content:"";position:absolute;right:100%;top:50%;
+  width:12px;height:2px;transform:translateY(-50%);
+  background:#47677f;pointer-events:none;
+}
+.dodo-mind-handles>button.dodo-mind-fold-count[data-side="left"]::before {
+  right:auto;left:100%;
+}
+.dodo-mind-handles>button.dodo-mind-fold-count[data-side="down"]::before {
+  left:50%;right:auto;top:auto;bottom:100%;
+  width:2px;height:12px;transform:translateX(-50%);
+}

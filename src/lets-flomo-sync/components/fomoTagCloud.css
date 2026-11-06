@@ -1,0 +1,104 @@
+.tag-cloud {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 12px 14px;
+  border: 1px solid var(--b3-border-color);
+  border-radius: 10px;
+  background: var(--b3-theme-surface);
+}
+
+.tag-cloud .header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.tag-cloud .title-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.tag-cloud .title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--b3-theme-on-surface);
+}
+
+.tag-cloud .meta,
+.tag-cloud .status {
+  font-size: 12px;
+  color: var(--b3-theme-on-surface);
+  opacity: 0.65;
+}
+
+.tag-cloud .status.error {
+  color: var(--b3-theme-error, #d95c5c);
+  opacity: 1;
+}
+
+.tag-cloud .mode-switch {
+  display: inline-flex;
+  gap: 8px;
+}
+
+.tag-cloud button {
+  font: inherit;
+}
+
+.tag-cloud .mode-switch button,
+.tag-cloud .tag-chip,
+.tag-cloud .expand-toggle {
+  border: 1px solid var(--b3-border-color);
+  background: transparent;
+  color: var(--b3-theme-on-surface);
+  cursor: pointer;
+  transition:
+    border-color 120ms ease,
+    background 120ms ease,
+    color 120ms ease;
+}
+
+.tag-cloud .mode-switch button {
+  border-radius: 999px;
+  padding: 6px 12px;
+}
+
+.tag-cloud .mode-switch button.active,
+.tag-cloud .tag-chip.selected {
+  border-color: var(--b3-theme-primary);
+  background: color-mix(in srgb, var(--b3-theme-primary) 16%, transparent);
+  color: var(--b3-theme-primary);
+}
+
+.tag-cloud .tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.tag-cloud .tag-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  border-radius: 999px;
+}
+
+.tag-cloud .tag-name {
+  font-weight: 500;
+}
+
+.tag-cloud .tag-count {
+  font-size: 12px;
+  opacity: 0.72;
+}
+
+.tag-cloud .expand-toggle {
+  align-self: flex-start;
+  border-radius: 8px;
+  padding: 6px 12px;
+}

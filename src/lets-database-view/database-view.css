@@ -1,0 +1,250 @@
+/* Dodo database-map view: only the active map occupies the full editor width. */
+.protyle-wysiwyg .av.dodo-av-map--active {
+  /* Native .av is display:flex. The persistent map host is now its child,
+     so stack it beneath the existing header instead of beside the table. */
+  flex-direction: column;
+  align-items: stretch;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.protyle-wysiwyg .av.dodo-av-map--active > .av__container {
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.protyle-wysiwyg .av.dodo-av-map--active > .av__container > .dodo-av-map-frame {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+/* 数据库地图模式：按钮悬浮在地图右上角，而不是思源数据库视图工具栏。 */
+/* Map host lives directly under .av to survive native AV container rebuilds. */
+.protyle-wysiwyg .av.dodo-av-map--active .dodo-av-map-host {
+  position: relative;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.protyle-wysiwyg .av.dodo-av-map--active .dodo-av-map-actions {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 3px;
+  border: 1px solid var(--b3-border-color);
+  border-radius: var(--b3-border-radius);
+  background: var(--b3-theme-background);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, .12);
+}
+
+.protyle-wysiwyg .av.dodo-av-map--active .dodo-av-map-actions > button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border: 0;
+  border-radius: var(--b3-border-radius);
+  background: transparent;
+  color: var(--b3-theme-on-background);
+  cursor: pointer;
+}
+
+.protyle-wysiwyg .av.dodo-av-map--active .dodo-av-map-actions > button:hover,
+.protyle-wysiwyg .av.dodo-av-map--active .dodo-av-map-actions > button.dodo-av-map-add--active {
+  background: var(--b3-theme-primary-lightest);
+  color: var(--b3-theme-primary);
+}
+
+.protyle-wysiwyg .av.dodo-av-map--active .dodo-av-map-actions > button svg {
+  width: 16px;
+  height: 16px;
+  fill: currentColor;
+}
+
+/* Chart/Timeline AV modes share the map's full-width presentation, without changing native tables. */
+.protyle-wysiwyg .av.dodo-av-visual--active,
+.protyle-wysiwyg .av.dodo-av-visual--active > .av__container,
+.protyle-wysiwyg .av.dodo-av-visual--active .dodo-av-visual-host {
+  width: 100%; min-width: 0; max-width: 100%; box-sizing: border-box;
+}
+.protyle-wysiwyg .av.dodo-av-visual--active .dodo-av-visual-host { position: relative; }
+.protyle-wysiwyg .av.dodo-av-visual--active .dodo-av-visual-frame { display: block; width: 100%; max-width: 100%; border: 0; }
+
+/* Chart-only: SiYuan can preserve a narrower native AV width (e.g. from a
+   resized table). Override that size from AV block through iframe so charts
+   actually occupy the full available editor content width. */
+.protyle-wysiwyg .av.dodo-av-visual--active.dodo-av-visual--chart,
+.protyle-wysiwyg .av.dodo-av-visual--active.dodo-av-visual--chart > .av__container,
+.protyle-wysiwyg .av.dodo-av-visual--active.dodo-av-visual--chart .dodo-av-visual-host,
+.protyle-wysiwyg .av.dodo-av-visual--active.dodo-av-visual--chart .dodo-av-visual-frame {
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+  box-sizing: border-box;
+}
+/* A single custom-view entry immediately left of Filter on the right-hand AV toolbar. */
+.protyle-wysiwyg .av .av__views > .dodo-av-view-picker {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  width: 43px;
+  min-width: 43px;
+  padding: 0 5px;
+  box-sizing: border-box;
+}
+.protyle-wysiwyg .av .av__views > .dodo-av-view-picker .dodo-av-picker-icon {
+  width: 16px;
+  height: 16px;
+  flex: 0 0 16px;
+  fill: none;
+  stroke: currentColor;
+}
+.protyle-wysiwyg .av .av__views > .dodo-av-view-picker .dodo-av-picker-chevron {
+  width: 11px;
+  height: 11px;
+  flex: 0 0 11px;
+}
+
+/* Settings belong to the native AV toolbar, immediately right of the view picker. */
+.protyle-wysiwyg .av .av__views > .dodo-av-view-settings {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 30px;
+  width: 30px;
+  height: 30px;
+  box-sizing: border-box;
+}
+.protyle-wysiwyg .av .av__views > .dodo-av-view-settings svg {
+  width: 16px;
+  height: 16px;
+  fill: currentColor;
+}
+
+
+/* Dodo database-view menu icons: Lucide outlines, unaffected by SiYuan SVG fill rules. */
+.b3-menu__item > svg.dodo-db-view-menu-icon {
+  width: 18px;
+  height: 18px;
+  min-width: 18px;
+  flex: 0 0 18px;
+  fill: none !important;
+  stroke: currentColor !important;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.b3-menu__item > svg.dodo-db-view-menu-icon :is(path, rect, circle, line, polyline) {
+  fill: none !important;
+  stroke: currentColor !important;
+}
+
+
+/* Gantt's full-width iframe is isolated from SiYuan and other AV renderer CSS. */
+.protyle-wysiwyg .av.dodo-av-visual--active.dodo-av-visual--gantt,
+.protyle-wysiwyg .av.dodo-av-visual--active.dodo-av-visual--gantt > .av__container,
+.protyle-wysiwyg .av.dodo-av-visual--active.dodo-av-visual--gantt .dodo-av-visual-host,
+.protyle-wysiwyg .av.dodo-av-visual--active.dodo-av-visual--gantt .dodo-av-visual-frame {
+  box-sizing: border-box;
+  min-width: 0 !important;
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
+
+/* Gantt lives next to (not inside) native AV. Native cell writes frequently
+ * replace .av__container/.av; keeping the iframe as a sibling prevents an
+ * accidental browsing-context destruction and full reload after dragging.
+ */
+.protyle-wysiwyg .av.dodo-av-visual--gantt + .dodo-av-visual-host {
+  position: relative;
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+  box-sizing: border-box;
+}
+.protyle-wysiwyg .av.dodo-av-visual--gantt + .dodo-av-visual-host .dodo-av-visual-frame {
+  width: 100% !important;
+  border: 0;
+  display: block;
+}
+
+
+/* Timeline must remain a stable sibling of the native AV, so opening a
+ * record on the right or a native block update does not reset the slides. */
+.protyle-wysiwyg .av.dodo-av-visual--timeline + .dodo-av-visual-host {
+  position: relative;
+  box-sizing: border-box;
+  min-width: 0 !important;
+  max-width: 100% !important;
+  width: 100% !important;
+}
+.protyle-wysiwyg .av.dodo-av-visual--timeline + .dodo-av-visual-host .dodo-av-visual-frame {
+  width: 100% !important;
+  display: block;
+  border: 0;
+}
+.protyle-wysiwyg .av.dodo-av-visual--active.dodo-av-visual--timeline,
+.protyle-wysiwyg .av.dodo-av-visual--active.dodo-av-visual--timeline > .av__container {
+  min-width: 0 !important;
+  max-width: 100% !important;
+  width: 100% !important;
+}
+
+/* Calendar uses the same stable sibling host as Gantt. Native AV cell writes
+ * may reconstruct .av__scroll or the entire AV block during an event drag. */
+.protyle-wysiwyg .av.dodo-av-visual--calendar + .dodo-av-visual-host {
+  position: relative;
+  box-sizing: border-box;
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+}
+.protyle-wysiwyg .av.dodo-av-visual--calendar + .dodo-av-visual-host .dodo-av-visual-frame {
+  display: block;
+  width: 100% !important;
+  border: 0;
+}
+.protyle-wysiwyg .av.dodo-av-visual--active.dodo-av-visual--calendar,
+.protyle-wysiwyg .av.dodo-av-visual--active.dodo-av-visual--calendar > .av__container {
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+}
+
+/* Custom HTML app sits beside the AV block to survive native subtree replacement. */
+.protyle-wysiwyg .av.dodo-av-visual--custom + .dodo-av-visual-host {
+  position: relative;
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  box-sizing: border-box;
+}
+.protyle-wysiwyg .av.dodo-av-visual--custom + .dodo-av-visual-host .dodo-av-visual-frame {
+  width: 100% !important;
+  display: block;
+  border: 0;
+}
+.protyle-wysiwyg .av.dodo-av-visual--active.dodo-av-visual--custom,
+.protyle-wysiwyg .av.dodo-av-visual--active.dodo-av-visual--custom > .av__container {
+  box-sizing: border-box;
+  min-width: 0 !important;
+  max-width: 100% !important;
+}

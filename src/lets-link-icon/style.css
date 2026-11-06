@@ -1,0 +1,502 @@
+/* 内链引用图标 ::before 基础样式 */
+.protyle-wysiwyg [data-node-id] span[data-type='block-ref'][data-icon-name]::before {
+  content: "";
+  display: inline-block;
+  width: 1.2em;
+  height: 1.2em;
+  margin-right: 0.2em;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  vertical-align: baseline;
+}
+
+/* 外链图标 ::before 基础样式 */
+.protyle-wysiwyg [data-node-id] span[data-type~='a']:not(:empty)::before,
+.protyle-wysiwyg [data-node-id] span[data-type~='url']:not(:empty)::before,
+.b3-typography a:not(:empty)::before,
+.protyle-wysiwyg [data-node-id] a:not(:empty)::before {
+  display: inline-block;
+  position: relative;
+  top: 2px;
+  background-repeat: no-repeat;
+  background-size: 1em 1em;
+  background-position: center;
+  width: 1em;
+  height: 1em;
+  margin-right: 0.2em !important;
+}
+
+
+/* 特殊协议图标 */
+.protyle-wysiwyg [data-node-id] span[data-type~='a'][data-href^="es://"]:not(:empty)::before,
+.protyle-wysiwyg [data-node-id] span[data-type~='url'][data-href^="es://"]:not(:empty)::before,
+.protyle-wysiwyg [data-node-id] a[href^="es://"]::before,
+.b3-typography a[href^="es://"]::before {
+  content: "";
+  background-image: url('plugins/siyuan-dodo/icon/everything.svg');
+}
+
+.protyle-wysiwyg [data-node-id] span[data-type~='a'][data-href^="zotero://"]:not(:empty)::before,
+.protyle-wysiwyg [data-node-id] span[data-type~='url'][data-href^="zotero://"]:not(:empty)::before,
+.protyle-wysiwyg [data-node-id] a[href^="zotero://"]::before,
+.b3-typography a[href^="zotero://"]::before {
+  content: "";
+  background-image: url('plugins/siyuan-dodo/icon/zotero.ico');
+}
+
+.protyle-wysiwyg [data-node-id] span[data-type~='a'][data-href^="bookxnotepro://"]:not(:empty)::before,
+.protyle-wysiwyg [data-node-id] span[data-type~='url'][data-href^="bookxnotepro://"]:not(:empty)::before,
+.protyle-wysiwyg [data-node-id] a[href^="bookxnotepro://"]::before,
+.b3-typography a[href^="bookxnotepro://"]::before {
+  content: "";
+  background-image: url('plugins/siyuan-dodo/icon/bookxnote.ico');
+}
+
+.protyle-wysiwyg [data-node-id] span[data-type~='a'][data-href^="pixcall://file/"]:not(:empty)::before,
+.protyle-wysiwyg [data-node-id] span[data-type~='url'][data-href^="pixcall://file/"]:not(:empty)::before,
+.protyle-wysiwyg [data-node-id] a[href^="pixcall://file/"]::before,
+.b3-typography a[href^="pixcall://file/"]::before {
+  content: "";
+  background-image: url('plugins/siyuan-dodo/icon/pixcall.svg');
+}
+
+/* 文件系统图标 */
+.protyle-wysiwyg [data-node-id] span[data-type~='a'][data-href^="file://"][data-file-link-kind="folder"]:not(:empty)::before,
+.protyle-wysiwyg [data-node-id] span[data-type~='url'][data-href^="file://"][data-file-link-kind="folder"]:not(:empty)::before,
+.protyle-wysiwyg [data-node-id] a[href^="file://"][data-file-link-kind="folder"]::before,
+.b3-typography a[href^="file://"][data-file-link-kind="folder"]::before {
+  content: "";
+  background-image: url('plugins/siyuan-dodo/icon/folder.svg');
+  opacity: 0.9;
+  background-size: 1.2em 1.2em;
+  filter: hue-rotate(0.9turn);
+}
+
+.protyle-wysiwyg [data-node-id] span[data-type~='a'][data-href^="file://"][data-file-link-kind="file"]:not(:empty)::before,
+.protyle-wysiwyg [data-node-id] span[data-type~='a'][data-href^="assets/"]:not(:empty)::before,
+.protyle-wysiwyg [data-node-id] span[data-type~='url'][data-href^="file://"][data-file-link-kind="file"]:not(:empty)::before,
+.protyle-wysiwyg [data-node-id] span[data-type~='url'][data-href^="assets/"]:not(:empty)::before,
+.protyle-wysiwyg [data-node-id] a[href^="file://"][data-file-link-kind="file"]::before,
+.b3-typography a[href^="file://"][data-file-link-kind="file"]::before,
+.b3-typography a[href^="assets/"]::before,
+.protyle-wysiwyg [data-node-id] a[href^="http://127.0.0.1:6806/assets/"]::before,
+.protyle-wysiwyg [data-node-id] a[href^="assets/"]::before {
+  content: "";
+  background-image: url('plugins/siyuan-dodo/icon/unknown.svg');
+}
+
+.protyle-wysiwyg [data-node-id] span[data-type~='a'][data-href^="assets"][data-href$="/"]:not(:empty)::before,
+.protyle-wysiwyg [data-node-id] span[data-type~='url'][data-href^="assets"][data-href$="/"]:not(:empty)::before,
+.b3-typography a[href^="assets"][href$="/"]::before,
+.protyle-wysiwyg [data-node-id] a[href^="assets/"][href$="/"]::before,
+.protyle-wysiwyg [data-node-id] a[href^="http://127.0.0.1:6806/assets/"][href$="/"]::before {
+  content: "";
+  background-image: url('plugins/siyuan-dodo/icon/assets.svg');
+}
+
+/* 文件类型图标 */
+.protyle-wysiwyg [data-node-id] span[data-type~='a'][data-href$=".zip"]:not(:empty)::before,
+.protyle-wysiwyg [data-node-id] span[data-type~='url'][data-href$=".zip"]:not(:empty)::before,
+.protyle-wysiwyg [data-node-id] a[href$=".zip"]::before,
+.b3-typography a[href^="assets/"][href$=".zip"]::before,
+.protyle-wysiwyg [data-node-id] span[data-type~='a'][data-href$=".tar"]:not(:empty)::before,
+.protyle-wysiwyg [data-node-id] span[data-type~='url'][data-href$=".tar"]:not(:empty)::before,
+.protyle-wysiwyg [data-node-id] a[href$=".tar"]::before,
+.b3-typography a[href^="assets/"][href$=".tar"]::before,
+.protyle-wysiwyg [data-node-id] span[data-type~='a'][data-href$=".tar.gz"]:not(:empty)::before,
+.protyle-wysiwyg [data-node-id] span[data-type~='url'][data-href$=".tar.gz"]:not(:empty)::before,
+.protyle-wysiwyg [data-node-id] a[href$=".tar.gz"]::before,
+.b3-typography a[href^="assets/"][href$=".tar.gz"]::before,
+.protyle-wysiwyg [data-node-id] span[data-type~='a'][data-href$=".gz"]:not(:empty)::before,
+.protyle-wysiwyg [data-node-id] span[data-type~='url'][data-href$=".gz"]:not(:empty)::before,
+.protyle-wysiwyg [data-node-id] a[href$=".gz"]::before,
+.b3-typography a[href^="assets/"][href$=".gz"]::before {
+  content: "";
+  background-image: url('plugins/siyuan-dodo/icon/compress.svg');
+}
+
+.protyle-wysiwyg [data-node-id] span[data-type~='a'][data-href$=".pdf"]:not(:empty)::before,
+.protyle-wysiwyg [data-node-id] span[data-type~='url'][data-href$=".pdf"]:not(:empty)::before,
+.protyle-wysiwyg [data-node-id] a[href$=".pdf"]::before,
+.b3-typography [href^="assets/"][href$=".pdf"]::before,
+.protyle-wysiwyg [data-node-id] span[data-type~=a][data-href*=".pdf?page"]:not(:empty)::before,
+.protyle-wysiwyg [data-node-id] span[data-type~=url][data-href*=".pdf?page"]:not(:empty)::before,
+.protyle-wysiwyg [data-node-id] a[href*=".pdf?page"]::before,
+.b3-typography [href^="assets/"][href*=".pdf?page"]::before {
+  content: "";
+  background-image: url('plugins/siyuan-dodo/icon/pdf.svg');
+}
+
+.protyle-wysiwyg [data-node-id] span[data-type~='a'][data-href$=".mp4"]:not(:empty)::before,
+.protyle-wysiwyg [data-node-id] span[data-type~='url'][data-href$=".mp4"]:not(:empty)::before,
+.protyle-wysiwyg [data-node-id] a[href$=".mp4"]::before,
+.b3-typography [href^="assets/"][href$=".mp4"]::before,
+.protyle-wysiwyg [data-node-id] span[data-type~='a'][data-href$=".flv"]:not(:empty)::before,
+.protyle-wysiwyg [data-node-id] span[data-type~='url'][data-href$=".flv"]:not(:empty)::before,
+.protyle-wysiwyg [data-node-id] a[href$=".flv"]::before,
+.b3-typography [href^="assets/"][href$=".flv"]::before,
+.protyle-wysiwyg [data-node-id] span[data-type~='a'][data-href$=".mkv"]:not(:empty)::before,
+.protyle-wysiwyg [data-node-id] span[data-type~='url'][data-href$=".mkv"]:not(:empty)::before,
+.protyle-wysiwyg [data-node-id] a[href$=".mkv"]::before,
+.b3-typography [href^="assets/"][href$=".mkv"]::before {
+  content: "";
+  background-image: url('plugins/siyuan-dodo/icon/videos.svg');
+}
+
+.protyle-wysiwyg [data-node-id] span[data-type~='a'][data-href$=".xlsx"]:not(:empty)::before,
+.protyle-wysiwyg [data-node-id] span[data-type~='url'][data-href$=".xlsx"]:not(:empty)::before,
+.protyle-wysiwyg [data-node-id] a[href$=".xlsx"]::before,
+.b3-typography [href^="assets/"][href$=".xlsx"]::before,
+.protyle-wysiwyg [data-node-id] span[data-type~='a'][data-href$=".xls"]:not(:empty)::before,
+.protyle-wysiwyg [data-node-id] span[data-type~='url'][data-href$=".xls"]:not(:empty)::before,
+.protyle-wysiwyg [data-node-id] a[href$=".xls"]::before,
+.b3-typography [href^="assets/"][href$=".xls"]::before {
+  content: "";
+  background-image: url('plugins/siyuan-dodo/icon/excel_icon.svg');
+}
+
+.protyle-wysiwyg [data-node-id] span[data-type~='a'][data-href$=".pptx"]:not(:empty)::before,
+.protyle-wysiwyg [data-node-id] span[data-type~='url'][data-href$=".pptx"]:not(:empty)::before,
+.protyle-wysiwyg [data-node-id] a[href$=".pptx"]::before,
+.b3-typography [href^="assets/"][href$=".pptx"]::before,
+.protyle-wysiwyg [data-node-id] span[data-type~='a'][data-href$=".ppt"]:not(:empty)::before,
+.protyle-wysiwyg [data-node-id] span[data-type~='url'][data-href$=".ppt"]:not(:empty)::before,
+.protyle-wysiwyg [data-node-id] a[href$=".ppt"]::before,
+.b3-typography [href^="assets/"][href$=".ppt"]::before {
+  content: "";
+  background-image: url('plugins/siyuan-dodo/icon/powerpoint_icon.svg');
+}
+
+.protyle-wysiwyg [data-node-id] span[data-type~='a'][data-href$=".docx"]:not(:empty)::before,
+.protyle-wysiwyg [data-node-id] span[data-type~='url'][data-href$=".docx"]:not(:empty)::before,
+.protyle-wysiwyg [data-node-id] a[href$=".docx"]::before,
+.b3-typography [href^="assets/"][href$=".docx"]::before,
+.protyle-wysiwyg [data-node-id] span[data-type~='a'][data-href$=".doc"]:not(:empty)::before,
+.protyle-wysiwyg [data-node-id] span[data-type~='url'][data-href$=".doc"]:not(:empty)::before,
+.protyle-wysiwyg [data-node-id] a[href$=".doc"]::before,
+.b3-typography [href^="assets/"][href$=".doc"]::before {
+  content: "";
+  background-image: url('plugins/siyuan-dodo/icon/word_icon.svg');
+}
+
+.protyle-wysiwyg [data-node-id] span[data-type~='a'][data-href$=".txt"]:not(:empty)::before,
+.protyle-wysiwyg [data-node-id] span[data-type~='url'][data-href$=".txt"]:not(:empty)::before,
+.protyle-wysiwyg [data-node-id] a[href$=".txt"]::before,
+.b3-typography [href^="assets/"][href$=".txt"]::before {
+  content: "";
+  background-image: url('plugins/siyuan-dodo/icon/txt.svg');
+}
+
+.protyle-wysiwyg [data-node-id] span[data-type~='a'][data-href$=".py"]:not(:empty)::before,
+.protyle-wysiwyg [data-node-id] span[data-type~='url'][data-href$=".py"]:not(:empty)::before,
+.protyle-wysiwyg [data-node-id] a[href$=".py"]::before,
+.b3-typography [href^="assets/"][href$=".py"]::before {
+  content: "";
+  background-image: url('plugins/siyuan-dodo/icon/python_icon.svg');
+}
+
+.protyle-wysiwyg [data-node-id] span[data-type~='a'][data-href$=".R"]:not(:empty)::before,
+.protyle-wysiwyg [data-node-id] span[data-type~='url'][data-href$=".R"]:not(:empty)::before,
+.protyle-wysiwyg [data-node-id] a[href$=".R"]::before,
+.b3-typography [href^="assets/"][href$=".R"]::before,
+.protyle-wysiwyg [data-node-id] span[data-type~='a'][data-href$=".r"]:not(:empty)::before,
+.protyle-wysiwyg [data-node-id] span[data-type~='url'][data-href$=".r"]:not(:empty)::before,
+.protyle-wysiwyg [data-node-id] a[href$=".r"]::before,
+.b3-typography [href^="assets/"][href$=".r"]::before {
+  content: "";
+  background-image: url('plugins/siyuan-dodo/icon/r_lang.svg');
+}
+
+.protyle-wysiwyg [data-node-id] span[data-type~='a'][data-href$=".js"]:not(:empty)::before,
+.protyle-wysiwyg [data-node-id] span[data-type~='url'][data-href$=".js"]:not(:empty)::before,
+.protyle-wysiwyg [data-node-id] a[href$=".js"]::before,
+.b3-typography [href^="assets/"][href$=".js"]::before {
+  content: "";
+  background-image: url('plugins/siyuan-dodo/icon/js.svg');
+}
+
+.protyle-wysiwyg [data-node-id] span[data-type~='a'][data-href$=".html"]:not(:empty)::before,
+.protyle-wysiwyg [data-node-id] span[data-type~='url'][data-href$=".html"]:not(:empty)::before,
+.protyle-wysiwyg [data-node-id] a[href$=".html"]::before,
+.b3-typography [href^="assets/"][href$=".html"]::before {
+  content: "";
+  background-image: url('plugins/siyuan-dodo/icon/html.svg');
+}
+
+.protyle-wysiwyg [data-node-id] span[data-type~='a'][data-href$=".css"]:not(:empty)::before,
+.protyle-wysiwyg [data-node-id] span[data-type~='url'][data-href$=".css"]:not(:empty)::before,
+.protyle-wysiwyg [data-node-id] a[href$=".css"]::before,
+.b3-typography [href^="assets/"][href$=".css"]::before {
+  content: "";
+  background-image: url('plugins/siyuan-dodo/icon/css.svg');
+}
+
+.protyle-wysiwyg [data-node-id] span[data-type~='a'][data-href$=".md"]:not(:empty)::before,
+.protyle-wysiwyg [data-node-id] span[data-type~='url'][data-href$=".md"]:not(:empty)::before,
+.protyle-wysiwyg [data-node-id] a[href$=".md"]::before,
+.b3-typography [href^="assets/"][href$=".md"]::before {
+  content: "";
+  background-image: url('plugins/siyuan-dodo/icon/md.svg');
+}
+
+.protyle-wysiwyg [data-node-id] span[data-type~='a'][data-href$=".ipynb"]:not(:empty)::before,
+.protyle-wysiwyg [data-node-id] span[data-type~='url'][data-href$=".ipynb"]:not(:empty)::before,
+.protyle-wysiwyg [data-node-id] a[href$=".ipynb"]::before,
+.b3-typography [href^="assets/"][href$=".ipynb"]::before {
+  content: "";
+  background-image: url('plugins/siyuan-dodo/icon/jupyter.svg');
+}
+
+/* 备注链接 */
+.protyle-wysiwyg [data-node-id] span[data-type="a"][data-href^="备注"]::before,
+.protyle-wysiwyg [data-node-id] span[data-type="url"][data-href^="备注"]::before,
+.protyle-wysiwyg [data-node-id] a[href^="备注"]::before,
+.b3-typography a[href^="备注"]::before {
+  content: "";
+  background-image: url('plugins/siyuan-dodo/icon/memo.svg');
+}
+
+/* 外部链接默认图标（http/https fallback） */
+.protyle-wysiwyg [data-node-id] span[data-type~='a'][data-href^="http"]:not(:empty)::before,
+.protyle-wysiwyg [data-node-id] span[data-type~='url'][data-href^="http"]:not(:empty)::before,
+.b3-typography a[href^="http"]::before,
+.protyle-wysiwyg [data-node-id] a[href^="http"]::before {
+  content: "";
+  background-image: url('plugins/siyuan-dodo/icon/url.svg');
+}
+
+/* Opt-in Open Graph card for a paragraph containing exactly one external link. */
+.protyle-wysiwyg [data-type="NodeParagraph"][data-dodo-og-card-block="ready"],
+.b3-typography [data-type="NodeParagraph"][data-dodo-og-card-block="ready"] {
+  position: relative;
+}
+
+.protyle-wysiwyg [data-type="NodeParagraph"] > [contenteditable][data-dodo-og-card="ready"],
+.b3-typography [data-type="NodeParagraph"] > .p[data-dodo-og-card="ready"] {
+  position: relative;
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 112px;
+  padding: 16px 38% 14px 20px !important;
+  overflow: hidden;
+  border: 1px solid var(--b3-border-color);
+  border-radius: 8px;
+  background-color: var(--b3-theme-background);
+  box-shadow: none;
+  transition: border-color 120ms ease, background-color 120ms ease;
+}
+
+.protyle-wysiwyg [data-type="NodeParagraph"] > [contenteditable][data-dodo-og-card="ready"]::before,
+.b3-typography [data-type="NodeParagraph"] > .p[data-dodo-og-card="ready"]::before {
+  display: block;
+  min-height: 24px;
+  padding-left: 30px;
+  overflow: hidden;
+  color: var(--b3-theme-on-background);
+  background-image: var(--dodo-og-card-favicon);
+  background-repeat: no-repeat;
+  background-position: left center;
+  background-size: 20px 20px;
+  content: attr(data-og-card-title);
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 24px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.protyle-wysiwyg [data-type="NodeParagraph"] > [contenteditable][data-dodo-og-card="ready"]::after,
+.b3-typography [data-type="NodeParagraph"] > .p[data-dodo-og-card="ready"]::after {
+  display: -webkit-box;
+  max-height: 60px;
+  margin-top: 5px;
+  overflow: hidden;
+  color: var(--b3-theme-on-background-light);
+  content: attr(data-og-card-description) "\A" attr(data-og-card-site) " · " attr(data-og-card-url);
+  font-size: 13px;
+  line-height: 20px;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  white-space: pre-line;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+}
+
+.protyle-wysiwyg [data-type="NodeParagraph"] > [contenteditable][data-dodo-og-card="ready"] > span[data-dodo-og-card-link],
+.protyle-wysiwyg [data-type="NodeParagraph"] > [contenteditable][data-dodo-og-card="ready"] > span[data-type~="a"][data-dodo-og-card-link],
+.protyle-wysiwyg [data-type="NodeParagraph"] > [contenteditable][data-dodo-og-card="ready"] > span[data-type~="url"][data-dodo-og-card-link],
+.b3-typography [data-type="NodeParagraph"] > .p[data-dodo-og-card="ready"] > a[data-dodo-og-card-link] {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: block !important;
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  color: transparent !important;
+  font-size: 0 !important;
+  line-height: 0 !important;
+  gap: 0 !important;
+  transition: none !important;
+  text-decoration: none;
+}
+
+/* Let the native editor regain the link's text and caret when a block is selected. */
+.protyle-wysiwyg [data-type="NodeParagraph"].protyle-wysiwyg--select > [contenteditable][data-dodo-og-card="ready"] > span[data-dodo-og-card-link],
+.protyle-wysiwyg [data-type="NodeParagraph"].protyle-wysiwyg--select > [contenteditable][data-dodo-og-card="ready"] > span[data-type~="a"][data-dodo-og-card-link],
+.protyle-wysiwyg [data-type="NodeParagraph"].protyle-wysiwyg--select > [contenteditable][data-dodo-og-card="ready"] > span[data-type~="url"][data-dodo-og-card-link] {
+  position: static;
+  inset: auto;
+  z-index: auto;
+  display: inline !important;
+  width: auto;
+  height: auto;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  color: var(--b3-theme-primary) !important;
+  font-size: inherit !important;
+  line-height: inherit !important;
+  gap: 0 !important;
+  transition: none !important;
+  pointer-events: auto;
+  text-decoration: underline !important;
+}
+
+.protyle-wysiwyg [data-type="NodeParagraph"] > [contenteditable][data-dodo-og-card="ready"]:hover,
+.protyle-wysiwyg [data-type="NodeParagraph"] > [contenteditable][data-dodo-og-card="ready"]:focus-within,
+.b3-typography [data-type="NodeParagraph"] > .p[data-dodo-og-card="ready"]:hover,
+.b3-typography [data-type="NodeParagraph"] > .p[data-dodo-og-card="ready"]:focus-within {
+  border-color: var(--b3-theme-primary-light);
+  background-color: var(--b3-theme-background-light);
+}
+
+.protyle-wysiwyg [data-type="NodeParagraph"][data-dodo-og-card-block="ready"] > [data-dodo-og-card-refresh],
+.b3-typography [data-type="NodeParagraph"][data-dodo-og-card-block="ready"] > [data-dodo-og-card-refresh] {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  z-index: 3;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 1px solid var(--b3-border-color);
+  border-radius: 4px;
+  color: var(--b3-theme-on-background);
+  background-color: var(--b3-theme-background);
+  box-shadow: none;
+  cursor: pointer;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 120ms ease, background-color 120ms ease;
+}
+
+.protyle-wysiwyg [data-type="NodeParagraph"][data-dodo-og-card-block="ready"] > [data-dodo-og-card-refresh] svg,
+.b3-typography [data-type="NodeParagraph"][data-dodo-og-card-block="ready"] > [data-dodo-og-card-refresh] svg {
+  width: 16px;
+  height: 16px;
+  fill: currentColor;
+}
+
+.protyle-wysiwyg [data-type="NodeParagraph"][data-dodo-og-card-block="ready"]:hover > [data-dodo-og-card-refresh],
+.protyle-wysiwyg [data-type="NodeParagraph"][data-dodo-og-card-block="ready"]:focus-within > [data-dodo-og-card-refresh],
+.b3-typography [data-type="NodeParagraph"][data-dodo-og-card-block="ready"]:hover > [data-dodo-og-card-refresh],
+.b3-typography [data-type="NodeParagraph"][data-dodo-og-card-block="ready"]:focus-within > [data-dodo-og-card-refresh],
+.protyle-wysiwyg [data-type="NodeParagraph"][data-dodo-og-card-block="ready"] > [data-dodo-og-card-refresh]:focus-visible,
+.b3-typography [data-type="NodeParagraph"][data-dodo-og-card-block="ready"] > [data-dodo-og-card-refresh]:focus-visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.protyle-wysiwyg [data-type="NodeParagraph"][data-dodo-og-card-block="ready"] > [data-dodo-og-card-refresh]:hover,
+.b3-typography [data-type="NodeParagraph"][data-dodo-og-card-block="ready"] > [data-dodo-og-card-refresh]:hover {
+  background-color: var(--b3-theme-background-light);
+}
+
+.protyle-wysiwyg [data-type="NodeParagraph"][data-dodo-og-card-block="ready"] > [data-dodo-og-card-refresh].is-loading svg,
+.b3-typography [data-type="NodeParagraph"][data-dodo-og-card-block="ready"] > [data-dodo-og-card-refresh].is-loading svg {
+  animation: dodo-og-card-refresh 800ms linear infinite;
+}
+
+@keyframes dodo-og-card-refresh {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.protyle-wysiwyg [data-type="NodeParagraph"] > [contenteditable][data-dodo-og-card="ready"] > span[data-dodo-og-card-link]::before,
+.protyle-wysiwyg [data-type="NodeParagraph"] > [contenteditable][data-dodo-og-card="ready"] > span[data-type~="a"][data-dodo-og-card-link]::before,
+.protyle-wysiwyg [data-type="NodeParagraph"] > [contenteditable][data-dodo-og-card="ready"] > span[data-type~="url"][data-dodo-og-card-link]::before,
+.protyle-wysiwyg [data-type="NodeParagraph"] > [contenteditable][data-dodo-og-card="ready"] > span[data-dodo-og-card-link]::after,
+.protyle-wysiwyg [data-type="NodeParagraph"] > [contenteditable][data-dodo-og-card="ready"] > span[data-type~="a"][data-dodo-og-card-link]::after,
+.protyle-wysiwyg [data-type="NodeParagraph"] > [contenteditable][data-dodo-og-card="ready"] > span[data-type~="url"][data-dodo-og-card-link]::after,
+.b3-typography [data-type="NodeParagraph"] > .p[data-dodo-og-card="ready"] > a[data-dodo-og-card-link]::before,
+.b3-typography [data-type="NodeParagraph"] > .p[data-dodo-og-card="ready"] > a[data-dodo-og-card-link]::after {
+  display: none !important;
+  content: none !important;
+}
+
+.protyle-wysiwyg [data-type="NodeParagraph"] > [contenteditable][data-dodo-og-card="ready"][data-og-card-has-image="true"] > span[data-dodo-og-card-link]::after,
+.b3-typography [data-type="NodeParagraph"] > .p[data-dodo-og-card="ready"][data-og-card-has-image="true"] > a[data-dodo-og-card-link]::after {
+  position: absolute;
+  top: 0;
+  right: 0;
+  display: block !important;
+  width: 36%;
+  height: 100%;
+  background-image: var(--dodo-og-card-image) !important;
+  background-repeat: no-repeat !important;
+  background-position: center !important;
+  background-size: cover !important;
+  content: "" !important;
+  pointer-events: none;
+}
+
+.protyle-wysiwyg [data-type="NodeParagraph"].protyle-wysiwyg--select > [contenteditable][data-dodo-og-card="ready"][data-og-card-has-image="true"] > span[data-dodo-og-card-link]::after {
+  display: none !important;
+  content: none !important;
+}
+
+.protyle-wysiwyg [data-type="NodeParagraph"] > [contenteditable][data-dodo-og-card="ready"][data-og-card-has-image="false"] > span[data-dodo-og-card-link]::before,
+.b3-typography [data-type="NodeParagraph"] > .p[data-dodo-og-card="ready"][data-og-card-has-image="false"] > a[data-dodo-og-card-link]::before {
+  position: absolute;
+  top: 50%;
+  right: calc(18% - 28px);
+  display: block !important;
+  width: 56px;
+  height: 56px;
+  margin: 0 !important;
+  padding: 0 !important;
+  transform: translateY(-50%);
+  background-image: var(--dodo-og-card-favicon) !important;
+  background-repeat: no-repeat !important;
+  background-position: center !important;
+  background-size: contain !important;
+  content: "" !important;
+}
+
+@media (max-width: 640px) {
+  .protyle-wysiwyg [data-type="NodeParagraph"] > [contenteditable][data-dodo-og-card="ready"],
+  .b3-typography [data-type="NodeParagraph"] > .p[data-dodo-og-card="ready"] {
+    min-height: 112px;
+    padding: 14px 124px 14px 16px !important;
+  }
+
+  .protyle-wysiwyg [data-type="NodeParagraph"] > [contenteditable][data-dodo-og-card="ready"][data-og-card-has-image="true"] > span[data-dodo-og-card-link]::after,
+  .b3-typography [data-type="NodeParagraph"] > .p[data-dodo-og-card="ready"][data-og-card-has-image="true"] > a[data-dodo-og-card-link]::after {
+    top: 50%;
+    width: 112px;
+    height: 112px;
+    transform: translateY(-50%);
+  }
+}

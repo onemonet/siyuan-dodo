@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>地图块</title>
+    <link rel="stylesheet" href="./vendor/leaflet/leaflet.css" />
+    <link rel="stylesheet" href="./app.css?v=20261105-locate-existing" />
+  </head>
+  <body>
+    <div id="map" aria-label="来源数据库地图"></div>
+    <div id="map-search" class="map-search" hidden>
+      <div class="map-search-bar">
+        <input id="map-search-input" type="search" autocomplete="off" spellcheck="false" placeholder="搜索地点" />
+        <button id="map-search-button" type="button" aria-label="搜索地点">搜索</button>
+      </div>
+      <div id="map-search-hint" class="map-search-hint" role="status"></div>
+      <div id="map-search-results" class="map-search-results" hidden></div>
+    </div>
+    <aside id="map-unlocated-panel" class="map-unlocated-panel" aria-label="未定位条目" hidden>
+      <div class="map-unlocated-heading">
+        <strong id="map-unlocated-title">未定位条目</strong>
+        <button id="map-unlocated-close" type="button" aria-label="关闭未定位条目列表">×</button>
+      </div>
+      <input id="map-unlocated-search" type="search" placeholder="搜索未定位条目" autocomplete="off" />
+      <div id="map-unlocated-list" class="map-unlocated-list" role="list"></div>
+    </aside>
+    <section id="map-locate-confirm" class="map-locate-confirm" aria-label="确认条目位置" hidden>
+      <strong id="map-locate-title"></strong>
+      <div id="map-locate-coords"></div>
+      <div class="map-locate-actions">
+        <button id="map-locate-cancel" type="button">取消</button>
+        <button id="map-locate-reselect" type="button">重新选点</button>
+        <button id="map-locate-save" class="is-primary" type="button">确认位置</button>
+      </div>
+    </section>
+    <div id="map-add-hint" class="map-add-hint" role="status" hidden>标记模式</div>
+    <div id="tile-error" role="status" hidden>底图加载失败，请检查网络连接。</div>
+    <script src="./vendor/leaflet/leaflet.js"></script>
+    <script type="module" src="./main.js?v=20261105-locate-existing"></script>
+  </body>
+</html>

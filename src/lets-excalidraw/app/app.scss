@@ -1,0 +1,47 @@
+.excalidraw {
+  .Toast {
+    bottom: unset;
+    top: 53px;
+    left: 15px;
+    margin: 0;
+    width: auto;
+    background-color: transparent;
+
+    .Toast__message {
+      margin: 0;
+      padding-left: 5px;
+      color: var(--color-gray-40);
+    }
+  }
+}
+
+
+/* SiYuan block embeds skip the upstream click-to-interact intermediate layer. */
+.excalidraw .excalidraw__embeddable-container:has(.dodo-siyuan-embed) .excalidraw__embeddable-hint {
+  display: none;
+}
+.excalidraw .dodo-siyuan-embed {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+.excalidraw .dodo-siyuan-embed > iframe {
+  pointer-events: none !important;
+}
+/* Suppress only the native SiYuan link info bar; never the requested editor. */
+.excalidraw.dodo-siyuan-link-selected .excalidraw-hyperlinkContainer { display: none !important; }
+/* Excalidraw versions may portal the native link bar under document.body. */
+body:has(.excalidraw.dodo-siyuan-link-selected) .excalidraw-hyperlinkContainer {
+  display: none !important;
+}
+/* An unlinked Web-Embed has no URL to show. Only hide its automatic
+   "未设定链接" info strip, not the explicit URL editor (Ctrl+K).
+   Keep this distinct from the SiYuan link toolbar, so ordinary linked
+   Web-Embeds and shapes retain Excalidraw's native hyperlink actions. */
+.excalidraw.dodo-empty-embed-link-info .excalidraw-hyperlinkContainer,
+body:has(.excalidraw.dodo-empty-embed-link-info) .excalidraw-hyperlinkContainer {
+  display: none !important;
+}
+
+

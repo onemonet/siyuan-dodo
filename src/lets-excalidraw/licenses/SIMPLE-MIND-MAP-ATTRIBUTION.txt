@@ -1,0 +1,8 @@
+SimpleMindMap (simple-mind-map) — MIT License
+Repository: https://github.com/wanglin2/mind-map
+Package: simple-mind-map@0.14.0-fix.3
+Copyright: wanglin2 / SimpleMindMap contributors
+License text: https://github.com/wanglin2/mind-map/blob/main/LICENSE
+This experimental feature loads the library lazily, only when its editor opens.
+It does not bundle a separate web service, nor does it replace the native
+Excalidraw elements-based dodoMind implementation.

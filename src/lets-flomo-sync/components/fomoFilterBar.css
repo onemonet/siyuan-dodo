@@ -1,0 +1,97 @@
+.flomo-filter-shell {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  overflow: visible;
+}
+
+.flomo-filter-search-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.flomo-filter-search-box {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex: 1;
+  min-width: 0;
+  justify-content: flex-end;
+}
+
+.flomo-filter-search-input {
+  width: 52px;
+  min-width: 52px;
+  max-width: 100%;
+  height: 40px;
+  min-height: 40px;
+  padding: 0 10px;
+  border: 1px solid var(--b3-border-color);
+  border-radius: 10px;
+  background: var(--b3-theme-background);
+  color: var(--b3-theme-on-surface);
+  box-sizing: border-box;
+  font: inherit;
+  transition:
+    width 180ms ease,
+    border-color 120ms ease,
+    box-shadow 120ms ease,
+    background 120ms ease;
+}
+
+.flomo-filter-search-input.expanded,
+.flomo-filter-shell.expanded .flomo-filter-search-input {
+  width: min(280px, 100%);
+}
+
+.flomo-filter-search-input:focus {
+  border-color: var(--b3-theme-primary);
+  outline: none;
+}
+
+@media (max-width: 720px) {
+  .flomo-filter-search-row,
+  .flomo-filter-search-box {
+    align-items: stretch;
+  }
+
+  .flomo-filter-search-row,
+  .flomo-filter-search-box {
+    justify-content: flex-end;
+  }
+
+  .flomo-filter-shell.expanded {
+    width: 100%;
+  }
+
+  .flomo-filter-search-input {
+    width: 56px;
+    min-width: 56px;
+  }
+
+  .flomo-filter-search-input.expanded,
+  .flomo-filter-shell.expanded .flomo-filter-search-input {
+    width: min(220px, calc(100vw - 96px));
+    min-width: 0;
+  }
+
+  .flomo-filter-shell.expanded .floating-panel {
+    left: auto;
+    right: 0;
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .flomo-filter-shell:not(.expanded) .floating-panel {
+    left: auto;
+    right: 0;
+    width: min(520px, calc(100vw - 32px), 100%);
+    min-width: 0;
+    max-width: min(520px, calc(100vw - 32px), 100%);
+  }
+}

@@ -1,0 +1,5 @@
+Carbon Pictograms: https://github.com/carbon-design-system/carbon
+Derived from @carbon/pictograms 12.87.0 (Apache-2.0).
+1576 SVG pictogram images were transformed into an offline JSON catalog.
+The full Apache-2.0 text is in CARBON-PICTOGRAMS-LICENSE.txt.
+This plugin does not run the Carbon npm package's installation or telemetry scripts.

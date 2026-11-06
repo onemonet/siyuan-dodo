@@ -1,0 +1,41 @@
+{
+  "name": "siyuan-dodo",
+  "author": "onemo",
+  "url": "https://github.com/onemonet/siyuan-dodo",
+  "version": "1.0.1",
+  "minAppVersion": "3.0.0",
+  "publish": {
+    "resources": [
+      "preview/gantt/"
+    ]
+  },
+  "disabledInPublish": false,
+  "backends": [
+    "all"
+  ],
+  "frontends": [
+    "all"
+  ],
+  "displayName": {
+    "en_US": "渡渡鸟工具箱",
+    "zh_CN": "渡渡鸟工具箱"
+  },
+  "description": {
+    "en_US": "SiYuan toolbox with database views, Excalidraw, file management and editor enhancements",
+    "zh_CN": "思源笔记数据库视图、Excalidraw、附件管理与编辑增强工具箱"
+  },
+  "readme": {
+    "en_US": "README.md",
+    "zh_CN": "README.md"
+  },
+  "funding": {
+    "custom": []
+  },
+  "keywords": [
+    "plugin",
+    "siyuan",
+    "database",
+    "excalidraw",
+    "toolbox"
+  ]
+}

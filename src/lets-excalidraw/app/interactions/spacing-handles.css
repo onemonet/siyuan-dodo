@@ -1,0 +1,67 @@
+.dodo-spacing-handles {
+  position: fixed; inset: 0; z-index: 19; pointer-events: none;
+  font: 12px system-ui, sans-serif;
+}
+.dodo-spacing-zone {
+  position: absolute; z-index: 1; box-sizing: border-box;
+  pointer-events: none; color: #fff;
+}
+.dodo-spacing-zone::before {
+  content: ""; position: absolute; inset: 0; z-index: 0;
+  opacity: 0; pointer-events: none;
+  /* Solid translucent fill only while the left mouse button is down. */
+  background: rgba(238, 38, 169, .36);
+}
+.dodo-spacing-zone[data-pressed="true"]::before { opacity: 1; }
+.dodo-spacing-handle {
+  position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
+  width: 28px; height: 28px; z-index: 2;
+  display: grid; place-items: center;
+  pointer-events: auto; touch-action: none; cursor: ew-resize;
+  border: 0; background: transparent; outline: 0;
+}
+.dodo-spacing-zone[data-orientation="vertical"] .dodo-spacing-handle { cursor: ns-resize; }
+.dodo-spacing-handle:focus-visible { outline: 2px solid #f028ae; border-radius: 4px; }
+.dodo-spacing-marker {
+  display: none; width: 2px; height: 19px;
+  background: #f028ae; border-radius: 2px; pointer-events: none;
+}
+.dodo-spacing-zone[data-orientation="vertical"] .dodo-spacing-marker { width: 19px; height: 2px; }
+.dodo-spacing-handles[data-hovered="true"] .dodo-spacing-marker,
+.dodo-spacing-zone[data-handle-hover="true"] .dodo-spacing-marker,
+.dodo-spacing-zone[data-pressed="true"] .dodo-spacing-marker,
+.dodo-spacing-handle:focus-visible .dodo-spacing-marker { display: block; }
+.dodo-spacing-value {
+  position: absolute; top: 20px; left: 50%;
+  transform: translate(-50%, 0); z-index: 3;
+  display: none; min-width: 30px; box-sizing: border-box;
+  padding: 5px 7px; border-radius: 5px;
+  background: #f028ae; color: white; text-align: center; white-space: nowrap;
+  font: 600 12px/1.2 system-ui, sans-serif; pointer-events: none;
+}
+.dodo-spacing-zone[data-orientation="vertical"] .dodo-spacing-value {
+  top: 50%; left: 20px; transform: translate(0, -50%);
+}
+/* When any spacing handle is hovered or dragged, show ALL gap values
+   so equal spacing is obvious and unequal spacing can be compared. */
+.dodo-spacing-handles[data-active="true"] .dodo-spacing-value,
+.dodo-spacing-handle:focus-visible + .dodo-spacing-value { display: block; }
+.dodo-spacing-editor { position: absolute; z-index: 3; display: flex; align-items: center; gap: 5px; pointer-events: auto; white-space: nowrap; }
+.dodo-spacing-editor[hidden] { display: none; }
+.dodo-spacing-editor input { width: 51px; height: 25px; padding: 2px 4px; box-sizing: border-box; border: 1px solid #6255d8; border-radius: 5px; background: #fff; color: #191919; box-shadow: 0 2px 7px #0002; text-align: center; font: 600 12px system-ui, sans-serif; outline: none; }
+.dodo-spacing-editor input:focus { border-color: #f028ae; box-shadow: 0 0 0 2px #f028ae40; }
+.dodo-spacing-editor input[aria-invalid="true"] { border-color: #e03a16; box-shadow: 0 0 0 2px #e03a1638; }
+.dodo-spacing-editor button { height: 26px; padding: 3px 10px; border: 1px solid #f028ae; border-radius: 6px; color: #4a352f; background: #fff; box-shadow: 0 2px 6px #0001; font: 12px system-ui, sans-serif; cursor: pointer; }
+.dodo-spacing-editor button:hover, .dodo-spacing-editor button:focus-visible { background: #f028ae16; }
+
+
+/* 1NX-like distance measurements while translating selected elements. These
+   lines live in the existing spacingHandles feature and never catch clicks. */
+.dodo-distance-guides { position: absolute; inset: 0; z-index: 2; pointer-events: none; }
+.dodo-distance-guides[data-visible="false"] { display: none; }
+.dodo-distance-guide { position: absolute; box-sizing: border-box; pointer-events: none; color: #f24822; }
+.dodo-distance-guide[data-axis="horizontal"] { height: 0 !important; border-top: 1px solid currentColor; }
+.dodo-distance-guide[data-axis="vertical"] { width: 0 !important; border-left: 1px solid currentColor; }
+.dodo-distance-label { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); min-width: 27px;
+  padding: 3px 6px; box-sizing: border-box; border-radius: 5px; text-align: center; white-space: nowrap;
+  background: #f24822; color: #fff; font: 600 12px/1.2 system-ui,sans-serif; }

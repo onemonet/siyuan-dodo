@@ -1,0 +1,396 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Gallery 图册轮播</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        width: 100%;
+        height: 100vh;
+        overflow: hidden;
+        background: var(--b3-theme-surface, #fff);
+        font-family:
+          -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      }
+
+      .gallery-container {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #000;
+      }
+
+      .gallery-item {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        transition: opacity 0.3s ease;
+      }
+
+      .gallery-item.active {
+        display: flex;
+      }
+
+      .gallery-item img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      .gallery-nav {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 40px;
+        height: 40px;
+        background: rgba(255, 255, 255, 0.9);
+        border: none;
+        border-radius: 50%;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        transition: all 0.2s;
+        z-index: 10;
+        opacity: 0;
+        pointer-events: none;
+      }
+
+      .gallery-container:hover .gallery-nav {
+        opacity: 1;
+        pointer-events: auto;
+      }
+
+      .gallery-nav:hover {
+        background: rgba(255, 255, 255, 1);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      }
+
+      .gallery-nav.prev {
+        left: 12px;
+      }
+
+      .gallery-nav.next {
+        right: 12px;
+      }
+
+      .gallery-nav svg {
+        width: 20px;
+        height: 20px;
+        color: #333;
+      }
+
+      .gallery-indicators {
+        position: absolute;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        gap: 8px;
+        z-index: 10;
+      }
+
+      .gallery-indicator {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.5);
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+
+      .gallery-indicator.active {
+        background: rgba(255, 255, 255, 0.9);
+        width: 24px;
+        border-radius: 4px;
+      }
+
+      .loading {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        color: #fff;
+        font-size: 14px;
+      }
+
+      .error {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        color: #ff6b6b;
+        font-size: 14px;
+        text-align: center;
+        padding: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="gallery-container" id="galleryContainer">
+      <div class="loading" id="loading">正在加载图片...</div>
+    </div>
+
+    <script>
+      // 从 URL 参数获取块 ID
+      const urlParams = new URLSearchParams(window.location.search);
+      const blockId = urlParams.get("blockId");
+
+      let currentIndex = 0;
+      let images = [];
+      let requestSeq = 0;
+      const pendingRequests = new Map();
+      const blobUrls = new Set();
+      const PREVIEW_REQUEST_TYPE = "dodoPreviewRequest";
+      const PREVIEW_RESPONSE_TYPE = "dodoPreviewResponse";
+
+      // 图片后缀列表
+      const IMAGE_EXTENSIONS = [
+        ".svg",
+        ".jpg",
+        ".jpeg",
+        ".png",
+        ".avif",
+        ".webp",
+      ];
+
+      /**
+       * 检查是否是图片文件
+       */
+      function isImageFile(path) {
+        const lowerPath = path.toLowerCase();
+        return IMAGE_EXTENSIONS.some((ext) => lowerPath.endsWith(ext));
+      }
+
+      window.addEventListener("message", (event) => {
+        const data = event.data || {};
+        if (data.type !== PREVIEW_RESPONSE_TYPE || !data.requestId) {
+          return;
+        }
+
+        const pending = pendingRequests.get(data.requestId);
+        if (!pending) {
+          return;
+        }
+
+        pendingRequests.delete(data.requestId);
+        if (data.error) {
+          pending.reject(new Error(data.error));
+          return;
+        }
+
+        pending.resolve(data);
+      });
+
+      function requestParent(action, payload) {
+        const requestId = `${Date.now()}-${++requestSeq}`;
+        return new Promise((resolve, reject) => {
+          pendingRequests.set(requestId, { resolve, reject });
+          window.parent.postMessage(
+            {
+              type: PREVIEW_REQUEST_TYPE,
+              requestId,
+              action,
+              ...payload,
+            },
+            "*",
+          );
+          setTimeout(() => {
+            if (!pendingRequests.has(requestId)) {
+              return;
+            }
+
+            pendingRequests.delete(requestId);
+            reject(new Error("预览请求超时"));
+          }, 15000);
+        });
+      }
+
+      /**
+       * 通过思源 API 获取块属性
+       */
+      async function fetchBlockAttrs(blockId) {
+        const response = await requestParent("getBlockAttrs", { blockId });
+        return response.attrs || {};
+      }
+
+      async function createAssetBlobUrl(path) {
+        const response = await requestParent("getAsset", { path });
+        const blob = new Blob([response.arrayBuffer], {
+          type: response.contentType || "application/octet-stream",
+        });
+        const blobUrl = URL.createObjectURL(blob);
+        blobUrls.add(blobUrl);
+        return blobUrl;
+      }
+
+      /**
+       * 从块属性中提取图片资源
+       */
+      async function extractImageAssets(attrs) {
+        const imageUrls = [];
+
+        for (const [key, value] of Object.entries(attrs)) {
+          if (key.startsWith("custom-data-assets-backup-") && value) {
+            if (isImageFile(value)) {
+              let imgUrl = value;
+              if (imgUrl.startsWith("assets/")) {
+                imgUrl = await createAssetBlobUrl(imgUrl);
+              } else if (
+                !imgUrl.startsWith("http") &&
+                !imgUrl.startsWith("/")
+              ) {
+                imgUrl = "/" + imgUrl;
+              }
+              imageUrls.push({
+                index: parseInt(
+                  key.replace("custom-data-assets-backup-", ""),
+                  10,
+                ),
+                url: imgUrl,
+              });
+            }
+          }
+        }
+
+        imageUrls.sort((a, b) => a.index - b.index);
+
+        return imageUrls.map((item) => item.url);
+      }
+
+      /**
+       * 渲染轮播界面
+       */
+      function renderGallery(imageUrls) {
+        const container = document.getElementById("galleryContainer");
+        container.innerHTML = "";
+
+        if (imageUrls.length === 0) {
+          container.innerHTML = '<div class="error">未找到图片</div>';
+          return;
+        }
+
+        images = imageUrls;
+
+        // 创建图片项
+        imageUrls.forEach((url, index) => {
+          const item = document.createElement("div");
+          item.className = "gallery-item" + (index === 0 ? " active" : "");
+          item.innerHTML = `<img src="${url}" alt="Image ${index + 1}" />`;
+          container.appendChild(item);
+        });
+
+        // 只有多张图片时才显示导航
+        if (imageUrls.length > 1) {
+          // 前一张按钮
+          const prevBtn = document.createElement("button");
+          prevBtn.className = "gallery-nav prev";
+          prevBtn.innerHTML =
+            '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>';
+          prevBtn.onclick = () => navigate(-1);
+          container.appendChild(prevBtn);
+
+          // 后一张按钮
+          const nextBtn = document.createElement("button");
+          nextBtn.className = "gallery-nav next";
+          nextBtn.innerHTML =
+            '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>';
+          nextBtn.onclick = () => navigate(1);
+          container.appendChild(nextBtn);
+
+          // 指示器
+          const indicators = document.createElement("div");
+          indicators.className = "gallery-indicators";
+          imageUrls.forEach((_, index) => {
+            const indicator = document.createElement("div");
+            indicator.className =
+              "gallery-indicator" + (index === 0 ? " active" : "");
+            indicator.onclick = () => showImage(index);
+            indicators.appendChild(indicator);
+          });
+          container.appendChild(indicators);
+        }
+      }
+
+      /**
+       * 显示指定索引的图片
+       */
+      function showImage(index) {
+        const items = document.querySelectorAll(".gallery-item");
+        const indicators = document.querySelectorAll(".gallery-indicator");
+
+        items.forEach((item, i) => {
+          item.classList.toggle("active", i === index);
+        });
+
+        indicators.forEach((indicator, i) => {
+          indicator.classList.toggle("active", i === index);
+        });
+
+        currentIndex = index;
+      }
+
+      /**
+       * 导航到前一张/后一张
+       */
+      function navigate(direction) {
+        const newIndex =
+          (currentIndex + direction + images.length) % images.length;
+        showImage(newIndex);
+      }
+
+      /**
+       * 键盘导航
+       */
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "ArrowLeft") {
+          navigate(-1);
+        } else if (e.key === "ArrowRight") {
+          navigate(1);
+        }
+      });
+
+      /**
+       * 初始化
+       */
+      async function initialize() {
+        if (!blockId) {
+          document.getElementById("galleryContainer").innerHTML =
+            '<div class="error">缺少 blockId 参数</div>';
+          return;
+        }
+
+        try {
+          const attrs = await fetchBlockAttrs(blockId);
+          const imageUrls = await extractImageAssets(attrs);
+          renderGallery(imageUrls);
+        } catch (error) {
+          document.getElementById("galleryContainer").innerHTML =
+            `<div class="error">加载失败：${error.message}</div>`;
+        }
+      }
+
+      // 页面加载时初始化
+      initialize();
+
+      window.addEventListener("unload", () => {
+        blobUrls.forEach((url) => URL.revokeObjectURL(url));
+        blobUrls.clear();
+      });
+    </script>
+  </body>
+</html>

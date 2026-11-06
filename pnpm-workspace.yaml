@@ -1,0 +1,13 @@
+allowBuilds:
+  '@carbon/pictograms': false
+  '@parcel/watcher': false
+  core-js: false
+  es5-ext: false
+  esbuild: true
+minimumReleaseAgeExclude:
+  - '@excalidraw/common@0.18.0-3c916c5'
+  - '@excalidraw/element@0.18.0-3c916c5'
+  - '@excalidraw/excalidraw@0.18.0-3c916c5'
+  - '@excalidraw/fractional-indexing@0.18.0-3c916c5'
+  - '@excalidraw/math@0.18.0-3c916c5'
+  - '@excalidraw/mermaid-to-excalidraw@3.6.0'

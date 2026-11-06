@@ -1,0 +1,132 @@
+/* Icon browser is a standalone enhancement layer: no Excalidraw CSS overrides. */
+.dodo-icon-root[data-theme="dark"] { color-scheme: dark; --color-surface-lowest: #27272d; --color-on-surface: #efeff2; --color-border-outline-variant: #464650; }
+.dodo-icon-launcher { appearance: none; display: inline-flex; align-items: center; justify-content: center;
+  flex: 0 0 36px; width: 36px; height: 36px; margin-left: 3px; padding: 0; border: 0;
+  background: transparent; color: var(--color-on-surface,#24242b); border-radius: 8px; cursor: pointer; }
+.dodo-icon-launcher:hover,.dodo-icon-launcher:focus-visible { background: var(--color-surface-high,#f0eefb); outline-offset: 1px; }
+.dodo-icon-panel { position: fixed; z-index: 11000; top: min(92px, calc(100vh - 140px)); left: 50%;
+  transform: translateX(-50%); display: flex; flex-direction: column; width: min(850px, calc(100vw - 28px));
+  max-height: min(680px, calc(100vh - 108px)); overflow: hidden; box-sizing: border-box;
+  border: 1px solid var(--color-border-outline-variant,#e1e1e8); border-radius: 13px;
+  box-shadow: 0 15px 50px #0003; background: var(--color-surface-lowest,#fff);
+  color: var(--color-on-surface,#202027); font: 13px/1.5 system-ui,sans-serif; }
+.dodo-icon-panel *, .dodo-icon-panel *::before, .dodo-icon-panel *::after { box-sizing: border-box; }
+/* The selectable icon grid is the only vertically scrollable area. At high
+   browser zoom / short embed heights Flexbox otherwise shrinks the provider
+   tabs to a 16px line and introduces a vertical scrollbar in the tab strip. */
+.dodo-icon-panel > :not(.dodo-icon-results) { flex-shrink: 0; }
+.dodo-icon-panel > .dodo-icon-results { flex: 1 1 auto; min-height: 0; }
+.dodo-icon-header { display: flex; align-items: center; justify-content: space-between; padding: 13px 17px;
+  border-bottom: 1px solid var(--color-border-outline-variant,#e1e1e8); }
+.dodo-icon-header>div { display: flex; align-items: center; gap: 7px; }
+.dodo-icon-header strong { font-size: 16px; font-weight: 650; }
+.dodo-icon-header small { color: #888; font-size: 11px; }
+.dodo-icon-header>button { border: 0; background: transparent; color: inherit; padding: 5px; border-radius: 6px; cursor: pointer; }
+.dodo-icon-search { display: flex; align-items: center; gap: 9px; margin: 14px 16px 7px; padding: 0 12px;
+  border: 1px solid #b9b5ed; border-radius: 8px; min-height: 42px; color: #888; }
+.dodo-icon-search:focus-within { outline: 2px solid #7568ec; outline-offset: 0; }
+.dodo-icon-search input { flex: 1 1 auto; min-width: 0; border: 0; outline: 0; background: none; color: inherit; font: 14px system-ui,sans-serif; }
+.dodo-icon-config { display: flex; flex-wrap: wrap; align-items: center; gap: 15px; padding: 7px 17px; }
+.dodo-icon-config label { display: inline-flex; align-items: center; gap: 7px; font-size: 12px; }
+.dodo-icon-config input[type=color] { width: 31px; height: 29px; padding: 2px; border-radius: 6px; border: 1px solid #d7d7df; background: transparent; cursor: pointer; }
+.dodo-icon-config select { padding: 5px 8px; border: 1px solid #dddde5; border-radius: 6px; color: inherit; background: var(--color-surface-lowest,#fff); }
+.dodo-icon-apply { display: flex; align-items: center; gap: 6px; border: 1px solid #7568ec; border-radius: 7px; padding: 6px 10px;
+  background: transparent; color: #6855e5; cursor: pointer; }
+.dodo-icon-apply:hover { background: #eeeaff; }
+.dodo-icon-filter { display: flex; align-items: center; gap: 5px; padding: 6px 16px 11px; border-bottom: 1px solid #dddde555;
+  overflow-x:auto; overflow-y:hidden; scrollbar-width:none; }
+.dodo-icon-filter::-webkit-scrollbar {display:none;}
+.dodo-icon-filter button {flex:0 0 auto;white-space:nowrap;}
+.dodo-icon-filter button { padding: 5px 13px; border-radius: 7px; border: 1px solid #d6d6de; background: transparent; color: inherit; cursor: pointer; }
+.dodo-icon-filter button[aria-pressed=true] { border-color: #7466ef; background: #7466ef15; color: #6356d8; }
+.dodo-icon-filter small { margin-left: auto; color: #888; white-space:nowrap; flex:0 0 auto; }
+.dodo-icon-results { overflow: auto; min-height: 100px; padding: 4px 16px 12px; overscroll-behavior: contain; }
+.dodo-icon-results h3 { margin: 10px 0 8px; font-size: 13px; font-weight: 650; }
+.dodo-icon-grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(66px,1fr)); gap: 6px; }
+.dodo-icon-grid button { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
+  min-width: 0; min-height: 60px; padding: 7px 2px; border: 1px solid #e3e3e9;
+  border-radius: 8px; color: inherit; background: var(--color-surface-lowest,#fff); cursor: pointer; }
+.dodo-icon-grid button:hover,.dodo-icon-grid button:focus-visible { outline: 2px solid #7568ec; border-color: transparent; background: #7568ec12; }
+.dodo-icon-root[data-theme="dark"] .dodo-icon-grid button span { color: #aaaab4; }
+.dodo-icon-root[data-theme="dark"] .dodo-icon-search { border-color: #7466ef; }
+.dodo-icon-root[data-theme="dark"] .dodo-icon-filter button { border-color: #51515b; }
+.dodo-icon-root[data-theme="dark"] .dodo-icon-filter button[aria-pressed=true] { color: #b8aaff; }
+.dodo-icon-root[data-theme="dark"] .dodo-icon-apply { color: #b8aaff; }
+.dodo-icon-root[data-theme="dark"] .dodo-icon-apply:hover { background: #41335c; }
+.dodo-icon-grid button span { overflow: hidden; max-width: 95%; font-size: 10px; white-space: nowrap; text-overflow: ellipsis; color: #757580; }
+.dodo-icon-load-sentinel {
+  min-height: 26px; padding: 12px 0 4px; text-align: center;
+  color: #858593; font-size: 11px; pointer-events: none;
+}
+.dodo-icon-empty { padding: 25px 8px; color: #888; text-align: center; }
+.dodo-icon-error { margin: 7px 16px; color: #df3d20; }
+.dodo-icon-panel footer { padding: 10px 17px; border-top: 1px solid #dddde555; color: #898991; font-size: 11px; }
+.dodo-icon-pending { position: fixed; z-index: 10999; top: 78px; left: 50%; transform: translateX(-50%);
+  display: flex; align-items: center; gap: 9px; border-radius: 9px; padding: 7px 12px;
+  background: #22232b; box-shadow: 0 6px 18px #0003; color: #fff; font: 12px system-ui,sans-serif; pointer-events: auto; }
+.dodo-icon-pending button { color: inherit; border: 1px solid #fff6; padding: 4px 8px; border-radius: 5px; background: transparent; cursor: pointer; }
+body:has(.dodo-icon-pending) .excalidraw__canvas { cursor: crosshair !important; }
+@media(max-width:600px){.dodo-icon-panel {top:60px;max-height:calc(100vh - 75px);} .dodo-icon-grid{grid-template-columns: repeat(auto-fill,minmax(55px,1fr));}.dodo-icon-config{gap:8px;} }
+
+/* Provider tabs and avatar seed controls. */
+.dodo-icon-libraries { display:flex; align-items:center; gap:4px; min-height:43px; flex:0 0 auto;
+  padding:6px 16px; overflow-x:auto; overflow-y:hidden; scrollbar-width:none; }
+.dodo-icon-libraries::-webkit-scrollbar { display:none; }
+.dodo-icon-libraries button { flex-shrink:0; border:1px solid #dcdce5; padding:6px 10px; border-radius:7px;
+  background:transparent; color:inherit; cursor:pointer; font:12px system-ui,sans-serif; }
+.dodo-icon-libraries button[aria-selected="true"] { border-color:#7768eb; background:#7768eb1a; color:#6959dd; font-weight:600; }
+.dodo-icon-libraries button:focus-visible {outline:2px solid #7568ec;outline-offset:2px;}
+.dodo-icon-avatar-seed {display:flex;align-items:center; gap:10px; padding:12px 17px 6px; }
+.dodo-icon-avatar-seed label {display:flex;gap:8px;align-items:center;flex:1;min-width:0;font-size:12px;}
+.dodo-icon-avatar-seed input {min-width:0;flex:1;border:1px solid #b9b5ed;border-radius:7px;padding:8px 9px;
+  font:13px system-ui,sans-serif;color:inherit;background:transparent;}
+.dodo-icon-avatar-seed button {display:flex;align-items:center;gap:5px;padding:8px 10px;border-radius:7px;
+  border:1px solid #7466ef;color:#6d5fda;background:transparent;white-space:nowrap;cursor:pointer;}
+.dodo-icon-root[data-theme="dark"] .dodo-icon-libraries button{border-color:#50505c;}
+.dodo-icon-root[data-theme="dark"] .dodo-icon-libraries button[aria-selected="true"]{color:#b8aaff;border-color:#7466ef;}
+@media(max-width:600px){.dodo-icon-libraries{padding-inline:10px;}.dodo-icon-libraries button{padding:5px 7px;font-size:11px;}}
+
+
+/* Icon color stays compact; the popup uses the StrokePanel ColorField. */
+.dodo-icon-color-button {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: transparent; color: inherit;
+  border: 0; padding: 3px 0; font: inherit; font-size: 12px;
+  cursor: pointer; white-space: nowrap;
+}
+.dodo-icon-color-preview { width: 31px; height: 29px; border-radius: 6px; border: 1px solid #c9c9d0; }
+.dodo-icon-palette-popover {
+  position: fixed; z-index: 11050; pointer-events: auto;
+  width: 194px; padding: 9px;
+  border-radius: 10px; box-shadow: 0 6px 24px #0003;
+  border: 1px solid var(--dt-border);
+  background: var(--dt-bg); color: var(--dt-fg);
+  --dt-bg: #fff; --dt-fg: #202027;
+  --dt-border: #dedee5; --dt-muted: #888; --dt-accent: #6965db;
+}
+body:has(.dodo-icon-root[data-theme="dark"]) .dodo-icon-palette-popover {
+  --dt-bg: #27272d; --dt-fg: #efeff2;
+  --dt-border: #464650; --dt-muted: #b8b5c6; --dt-accent: #a8a5ff;
+}
+.dodo-icon-palette-popover .dt-color-trigger-button {
+  background: transparent; border: 0; color: inherit;
+  border-radius: 6px; cursor: pointer; padding: 4px;
+  width: 28px; height: 28px; margin-left: auto;
+}
+.dodo-icon-palette-popover .dt-color-trigger-button:hover { background: #6965db18; }
+.dodo-icon-palette-popover .dt-style-label { display: flex; align-items: center; justify-content: space-between; min-height: 27px; }
+.dodo-icon-palette-popover .dt-style-swatches button { cursor: pointer; }
+.dt-custom-color-popover.dodo-icon-color-popover {
+  z-index: 11100;
+  --dt-bg: #fff; --dt-fg: #202027; --dt-border: #dedee5; --dt-muted: #888;
+}
+body:has(.dodo-icon-root[data-theme="dark"]) .dodo-icon-color-popover {
+  --dt-bg: #27272d; --dt-fg: #efeff2;
+  --dt-border: #464650; --dt-muted: #b8b5c6;
+}
+.dodo-icon-color-popover .dt-custom-color-controls button {
+  background: transparent; color: inherit; border: 0;
+  border-radius: 6px; padding: 3px; min-width: 24px;
+  min-height: 24px; cursor: pointer;
+}
+.dodo-icon-color-popover .dt-custom-color-controls button:hover { background: #6965db18; }

@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>渡渡鸟 · 甘特图预览</title>
+  <link rel="stylesheet" href="./frappe-gantt.css"/>
+  <link rel="stylesheet" href="./app.css"/>
+</head>
+<body>
+  <main class="dodo-gantt-preview">
+    <header class="dodo-gantt-header">
+      <div class="dodo-gantt-controls">
+        <button type="button" id="dodo-gantt-zoom" aria-label="时间刻度：周，点击切换"
+          aria-haspopup="menu" title="切换时间刻度">周</button>
+        <button type="button" id="dodo-gantt-prev" aria-label="向前移动时间轴" title="上一段时间">‹</button>
+        <button type="button" id="dodo-gantt-today">今天</button>
+        <button type="button" id="dodo-gantt-next" aria-label="向后移动时间轴" title="下一段时间">›</button>
+        <button type="button" id="dodo-gantt-reset">重置演示</button>
+      </div>
+    </header>
+    <div id="dodo-gantt-chart" aria-label="Frappe 甘特视图">
+      <button type="button" id="dodo-gantt-grid-toggle" class="dodo-gantt-grid-toggle"
+        aria-controls="dodo-frappe-grid" aria-expanded="true" aria-label="隐藏表格" title="隐藏表格"></button>
+      <div class="dodo-frappe-grid" id="dodo-frappe-grid">
+        <div class="dodo-frappe-grid-head">
+          <span>任务名称</span>
+        </div>
+        <div class="dodo-frappe-grid-scroll" id="dodo-frappe-grid-scroll">
+          <div id="dodo-frappe-grid-rows"></div>
+        </div>
+      </div>
+      <div class="dodo-frappe-timeline" id="dodo-frappe-timeline"></div>
+    </div>
+    <div id="dodo-frappe-date-hint" class="dodo-frappe-date-hint" role="tooltip" hidden></div>
+    <div id="dodo-gantt-editor" class="dodo-gantt-editor" hidden>
+      <form id="dodo-gantt-edit-form" class="dodo-gantt-edit-panel">
+        <div class="dodo-gantt-edit-header">
+          <strong>编辑思源任务</strong>
+          <button type="button" id="dodo-gantt-edit-close" aria-label="关闭编辑窗口">×</button>
+        </div>
+        <p id="dodo-gantt-edit-title" class="dodo-gantt-edit-title"></p>
+        <label>开始日期 <input id="dodo-gantt-edit-start" type="date" required /></label>
+        <label>结束日期 <input id="dodo-gantt-edit-end" type="date" required /></label>
+        <label>进度（0–100%） <input id="dodo-gantt-edit-progress" type="number" min="0" max="100" step="any" /></label>
+        <p id="dodo-gantt-edit-help">修改将通过思源原生数据库 API 自动保存。</p>
+        <div class="dodo-gantt-edit-actions">
+          <button type="button" id="dodo-gantt-edit-cancel">取消</button>
+          <button type="submit" id="dodo-gantt-edit-save">保存到思源</button>
+        </div>
+      </form>
+    </div>
+    <span id="dodo-gantt-status" class="dodo-gantt-screen-reader-status" role="status"
+      aria-live="polite">甘特图已就绪。</span>
+  </main>
+  <script src="./frappe-gantt.umd.js"></script>
+  <script type="module" src="./main.js"></script>
+</body>
+</html>

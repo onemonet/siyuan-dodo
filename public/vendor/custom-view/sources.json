@@ -1,0 +1,14 @@
+[
+  {
+    "name": "basecoat-css",
+    "version": "1.1.0",
+    "tarball": "https://registry.npmjs.org/basecoat-css/-/basecoat-css-1.1.0.tgz",
+    "integrity": "sha512-qQ25lbkdXiBQd8uBd4juOX1y2ut+Ww4Aaa7EwO9Is/jd143Ze/eRULQdJmiwAwzKKqkxtvg9YTJg79xXz2nLeg=="
+  },
+  {
+    "name": "@awesome.me/webawesome",
+    "version": "3.14.0",
+    "tarball": "https://registry.npmjs.org/@awesome.me/webawesome/-/webawesome-3.14.0.tgz",
+    "integrity": "sha512-m5rTGLK/iOvaVFOkYxRjiBOp8lwrBap5tv+zz1gsqLgAxlfwdvElB7BVGjs+Lf9gDps7bWRPTkG0FwZk40mk2A=="
+  }
+]

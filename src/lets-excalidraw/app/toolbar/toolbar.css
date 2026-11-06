@@ -1,0 +1,347 @@
+.dt-layer {
+  --dt-bg: #fff; --dt-fg: #1b1b1f; --dt-border: #dedee5; --dt-hover: #f1f0ff; --dt-menu-hover: #f1f1f4; --dt-accent: #6965db; --dt-muted: #6b6b79;
+  position: fixed; inset: 0; z-index: 10020; pointer-events: none;
+  color: var(--dt-fg); font: 13px/1.5 var(--ui-font, system-ui, sans-serif);
+}
+.dt-layer[data-theme="dark"] { --dt-bg: #232329; --dt-fg: #f1f0f7; --dt-border: #45434f; --dt-hover: #343145; --dt-menu-hover: #35353d; --dt-accent: #a8a5ff; --dt-muted: #b8b5c6; }
+.dt-layer * { box-sizing: border-box; }
+.dt-toolbar, .dt-popover, .dt-settings { pointer-events: auto; background: var(--dt-bg); color: var(--dt-fg); border: 1px solid var(--dt-border); border-radius: 10px; box-shadow: 0 5px 20px #0002; }
+.dt-toolbar { position: fixed; display: flex; align-items: center; gap: 2px; padding: 4px; max-width: calc(100vw - 16px); }
+.dt-layer button { display: inline-flex; justify-content: center; align-items: center; gap: 6px; border: 0; border-radius: 6px; background: transparent; color: inherit; font: inherit; min-width: 28px; min-height: 28px; padding: 4px 7px; cursor: pointer; white-space: nowrap; }
+.dt-layer button:hover, .dt-layer button[aria-expanded="true"] { background: var(--dt-hover); }
+.dt-toolbar button[data-tooltip], .dt-popover[data-layout="grid"] button[data-tooltip] { position: relative; }
+.dt-toolbar button[data-tooltip]::before, .dt-popover[data-layout="grid"] button[data-tooltip]::before { content: ""; position: absolute; z-index: 1; left: 50%; bottom: calc(100% + 2px); width: 10px; height: 6px; transform: translateX(-50%); background: var(--dt-fg); clip-path: polygon(0 0, 100% 0, 50% 100%); opacity: 0; visibility: hidden; pointer-events: none; transition: opacity .12s ease, visibility .12s; }
+.dt-toolbar button[data-tooltip]::after, .dt-popover[data-layout="grid"] button[data-tooltip]::after { content: attr(data-tooltip); position: absolute; z-index: 2; left: 50%; bottom: calc(100% + 8px); transform: translate(-50%, 3px); padding: 4px 8px; border-radius: 5px; background: var(--dt-fg); color: var(--dt-bg); font-size: 12px; line-height: 1.4; white-space: nowrap; box-shadow: 0 2px 8px #0002; opacity: 0; visibility: hidden; pointer-events: none; transition: opacity .12s ease, transform .12s ease, visibility .12s; }
+.dt-toolbar button[data-tooltip]:hover::before, .dt-toolbar button[data-tooltip]:focus-visible::before, .dt-popover[data-layout="grid"] button[data-tooltip]:hover::before, .dt-popover[data-layout="grid"] button[data-tooltip]:focus-visible::before { opacity: 1; visibility: visible; }
+.dt-toolbar button[data-tooltip]:hover::after, .dt-toolbar button[data-tooltip]:focus-visible::after, .dt-popover[data-layout="grid"] button[data-tooltip]:hover::after, .dt-popover[data-layout="grid"] button[data-tooltip]:focus-visible::after { opacity: 1; visibility: visible; transform: translate(-50%, 0); }
+.dt-layer button:focus-visible, .dt-layer input:focus-visible, .dt-layer select:focus-visible { outline: 2px solid var(--dt-accent); outline-offset: 2px; }
+.dt-layer button:disabled { opacity: .5; cursor: default; }
+.dt-handle-group { display: inline-flex; align-items: center; gap: 0; align-self: stretch; margin: -4px 3px -4px -4px; padding: 4px 2px; border-radius: 9px 0 0 9px; background: var(--dt-menu-hover); }
+.dt-layer .dt-grip { cursor: grab; touch-action: none; color: var(--dt-muted); padding: 4px 5px; }
+.dt-layer .dt-unpin { color: var(--dt-accent); padding: 4px 5px; }
+.dt-layer .dt-handle-group button:hover { background: var(--dt-hover); }
+.dt-layer { --dt-color-icon-outline: #b8b8c2; }
+.dt-layer[data-theme="dark"] { --dt-color-icon-outline: #777786; }
+.dt-layer .dt-grip:active { cursor: grabbing; }
+.dt-divider { width: 1px; height: 18px; margin: 0 3px; background: var(--dt-border); }
+.dt-tool-icon { display: inline-flex; width: 17px; height: 17px; flex: 0 0 auto; align-items: center; justify-content: center; vertical-align: middle; }
+.dt-tool-icon svg, .dt-popover button > svg { width: 17px; height: 17px; }
+.dt-toolbar .dt-chevron { display: block; width: 12px; height: 12px; flex: 0 0 12px; }
+.dt-popover { position: fixed; display: flex; flex-direction: column; align-items: stretch; gap: 3px; padding: 6px; min-width: 160px; max-width: calc(100vw - 16px); max-height: calc(100vh - 16px); overflow: auto; }
+.dt-popover button { justify-content: flex-start; }
+.dt-popover[data-layout="grid"] { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); min-width: 220px; overflow: visible; }
+.dt-popover[data-columns="4"] { grid-template-columns: repeat(4, minmax(0, 1fr)); min-width: 244px; gap: 4px; }
+.dt-popover[data-layout="grid"] button { justify-content: flex-start; }
+.dt-popover[data-columns="4"] button[data-divider-before] { border-left: 1px solid var(--dt-border); border-radius: 0 6px 6px 0; padding-left: 9px; }
+.dt-menu-separator { grid-column: 1 / -1; height: 1px; background: var(--dt-border); margin: 1px 0; }
+.dt-popover hr { border: 0; border-top: 1px solid var(--dt-border); margin: 4px 0; }
+.dt-settings { padding: 0; width: min(620px, calc(100vw - 24px)); max-height: calc(100vh - 24px); margin: auto; }
+.dt-settings::backdrop { background: #0005; }
+.dt-settings header, .dt-settings footer { display: flex; align-items: center; gap: 8px; padding: 14px 18px; }
+.dt-settings header { justify-content: space-between; border-bottom: 1px solid var(--dt-border); }
+.dt-settings h2 { font-size: 16px; font-weight: 600; margin: 0; }
+.dt-settings h3 { font-size: 13px; font-weight: 600; margin: 16px 0 8px; }
+.dt-settings small, .dt-muted { font-size: 12px; color: var(--dt-muted); font-weight: 400; }
+.dt-settings small { margin-left: 6px; }
+.dt-settings-body { max-height: calc(100vh - 185px); padding: 4px 18px 18px; overflow: auto; }
+.dt-setting-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 42px; border-bottom: 1px solid var(--dt-border); }
+.dt-setting-row > span { display: inline-flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.dt-setting-row small { display: block; width: 100%; margin: 0; }
+.dt-setting-row input { accent-color: var(--dt-accent); width: 16px; height: 16px; flex: 0 0 auto; }
+.dt-layer select { border: 1px solid var(--dt-border); background: var(--dt-bg); color: var(--dt-fg); font: inherit; border-radius: 6px; padding: 4px 8px; }
+.dt-pinned-preview { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; padding: 10px; min-height: 64px; border: 1px dashed var(--dt-border); border-radius: 8px; }
+.dt-pinned-item { display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--dt-border); border-radius: 7px; padding: 3px 6px; cursor: grab; }
+.dt-pinned-item button { padding: 2px; min-width: 22px; min-height: 24px; }
+.dt-settings footer { border-top: 1px solid var(--dt-border); }
+.dt-settings footer [role="alert"] { flex: 1; color: #df5454; font-size: 12px; }
+.dt-settings footer button { border: 1px solid var(--dt-border); padding-inline: 12px; }
+.dt-settings .dt-primary { background: var(--dt-accent); color: var(--dt-bg); }
+@media (prefers-reduced-motion: reduce) { .dt-layer * { scroll-behavior: auto; } }
+
+/* Compact alignment palette: two rows, 3 or 4 icon-only buttons. */
+.dt-popover[data-tool-id="align"][data-layout="grid"] {
+  grid-template-columns: repeat(3, 28px);
+  width: max-content;
+  min-width: 0;
+  gap: 2px;
+  padding: 4px;
+}
+.dt-popover[data-tool-id="align"][data-layout="grid"][data-columns="4"] {
+  grid-template-columns: repeat(4, 28px);
+  min-width: 0;
+}
+.dt-popover[data-tool-id="align"][data-layout="grid"] button {
+  width: 28px;
+  height: 28px;
+  min-width: 28px;
+  min-height: 28px;
+  padding: 4px;
+  justify-content: center;
+  border-radius: 6px;
+  background: transparent;
+}
+.dt-popover[data-tool-id="align"][data-layout="grid"] button:hover,
+.dt-popover[data-tool-id="align"][data-layout="grid"] button:focus-visible {
+  background: var(--dt-menu-hover);
+}
+.dt-popover[data-tool-id="align"][data-layout="grid"] button > svg { width: 17px; height: 17px; flex: 0 0 17px; }
+
+/* Migrated parameter tool panels. */
+.dt-parameter-panel { display: flex; flex-direction: column; gap: 8px; min-width: 170px; padding: 6px; }
+.dt-parameter-panel label { color: var(--dt-muted); }
+.dt-parameter-panel input { min-height: 30px; border: 1px solid var(--dt-border); border-radius: 6px; background: var(--dt-bg); color: var(--dt-fg); font: inherit; padding: 4px 8px; }
+/* Override the generic .dt-layer button:hover rule: it made the Generate
+   button light lavender while keeping white text (illegible in light mode).
+   Scope these high-contrast states to parameter panel primary actions. */
+.dt-layer .dt-parameter-panel .dt-panel-apply {
+  justify-content: center; background: #625dd7; color: #fff;
+}
+.dt-layer .dt-parameter-panel .dt-panel-apply:hover,
+.dt-layer .dt-parameter-panel .dt-panel-apply:focus-visible {
+  background: #4843b3; color: #fff;
+}
+.dt-layer[data-theme="dark"] .dt-parameter-panel .dt-panel-apply {
+  background: #a8a5ff; color: #191725;
+}
+.dt-layer[data-theme="dark"] .dt-parameter-panel .dt-panel-apply:hover,
+.dt-layer[data-theme="dark"] .dt-parameter-panel .dt-panel-apply:focus-visible {
+  background: #c0bdff; color: #191725;
+}
+.dt-filter-list { min-width: 190px; display: flex; flex-direction: column; gap: 2px; }
+.dt-filter-list button { justify-content: flex-start; text-align: left; gap: 10px; }
+.dt-filter-list button > svg { width: 17px; height: 17px; flex: 0 0 17px; }
+.dt-filter-count { margin-left: auto; color: var(--dt-muted); }
+
+/* Unified compact parameter panels for migrated background, stroke and text tools. */
+.dt-style-panel { display: flex; flex-direction: column; gap: 14px; width: 245px; padding: 8px; }
+.dt-style-field { display: flex; flex-direction: column; gap: 7px; }
+.dt-style-label { display: flex; justify-content: space-between; align-items: center; gap: 8px; font-size: 13px; }
+.dt-style-segments { display: grid; gap: 4px; border-radius: 7px; padding: 4px; background: var(--dt-menu-hover); }
+.dt-style-segments button { width: 100%; min-height: 30px; padding: 4px 3px; font-size: 12px; border-radius: 5px; }
+.dt-style-segments button svg { width: 18px; height: 18px; }
+.dt-style-segments button[aria-pressed="true"] { background: var(--dt-bg); box-shadow: 0 1px 4px #0002; }
+/* shadcn/ui Slider-inspired track/thumb styling. The project does not install
+   @radix-ui/react-slider; native range keeps keyboard and pointer behaviour
+   without an extra dependency or an unsupported Excalidraw internal import. */
+.dt-layer { --dt-slider-fill: var(--dt-accent); --dt-slider-track: #e4e4e7; --dt-slider-thumb: #fff; }
+.dt-layer[data-theme="dark"] { --dt-slider-track: #52525b; --dt-slider-thumb: #232329; }
+.dt-range-wrapper { position: relative; padding-top: 10px; padding-bottom: 30px; min-width: 160px; }
+.dt-layer input.dt-range-input { display: block; width: 100%; height: 6px; padding: 0; margin: 0; border: 0; border-radius: 9999px; outline: 0; -webkit-appearance: none; appearance: none; cursor: pointer; }
+.dt-layer input.dt-range-input::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; height: 16px; width: 16px; border-radius: 50%; border: 2px solid var(--dt-slider-fill); background: var(--dt-slider-thumb); box-shadow: 0 1px 2px #0002; cursor: pointer; }
+.dt-layer input.dt-range-input::-moz-range-thumb { height: 16px; width: 16px; border-radius: 50%; border: 2px solid var(--dt-slider-fill); background: var(--dt-slider-thumb); box-shadow: 0 1px 2px #0002; cursor: pointer; }
+.dt-layer input.dt-range-input:focus-visible { outline: 2px solid var(--dt-accent); outline-offset: 5px; }
+.dt-range-zero, .dt-range-value { position: absolute; bottom: 0; color: var(--dt-fg); font-size: 12px; line-height: 1.4; pointer-events: none; }
+.dt-range-zero { left: 4px; }
+.dt-range-value { transform: translateX(-50%); }
+.dt-style-toggle { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.dt-style-toggle input { width: 16px; height: 16px; accent-color: var(--dt-accent); }
+.dt-style-color-picker { display: flex; justify-content: flex-end; font-size: 12px; color: var(--dt-muted); }
+.dt-style-color-picker label { display: flex; gap: 8px; align-items: center; cursor: pointer; }
+.dt-style-color-picker input[type="color"] { width: 28px; height: 24px; padding: 0; border: 1px solid var(--dt-border); background: none; cursor: pointer; }
+.dt-style-swatches { display: grid; grid-template-columns: repeat(5,24px); gap: 8px; }
+.dt-style-swatches button { width: 24px; height: 24px; min-width: 24px; min-height: 24px; padding: 0; border: 1px solid var(--dt-border); font-size: 11px; }
+.dt-style-swatches button[aria-pressed="true"] { outline: 2px solid var(--dt-accent); outline-offset: 2px; }
+.dt-style-swatches .dt-transparent-swatch { background: repeating-conic-gradient(#dadada 0% 25%, white 0% 50%) 50%/10px 10px; position: relative; }
+.dt-style-swatches .dt-transparent-swatch::before { content: ""; position: absolute; left: 2px; right: 2px; top: 50%; height: 1px; background: #d44; transform: rotate(-45deg); }
+.dt-style-swatches.dt-style-shades { margin-top: 3px; }
+
+.dt-arrow-heads { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 4px; padding: 4px; border-radius: 7px; background: var(--dt-menu-hover); }
+.dt-arrow-heads button { width: 100%; min-height: 32px; padding: 4px 2px; border-radius: 5px; }
+.dt-arrow-heads button svg { width: 32px; height: 18px; }
+.dt-arrow-heads button[aria-pressed="true"] { background: var(--dt-bg); box-shadow: 0 1px 4px #0002; }
+
+.dt-style-shade-area { display: flex; flex-direction: column; gap: 12px; margin-top: 6px; }
+.dt-style-shade-title { font-size: 13px; font-weight: 500; }
+.dt-style-shade-empty { text-align: center; color: var(--dt-muted); font-size: 12px; padding: 8px 0 6px; }
+
+/* react-colorful: compact custom-color overlay anchored alongside the field. */
+.dt-layer .dt-color-trigger-button { margin-left: auto; min-width: 28px; min-height: 28px; width: 28px; height: 28px; padding: 4px; justify-content: center; }
+.dt-color-trigger-button svg { width: 17px; height: 17px; }
+.dt-custom-color-popover { position: fixed; z-index: 110; pointer-events: auto; width: 230px; padding: 12px; background: var(--dt-bg); color: var(--dt-fg); border: 1px solid var(--dt-border); border-radius: 10px; box-shadow: 0 6px 24px #0003; }
+.dt-custom-color-popover .react-colorful { width: 100%; height: 190px; }
+.dt-custom-color-popover .react-colorful__saturation { border-bottom: 0; border-radius: 7px 7px 0 0; }
+.dt-custom-color-popover .react-colorful__hue { height: 14px; border-radius: 0 0 7px 7px; }
+.dt-custom-color-popover .react-colorful__pointer { height: 18px; width: 18px; }
+.dt-custom-color-controls { display: flex; gap: 7px; align-items: center; margin-top: 10px; }
+.dt-custom-color-preview { width: 23px; height: 23px; border: 1px solid var(--dt-border); border-radius: 5px; flex: 0 0 23px; }
+.dt-custom-color-hex { min-width: 0; flex: 1; display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--dt-muted); }
+.dt-custom-color-hex input { width: 100%; min-width: 0; border: 1px solid var(--dt-border); border-radius: 6px; background: var(--dt-bg); color: var(--dt-fg); padding: 5px 4px; font: inherit; font-size: 12px; text-transform: uppercase; }
+.dt-layer .dt-custom-color-controls button { padding: 3px; min-width: 24px; min-height: 24px; width: 24px; height: 24px; flex: 0 0 24px; }
+.dt-custom-color-controls button svg { height: 17px; width: 17px; }
+
+/* Compact two-column attribute controls for fill and stroke. Labels live in tooltips,
+   while visual icons and editable values remain exposed at small floating sizes. */
+.dt-style-panel.dt-style-compact-panel { width: 176px; max-width: calc(100vw - 32px); gap: 12px; padding: 4px; }
+.dt-style-compact-panel .dt-style-field { gap: 6px; }
+.dt-style-compact-panel .dt-style-label { min-height: 27px; }
+/* Five columns fill the 168px inner width without the previous unused right space. */
+.dt-style-compact-panel .dt-style-swatches { grid-template-columns: repeat(5, 30px); justify-content: center; gap: 4px; }
+.dt-style-compact-panel .dt-style-swatches button { position: relative; width: 30px; height: 30px; min-width: 30px; min-height: 30px; border-radius: 8px; }
+.dt-style-compact-panel .dt-style-swatches button[aria-pressed="true"] { outline-offset: 1px; }
+/* Shade indices stay inside the swatch; first three on light tones, last two on dark ones. */
+.dt-style-shades .dt-shade-number { position: absolute; right: 3px; bottom: 2px; font-size: 11px; line-height: 1; font-weight: 500; pointer-events: none; }
+.dt-style-shades button[data-tone-contrast="dark"] .dt-shade-number { color: #111; }
+.dt-style-shades button[data-tone-contrast="light"] .dt-shade-number { color: #fff; }
+.dt-style-compact-panel .dt-style-shade-area { gap: 7px; margin-top: 2px; }
+.dt-style-compact-panel .dt-style-shade-empty { line-height: 1.5; padding: 6px 0; }
+.dt-compact-properties { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px 6px; width: 100%; align-items: start; }
+.dt-compact-field { display: flex; flex-direction: column; min-width: 0; gap: 4px; }
+.dt-compact-field-label { font-size: 11px; line-height: 1.3; color: var(--dt-fg); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.dt-compact-property { display: flex; min-width: 0; height: 30px; align-items: center; border: 1px solid var(--dt-border); border-radius: 6px; background: var(--dt-bg); }
+.dt-compact-property:focus-within { border-color: var(--dt-accent); }
+.dt-compact-symbol { display: flex; flex: 0 0 17px; width: 17px; height: 17px; align-items: center; justify-content: center; margin-left: 5px; pointer-events: none; }
+.dt-compact-symbol svg { width: 17px; height: 17px; }
+/* Compact trigger for the existing toolbar secondary menu, not a native select. */
+.dt-layer .dt-compact-select .dt-select-trigger { display: flex; width: 100%; height: 28px; min-width: 0; min-height: 28px; padding: 0; gap: 3px; justify-content: flex-start; border-radius: 5px; outline: none; }
+.dt-select-trigger .dt-compact-selected-label { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-align: left; font-size: 11px; }
+/* Use the same secondary-menu container and button spacing as 切换形状. */
+.dt-popover.dt-property-menu { z-index: 115; width: max-content; min-width: 160px; }
+.dt-popover.dt-property-menu button[data-selected="true"] { background: var(--dt-menu-hover); }
+.dt-compact-chevron { width: 11px; height: 11px; flex: 0 0 11px; margin-right: 3px; pointer-events: none; }
+.dt-layer .dt-compact-number .dt-compact-scrub { width: 23px; height: 28px; min-height: 28px; min-width: 23px; flex: 0 0 23px; padding: 3px; cursor: ew-resize; touch-action: none; border-radius: 5px 0 0 5px; }
+.dt-compact-scrub svg { width: 17px; height: 17px; }
+.dt-layer .dt-compact-number input { flex: 1 1 auto; width: 100%; min-width: 0; height: 27px; background: transparent; border: 0; color: var(--dt-fg); font: inherit; font-size: 12px; text-align: right; padding: 1px 2px 1px 0; outline: none; }
+.dt-compact-unit { flex: 0 0 auto; color: var(--dt-muted); margin-right: 4px; font-size: 10px; pointer-events: none; }
+.dt-compact-panel-head { display: flex; justify-content: flex-end; height: 26px; align-items: center; }
+.dt-layer .dt-stroke-visibility { width: 26px; height: 26px; min-width: 26px; min-height: 26px; padding: 4px; border: 1px solid var(--dt-border); }
+.dt-layer .dt-stroke-visibility[aria-pressed="true"] { color: var(--dt-accent); }
+.dt-layer .dt-stroke-visibility[aria-pressed="false"] { color: var(--dt-muted); }
+
+/* PTCanvas-inspired toolbar customizer, reused by embedded and standalone modes. */
+.dt-settings.dt-customizer { width: min(1180px, calc(100vw - 40px)); max-width: none; height: min(770px, calc(100dvh - 32px)); max-height: calc(100dvh - 32px); border-radius: 14px; overflow: hidden; padding: 0; }
+.dt-customizer[open] { display: flex; flex-direction: column; }
+.dt-customizer:not([open]) { display: none; }
+.dt-customizer::backdrop { background: #15182160; backdrop-filter: blur(3px); }
+.dt-settings .dt-customizer-header { flex: 0 0 auto; padding: 28px 34px 25px; min-height: 104px; border-bottom: 1px solid var(--dt-border); }
+.dt-customizer-header h2 { font-size: 21px; font-weight: 600; line-height: 1.4; letter-spacing: -.02em; }
+.dt-layer .dt-customizer-close { width: 32px; height: 32px; min-width: 32px; min-height: 32px; padding: 4px; }
+.dt-settings .dt-customizer-body { flex: 1 1 auto; min-height: 0; max-height: none; overflow-y: auto; overscroll-behavior: contain; padding: 24px 34px 30px; }
+.dt-customizer-section + .dt-customizer-section { margin-top: 26px; }
+.dt-customizer-section-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
+.dt-customizer .dt-customizer-section-head h3 { margin: 0; font-size: 16px; font-weight: 500; }
+.dt-customizer-count { color: var(--dt-muted); font-size: 13px; font-variant-numeric: tabular-nums; }
+.dt-customizer .dt-pinned-preview { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); align-content: start; align-items: start; min-height: 108px; padding: 18px; gap: 10px; border: 1px solid var(--dt-border); border-radius: 12px; background: var(--dt-menu-hover); }
+.dt-customizer .dt-pinned-item { display: flex; width: 100%; min-width: 0; box-sizing: border-box; height: 43px; gap: 8px; padding: 4px 9px 4px 6px; border: 1px solid var(--dt-border); border-radius: 9px; background: var(--dt-bg); box-shadow: 0 2px 5px #00000012; user-select: none; white-space: nowrap; cursor: grab; }
+.dt-customizer .dt-pinned-item:active { cursor: grabbing; }
+/* dnd-kit: the original chip leaves a placeholder while the lifted clone follows
+   the pointer. Other cards animate their transforms into the nearest slot. */
+.dt-customizer .dt-pinned-item { will-change: transform; }
+.dt-customizer .dt-pinned-item[data-dragging="true"] { opacity: .27; border-style: dashed; border-color: var(--dt-accent); box-shadow: none; }
+.dt-customizer .dt-pinned-drag-overlay { opacity: 1; width: 100%; border-color: var(--dt-accent); box-shadow: 0 12px 30px #0003, 0 2px 7px #0002; cursor: grabbing; pointer-events: none; will-change: transform; }
+.dt-customizer .dt-pinned-drag-overlay .dt-sort-handle, .dt-customizer .dt-pinned-drag-overlay .dt-pinned-remove { display: inline-flex; align-items: center; justify-content: center; width: 22px; min-width: 22px; }
+.dt-customizer .dt-pinned-drag-overlay .dt-pinned-remove { margin-left: 2px; color: var(--dt-muted); }
+.dt-customizer .dt-sort-handle { touch-action: none; }
+@media (prefers-reduced-motion: reduce) { .dt-customizer .dt-pinned-item { transition: none !important; } .dt-customizer .dt-pinned-drag-overlay { transform: none; } }
+.dt-customizer .dt-pinned-item .dt-tool-icon, .dt-customizer .dt-tool-choice .dt-tool-icon { display: inline-flex; align-items: center; justify-content: center; width: 18px; height: 18px; min-width: 18px; flex: 0 0 18px; }
+.dt-customizer .dt-pinned-item .dt-tool-icon svg, .dt-customizer .dt-tool-choice .dt-tool-icon svg { display: block; width: 18px; height: 18px; }
+.dt-pinned-label { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; font-size: 13px; }
+.dt-layer .dt-pinned-item button.dt-sort-handle { width: 22px; min-width: 22px; min-height: 30px; padding: 3px; color: var(--dt-muted); cursor: grab; }
+.dt-layer .dt-pinned-item button.dt-sort-handle:active { cursor: grabbing; }
+.dt-layer .dt-pinned-item button.dt-pinned-remove { width: 24px; min-width: 24px; min-height: 30px; padding: 4px; margin-left: 2px; color: var(--dt-muted); }
+.dt-customizer .dt-pinned-empty { align-self: center; padding: 12px; }
+.dt-customizer .dt-tool-list { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.dt-customizer .dt-tool-choice { position: relative; min-width: 0; height: 49px; border: 1px solid var(--dt-border); border-radius: 9px; padding: 0 14px; display: flex; align-items: center; justify-content: space-between; gap: 12px; color: var(--dt-fg); cursor: pointer; transition: background .12s ease, border-color .12s ease; }
+.dt-customizer .dt-tool-choice:hover { background: var(--dt-menu-hover); }
+.dt-customizer .dt-tool-choice:focus-within { outline: 2px solid var(--dt-accent); outline-offset: 2px; }
+.dt-customizer .dt-tool-choice-label { display: inline-flex; align-items: center; gap: 11px; font-size: 13px; min-width: 0; }
+.dt-customizer .dt-tool-choice-label > span:last-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.dt-customizer .dt-tool-choice .dt-pin-icon { flex: 0 0 17px; color: var(--dt-muted); }
+.dt-customizer .dt-tool-choice[data-pinned="true"] .dt-pin-icon { color: var(--dt-fg); }
+.dt-customizer .dt-tool-choice[data-limit="true"] .dt-pin-icon { opacity: .45; }
+.dt-customizer .dt-tool-choice input { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; margin: 0; cursor: pointer; }
+.dt-customizer-notice { color: #b55442; font-size: 12px; margin: 9px 0 0; }
+.dt-customizer-more { margin-top: 24px; border-top: 1px solid var(--dt-border); }
+.dt-customizer-more summary { padding: 13px 0; color: var(--dt-muted); font-size: 13px; cursor: pointer; }
+.dt-customizer-more-body { padding: 4px 0 14px; max-width: 460px; }
+.dt-customizer-more-body .dt-setting-row { min-height: 43px; }
+.dt-settings .dt-customizer-footer { flex: 0 0 auto; display: flex; justify-content: space-between; align-items: center; gap: 18px; border-top: 1px solid var(--dt-border); padding: 14px 34px; min-height: 76px; }
+.dt-customizer-footer-left, .dt-customizer-footer-right { display: inline-flex; align-items: center; gap: 20px; }
+.dt-customizer-footer-right { margin-left: auto; gap: 9px; }
+.dt-customizer-footer-right [role="alert"] { max-width: 200px; color: #c44; font-size: 12px; }
+.dt-customizer-switch { display: inline-flex; position: relative; align-items: center; gap: 9px; white-space: nowrap; font-size: 13px; cursor: pointer; }
+.dt-customizer-switch input { position: absolute; width: 40px; height: 23px; opacity: 0; cursor: pointer; margin: 0; }
+.dt-switch-track { display: inline-flex; flex: 0 0 40px; width: 40px; height: 23px; padding: 2px; border-radius: 999px; background: #a1a1aa; transition: background .16s ease; pointer-events: none; }
+.dt-switch-track::after { content: ""; width: 19px; height: 19px; background: white; border-radius: 50%; box-shadow: 0 1px 2px #0003; transition: transform .16s ease; }
+.dt-customizer-switch input:checked + .dt-switch-track { background: var(--dt-fg); }
+.dt-customizer-switch input:checked + .dt-switch-track::after { transform: translateX(17px); }
+.dt-customizer-switch input:focus-visible + .dt-switch-track { outline: 2px solid var(--dt-accent); outline-offset: 3px; }
+.dt-layer .dt-reset-button { gap: 6px; padding: 6px 3px; font-size: 13px; }
+.dt-customizer-footer-right .dt-cancel, .dt-customizer-footer-right .dt-primary { min-height: 36px; padding: 6px 16px; border-radius: 8px; }
+.dt-customizer-footer-right .dt-primary { background: var(--dt-fg); color: var(--dt-bg); border-color: var(--dt-fg); }
+.dt-customizer-footer-right .dt-primary:hover { opacity: .88; background: var(--dt-fg); }
+@media (max-width: 760px) {
+  .dt-settings.dt-customizer { width: calc(100vw - 20px); max-height: calc(100dvh - 20px); height: min(740px, calc(100dvh - 20px)); }
+  .dt-settings .dt-customizer-header { padding: 19px 18px; min-height: 75px; }
+  .dt-customizer-header h2 { font-size: 18px; }
+  .dt-settings .dt-customizer-body { padding: 18px; }
+  .dt-customizer .dt-tool-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .dt-customizer .dt-pinned-preview { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); padding: 12px; gap: 7px; }
+  .dt-settings .dt-customizer-footer { padding: 13px 18px; }
+  .dt-customizer-footer-left { gap: 10px; }
+}
+@media (max-width: 460px) {
+  .dt-customizer .dt-tool-list { grid-template-columns: minmax(0,1fr); gap: 7px; }
+  .dt-settings .dt-customizer-footer { flex-wrap: wrap; gap: 12px; }
+  .dt-customizer-footer-right { flex: 1 0 100%; justify-content: flex-end; }
+  .dt-customizer .dt-pinned-preview { grid-template-columns: minmax(0, 1fr); }
+  .dt-customizer .dt-pinned-item { height: 38px; }
+}
+
+/* Two top-level settings tabs: toolbar configuration and independent interaction options. */
+.dt-settings .dt-customizer-header { padding: 0 30px; min-height: 72px; align-items: stretch; gap: 14px; }
+.dt-customizer-tabs { display: flex; align-items: stretch; gap: 6px; min-width: 0; }
+.dt-layer .dt-customizer-tabs button[role="tab"] { position: relative; min-width: 0; min-height: 72px; padding: 0 18px; border: 0; border-radius: 0; background: transparent; font-size: 16px; font-weight: 500; color: var(--dt-muted); white-space: nowrap; cursor: pointer; }
+.dt-layer .dt-customizer-tabs button[role="tab"][aria-selected="true"] { color: var(--dt-fg); font-weight: 600; }
+.dt-customizer-tabs button[role="tab"][aria-selected="true"]::after { position: absolute; bottom: -1px; left: 18px; right: 18px; height: 3px; border-radius: 3px 3px 0 0; background: var(--dt-accent); content: ""; }
+.dt-layer .dt-customizer-tabs button[role="tab"]:hover { color: var(--dt-fg); }
+.dt-layer .dt-customizer-tabs button[role="tab"]:focus-visible { outline: 2px solid var(--dt-accent); outline-offset: -5px; border-radius: 6px; }
+.dt-settings .dt-customizer-close { align-self: center; margin-left: auto; }
+.dt-customizer-toolbar-page, .dt-customizer-other-page { min-height: 100%; }
+.dt-customizer-other-page { display: flex; flex-direction: column; gap: 28px; }
+.dt-customizer .dt-general-section > h3 { font-size: 16px; margin: 0 0 12px; font-weight: 600; }
+.dt-general-hint { margin: -3px 0 14px; font-size: 12px; color: var(--dt-muted); line-height: 1.55; }
+.dt-general-settings, .dt-general-features { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.dt-customizer .dt-general-option { display: flex; align-items: center; justify-content: space-between; min-height: 72px; gap: 18px; padding: 15px 17px; border: 1px solid var(--dt-border); border-radius: 10px; background: var(--dt-bg); }
+.dt-general-description { display: flex; flex: 1 1 auto; flex-direction: column; gap: 5px; min-width: 0; }
+.dt-general-description strong { font-size: 13px; font-weight: 550; }
+.dt-general-description small { margin: 0; font-size: 11px; line-height: 1.5; color: var(--dt-muted); }
+.dt-general-option input[type="checkbox"] { width: 18px; height: 18px; flex: 0 0 18px; margin: 0; accent-color: var(--dt-accent); cursor: pointer; }
+.dt-general-mode { display: inline-flex; flex: 0 0 auto; padding: 3px; gap: 3px; border: 1px solid var(--dt-border); border-radius: 8px; background: var(--dt-menu-hover); }
+.dt-layer .dt-general-mode button { padding: 7px 10px; min-height: 31px; border: 0; border-radius: 6px; background: transparent; color: var(--dt-muted); font-size: 12px; white-space: nowrap; }
+.dt-layer .dt-general-mode button[aria-pressed="true"] { color: var(--dt-fg); background: var(--dt-bg); box-shadow: 0 1px 4px #00000017; }
+.dt-layer .dt-general-mode button:focus-visible { outline: 2px solid var(--dt-accent); }
+.dt-customizer .dt-general-feature { min-height: 78px; }
+@media (max-width: 850px) {
+  .dt-general-settings, .dt-general-features { grid-template-columns: minmax(0, 1fr); }
+  .dt-settings .dt-customizer-header { padding-inline: 18px; min-height: 62px; }
+  .dt-layer .dt-customizer-tabs button[role="tab"] { min-height: 62px; padding: 0 12px; font-size: 14px; }
+  .dt-customizer-tabs button[role="tab"][aria-selected="true"]::after { left: 12px; right: 12px; }
+}
+@media (max-width: 460px) {
+  .dt-settings .dt-customizer-header { padding: 0 11px; }
+  .dt-layer .dt-customizer-tabs button[role="tab"] { font-size: 13px; padding-inline: 10px; }
+  .dt-customizer .dt-general-option { padding: 12px; gap: 10px; }
+  .dt-layer .dt-general-mode button { padding-inline: 7px; }
+}
+
+/* Shared SiYuan drawing initialization: keep button legible on narrow panes. */
+.dt-customizer .dt-save-initial-style {
+  flex: 0 0 auto;
+  min-height: 34px;
+  padding: 7px 10px;
+  border: 1px solid var(--dt-accent);
+  border-radius: 7px;
+  color: var(--dt-accent);
+  background: var(--dt-bg);
+  font-size: 12px;
+}
+.dt-customizer .dt-save-initial-style:hover:not(:disabled) { background: var(--dt-hover); }
+.dt-customizer .dt-save-initial-style:disabled { opacity: .55; cursor: not-allowed; }
+.dt-initial-style-status { margin: 8px 0 0; color: var(--dt-muted); font-size: 12px; }
+@media (max-width: 610px) {
+  .dt-customizer #dt-general-initial-style-title + .dt-general-hint + .dt-general-option {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+}

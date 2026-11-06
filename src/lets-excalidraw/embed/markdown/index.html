@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Markdown Editor in Excalidraw</title>
+  <style>
+    body, #root, .vditor {
+      margin: 0;
+      padding: 0;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      --panel-background-color: transparent;
+    }
+    .vditor {
+      border: none !important;
+    }
+    .vditor-toolbar {
+      border: none !important;
+      background: transparent !important;
+    }
+    .vditor-preview {
+      border: none !important;
+    }
+    pre.vditor-reset {
+      overflow: hidden;
+    }
+    /* 加!important渲染为SVG时无法起作用，暂时先解决白板内的显示问题 */
+    .language-abc,
+    .hljs {
+      overflow: hidden !important;
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="module" src="./index.ts"></script>
+</body>
+</html>
