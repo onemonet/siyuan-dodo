@@ -1,9 +1,5 @@
-import {
-  FLOMO_MEMO_ATTR,
-  FLOMO_MEMO_SLUG_ATTR,
-} from "../../config/constants";
+import { FLOMO_MEMO_ATTR } from "../../config/constants";
 import { createLogger } from "../../logger";
-import { sqlString } from "../../security-utils";
 import type { ProcessedMemo } from "../types";
 import { formatSiyuanTimestamp } from "../utils/time";
 import {
@@ -30,18 +26,10 @@ function extractInsertedBlockId(response: SiyuanAPIResponse): string {
   return String(operations?.[0]?.doOperations?.[0]?.id || "");
 }
 
-function getMemoSlug(memo: ProcessedMemo): string {
-  return memo.originalMemo?.slug?.trim() || "";
-}
-
-function toSQLRows(value: unknown): Array<Record<string, unknown>> {
-  return Array.isArray(value) ? value as Array<Record<string, unknown>> : [];
-}
-
 export interface MemoBlockWriteResult {
   blockId: string;
   memo: ProcessedMemo;
-  status: "inserted" | "skipped";
+  status: "inserted";
 }
 
 export class SiyuanMemoBlockWriter {
@@ -63,15 +51,6 @@ export class SiyuanMemoBlockWriter {
       : SIYUAN_API_ENDPOINTS.appendBlock;
 
     try {
-      const existingBlockId = await this.findExistingMemoBlockId(memo);
-      if (existingBlockId) {
-        return {
-          blockId: existingBlockId,
-          memo,
-          status: "skipped",
-        };
-      }
-
       const response = await this.post(endpoint, {
         data: memo.content,
         dataType: "markdown",
@@ -112,28 +91,6 @@ export class SiyuanMemoBlockWriter {
     }
   }
 
-  private async findExistingMemoBlockId(memo: ProcessedMemo): Promise<string> {
-    const memoSlug = getMemoSlug(memo);
-    if (!memoSlug) {
-      return "";
-    }
-
-    const response = await this.post(SIYUAN_API_ENDPOINTS.querySQL, {
-      stmt: `SELECT block_id FROM attributes WHERE name = ${sqlString(FLOMO_MEMO_SLUG_ATTR)} AND value = ${sqlString(memoSlug)} LIMIT 1`,
-    });
-
-    if (response.code !== 0) {
-      throw buildSiyuanServiceError(
-        "SiyuanMemoBlockWriter.findExistingMemoBlockId",
-        { memoSlug },
-        getSiyuanResponseReason(response),
-      );
-    }
-
-    const rows = toSQLRows(response.data);
-    return String(rows[0]?.block_id || "");
-  }
-
   private async setMemoBlockAttrs(
     blockId: string,
     memo: ProcessedMemo,
@@ -144,11 +101,6 @@ export class SiyuanMemoBlockWriter {
 
     if (memo.updatedAt) {
       attrs[FLOMO_MEMO_ATTR] = formatSiyuanTimestamp(memo.updatedAt);
-    }
-
-    const memoSlug = getMemoSlug(memo);
-    if (memoSlug) {
-      attrs[FLOMO_MEMO_SLUG_ATTR] = memoSlug;
     }
 
     if (Object.keys(attrs).length === 0) {

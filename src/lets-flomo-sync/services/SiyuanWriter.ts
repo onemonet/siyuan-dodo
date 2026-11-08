@@ -31,20 +31,18 @@ export interface MemoWriteFailure {
 
 export interface WriteMemosResult {
   inserted: MemoBlockWriteResult[];
-  skipped: MemoBlockWriteResult[];
   failed: MemoWriteFailure[];
 }
 
 function createEmptyWriteResult(): WriteMemosResult {
   return {
     inserted: [],
-    skipped: [],
     failed: [],
   };
 }
 
 function getSuccessfulWriteCount(result: WriteMemosResult): number {
-  return result.inserted.length + result.skipped.length;
+  return result.inserted.length;
 }
 
 export interface SiyuanWriterDeps {
@@ -206,10 +204,6 @@ export class SiyuanWriter {
         usePrepend,
       );
 
-      if (writeResult.status === "skipped") {
-        result.skipped.push(writeResult);
-        return;
-      }
 
       result.inserted.push(writeResult);
     } catch (error) {

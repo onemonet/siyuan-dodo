@@ -24,7 +24,7 @@ for (const prop of ["displayName", "description", "readme"]) {
     assert(!key.includes("_"), prop + " contains legacy locale key: " + key);
   }
 }
-assert.deepEqual(json.frontends, ["desktop"]);
+assert.deepEqual(json.frontends, ["all"]);
 assert.equal(json.readme.default, "README.md");
 assert(!json.description.default.includes("Excalidraw"), "Unpublished module in description");
 assert(!json.keywords.some(word => word.toLowerCase() === "excalidraw"));

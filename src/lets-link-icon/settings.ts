@@ -3,11 +3,27 @@ import type { PluginSettingItem } from "@/types/plugin";
 export const LINK_ICON_CUSTOM_FILE = "link-icon-custom";
 export const LINK_ICON_CUSTOM_STYLE_ID = "dodo-link-icon-style";
 export const LINK_ICON_DOC_STYLE_ID = "dodo-link-icon-doc-style";
-export const DEFAULT_FAVICON_SERVICE_TEMPLATES = [
+/** Original three-service default, retained only for upgrading untouched settings. */
+export const LEGACY_DEFAULT_FAVICON_SERVICE_TEMPLATES = [
   "https://favicon.im/${domain}",
   "https://www.google.com/s2/favicons?domain=${domain}&sz=64",
   "https://icons.duckduckgo.com/ip3/${domain}.ico",
 ].join("\n");
+
+/** Ordered fallback services; earlier successful sources take priority. */
+export const DEFAULT_FAVICON_SERVICE_TEMPLATES = [
+  "https://www.boltp.com/favicon/${domain}.png",
+  "https://a.favicon.im/${domain}",
+  "https://www.google.com/s2/favicons?domain=${domain}&sz=64",
+  "https://icons.duckduckgo.com/ip3/${domain}.ico",
+].join("\n");
+
+/** Upgrade only the old stock default, never override user-edited service lists. */
+export function migrateLegacyFaviconServiceTemplates(value: unknown): unknown {
+  return value === LEGACY_DEFAULT_FAVICON_SERVICE_TEMPLATES
+    ? DEFAULT_FAVICON_SERVICE_TEMPLATES
+    : value;
+}
 
 export interface LinkIconConfig {
   insertDocRefIcon: boolean;

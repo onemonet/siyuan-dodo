@@ -1,5 +1,4 @@
 export const FLOMO_MEMO_ATTR = "custom-dodo-memo";
-export const FLOMO_MEMO_SLUG_ATTR = "custom-dodo-flomo-slug";
 export const DODO_SHARE_ATTR = "custom-dodo-share";
 export const FLOMO_SUPPORTED_LAYOUTS = ["list", "card", "masonry"] as const;
 export const FLOMO_DEFAULT_LAYOUT = FLOMO_SUPPORTED_LAYOUTS[0];

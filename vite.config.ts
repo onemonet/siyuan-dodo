@@ -334,7 +334,7 @@ function marketplaceMetadata() {
 
       manifest.description.default = "思源笔记数据库视图、附件管理与编辑增强工具箱";
       manifest.description["zh-CN"] = manifest.description.default;
-      manifest.frontends = ["desktop"];
+      manifest.frontends = ["all"];
       manifest.keywords = manifest.keywords.filter((keyword: string) =>
         keyword.toLowerCase() !== "excalidraw");
       this.emitFile({ type: "asset", fileName: "plugin.json",
@@ -344,6 +344,8 @@ function marketplaceMetadata() {
 }
 
 export default defineConfig({
+  // Compile new React/TSX UI using the automatic JSX runtime; Svelte remains unchanged.
+  esbuild: { jsx: "automatic" },
   resolve: {
     alias: {
       "@": resolve(__dirname, "src"),
@@ -459,6 +461,8 @@ export default defineConfig({
       external: ["siyuan", "process"],
 
       output: {
+        // Keep SiYuan plugin entry self-contained across desktop and mobile.
+        inlineDynamicImports: true,
         entryFileNames: "[name].js",
         assetFileNames: (assetInfo) => {
           if (assetInfo.name === "style.css") {

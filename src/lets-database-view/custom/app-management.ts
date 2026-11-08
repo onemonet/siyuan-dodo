@@ -1,7 +1,7 @@
 import { postJson } from "../../shared/av/kernel-api";
 import { DATABASE_VIEWS_ATTR } from "../view-config-schema";
 import { DatabaseViewConfigStore } from "../view-config-store";
-import { assertAppId, moveCustomAppToTrash,
+import { assertAppId, permanentlyRemoveCustomApp, moveCustomAppToTrash,
   permanentlyRemoveTrashedCustomApp, restoreTrashedCustomApp } from "./storage";
 
 const PAGE = 500;
@@ -87,7 +87,18 @@ export async function scanCustomAppReferences(): Promise<CustomAppReferenceScan>
   return {byApp,scannedBlocks:offset,source:"SiYuan SQL attributes index"};
 }
 
-export async function moveUnusedCustomAppToTrash(appId: string): Promise<void> {
+/** Direct permanent delete. Fail closed if any indexed or open AV still
+ * references this App, including a dormant custom config under table mode. */
+export async function deleteUnusedCustomApp(appId: string): Promise<void> {
+  assertAppId(appId);
+  const scan = await scanCustomAppReferences();
+  const refs = scan.byApp[appId] || [];
+  if (refs.length)
+    throw new Error("该应用仍被 " + refs.length + " 个数据库视图引用，请先解除不再使用的关联。");
+  await permanentlyRemoveCustomApp(appId);
+}
+
+/** Legacy trash helpers remain only for existing older data; new UI never calls them. */export async function moveUnusedCustomAppToTrash(appId: string): Promise<void> {
   assertAppId(appId);
   const scan = await scanCustomAppReferences(); // recheck immediately before moving
   const refs = scan.byApp[appId] || [];

@@ -3,7 +3,9 @@
   export let type: string; // Setting Type
   export let title: string; // Displayint Setting Title
   export let description: string; // Displaying Setting Text
+  export let showDescription: boolean = true;
   export let settingKey: string;
+  export let configItemId: string = "";
   export let settingValue: any;
   export let height: string;
 
@@ -38,12 +40,14 @@
 </script>
 
 {#if type === "textarea"}
-  <label class="fn__flex-column b3-label" style="min-height: unset;">
-    <div>
-      {title}
-      <div class="b3-label__text">
-        {@html description}
-      </div>
+  <label class="fn__flex-column b3-label config-item" data-config-item-id={configItemId || settingKey}>
+    <div class="config-item__main">
+      <div class="config-name">{@html title}</div>
+      {#if showDescription && description}
+        <div class="b3-label__text">
+          {@html description}
+        </div>
+      {/if}
     </div>
     <textarea
       style="height: {height ? height : '300px'};"
@@ -56,12 +60,14 @@
   </label>
 {/if}
 {#if type !== "textarea"}
-  <label class="fn__flex b3-label">
-    <div class="fn__flex-1">
-      {@html title}
-      <div class="b3-label__text">
-        {@html description}
-      </div>
+  <label class="fn__flex b3-label config-item" data-config-item-id={configItemId || settingKey}>
+    <div class="fn__flex-1 config-item__main">
+      <div class="config-name">{@html title}</div>
+      {#if showDescription && description}
+        <div class="b3-label__text">
+          {@html description}
+        </div>
+      {/if}
     </div>
     <span class="fn__space" />
     <!-- <slot /> -->
@@ -78,7 +84,7 @@
       <!-- Text Input -->
       <div class="dodo-setting-input-stack">
         <input
-          class="b3-text-field fn__flex-center fn__size200"
+          class="b3-text-field fn__size200"
           id={settingKey}
           {placeholder}
           bind:value={settingValue}
@@ -104,7 +110,7 @@
       </div>
     {:else if type === "number"}
       <input
-        class="b3-text-field fn__flex-center fn__size200"
+        class="b3-text-field fn__size200"
         id={settingKey}
         type="number"
         bind:value={settingValue}
@@ -113,7 +119,7 @@
     {:else if type === "button"}
       <!-- Button Input -->
       <button
-        class="b3-button b3-button--outline fn__flex-center fn__size200"
+        class="b3-button b3-button--outline fn__size200"
         id={settingKey}
         on:click={clicked}
       >
@@ -122,7 +128,7 @@
     {:else if type === "select"}
       <!-- Dropdown select -->
       <select
-        class="b3-select fn__flex-center fn__size200"
+        class="b3-select fn__size200"
         id={settingKey}
         bind:value={settingValue}
         on:change={changed}
@@ -154,65 +160,37 @@
 {/if}
 
 <style lang="scss">
-  .b3-label {
-    display: flex;
+  /* b3-label, b3-label__text, config-item, b3-switch, b3-select,
+     b3-text-field, b3-button, b3-slider and their focus/hover states are
+     owned entirely by SiYuan's shipped CSS and the user's active theme. */
+  /* API application links are injected through {@html title}; :global is
+     necessary because Svelte does not scope markup created by {@html}. */
+  .config-name :global(a.dodo-setting-api-link) {
+    display: inline-flex;
     align-items: center;
-    justify-content: space-between;
-    gap: 16px;
-    padding: 14px 18px;
-    margin: 0;
-    border-bottom: 1px solid var(--dodo-border, var(--b3-theme-outline-variant));
-    min-height: 58px;
+    vertical-align: middle;
+    white-space: nowrap;
+    margin-left: 8px;
+    padding: 1px 8px;
+    min-height: 20px;
     box-sizing: border-box;
-    background-color: transparent;
-    transition: background-color 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-
-    &:hover {
-      background-color: var(--dodo-accent, var(--b3-theme-background-hover));
-    }
-
-    &:last-child {
-      border-bottom: none;
-    }
+    border: 1px solid var(--b3-theme-primary);
+    border-radius: 999px;
+    background: transparent;
+    color: var(--b3-theme-primary);
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 1.4;
+    text-decoration: none;
+    cursor: pointer;
   }
-
-  .b3-label > .fn__flex-1 {
-    min-width: 0;
+  .config-name :global(a.dodo-setting-api-link:hover) {
+    background: var(--b3-theme-primary-lightest);
   }
-
-  .b3-label__text {
-    overflow-wrap: anywhere;
+  .config-name :global(a.dodo-setting-api-link:focus-visible) {
+    outline: 2px solid var(--b3-theme-primary);
+    outline-offset: 2px;
   }
-
-  .fn__flex-column.b3-label {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 12px;
-    padding-bottom: 18px;
-
-    &:hover {
-      background-color: transparent;
-    }
-
-    textarea {
-      width: 100%;
-      border-radius: 8px;
-      padding: 10px 12px;
-      font-size: 13px;
-      line-height: 1.5;
-      resize: vertical;
-      background-color: var(--dodo-muted, var(--b3-theme-surface-variant, inherit));
-      border: 1px solid var(--dodo-border-strong, var(--b3-theme-outline-variant));
-      transition: border-color 0.2s ease, box-shadow 0.2s ease;
-      box-sizing: border-box;
-
-      &:focus {
-        border-color: var(--dodo-primary, var(--b3-theme-primary));
-        box-shadow: 0 0 0 2px var(--dodo-ring, rgba(9, 9, 11, 0.14));
-      }
-    }
-  }
-
   .dodo-setting-input-stack {
     display: flex;
     flex-direction: column;
@@ -220,77 +198,34 @@
     gap: 6px;
     flex: none;
   }
-
   .dodo-setting-preview {
-    color: var(--dodo-muted-foreground, var(--b3-theme-on-surface-light));
-    font-size: 12px;
-    line-height: 18px;
+    color: var(--b3-theme-on-surface);
+    font-size: 0.875em;
     max-width: min(360px, 42vw);
     overflow-wrap: anywhere;
   }
-
   .dodo-setting-color {
     display: flex;
     align-items: center;
     gap: 8px;
-    flex: none;
   }
-
+  /* SiYuan has no dedicated color value picker in settings. */
   .dodo-setting-color__picker {
     width: 38px;
     height: 30px;
     padding: 2px;
-    cursor: pointer;
+    border: 1px solid var(--b3-border-color);
+    border-radius: var(--b3-border-radius);
     background: transparent;
-    border: 1px solid var(--dodo-border-strong, var(--b3-theme-outline-variant));
-    border-radius: 6px;
+    cursor: pointer;
   }
-
   .dodo-setting-color__value {
     min-width: 70px;
-    font-size: 12px;
-    color: var(--dodo-muted-foreground, var(--b3-theme-on-surface-light));
+    color: var(--b3-theme-on-surface);
   }
-
-  .b3-tooltips {
-    flex: none;
-  }
-
-  .b3-switch,
-  .b3-select,
-  .b3-text-field,
-  .b3-slider {
-    transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.1s ease;
-  }
-
-  .b3-text-field,
-  .b3-select {
-    border-radius: 6px;
-    height: 30px;
+  .fn__flex-column.b3-label textarea.b3-text-field {
+    width: 100%;
+    min-width: 0;
     box-sizing: border-box;
-  }
-
-  .b3-button--outline {
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-    border-radius: 6px;
-    font-weight: 500;
-    height: 30px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    &:hover {
-      background-color: var(--dodo-primary, var(--b3-theme-primary));
-      color: var(--dodo-primary-foreground, var(--b3-theme-on-primary));
-      border-color: var(--dodo-primary, var(--b3-theme-primary));
-    }
-
-    &:active {
-      transform: scale(0.96);
-    }
-  }
-
-  .b3-switch:active {
-    transform: scale(0.96);
   }
 </style>

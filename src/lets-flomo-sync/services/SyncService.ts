@@ -46,7 +46,7 @@ function getUnprocessedMemos(
 }
 
 function getSuccessfullyWrittenMemos(writeResult: WriteMemosResult): FlomoMemo[] {
-  return [...writeResult.inserted, ...writeResult.skipped]
+  return writeResult.inserted
     .map((result) => result.memo.originalMemo)
     .filter((memo): memo is FlomoMemo => Boolean(memo));
 }

@@ -17,11 +17,11 @@ export const LOCATION_SETTINGS: PluginSettingItem[] = [
     key: "dailnoteNotebook",
     section: "存储位置",
     visibleWhen: { key: "locationMode", equals: "0" },
-    title: "DailyNote 笔记本 ID",
-    description: "DailyNote 模式下使用的笔记本 ID",
-    type: "textinput",
+    title: "DailyNote 笔记本",
+    type: "select",
     value: "",
-    placeholder: "笔记本 ID",
+    // Options come from /api/notebook/lsNotebooks at view mount.
+    // Do not set static options={} here: schema coercion must retain saved IDs.
   },
   {
     key: "pageId",

@@ -1,8 +1,9 @@
 <script lang="ts">
   import { settings } from "@/settings";
   import { showMessage } from "siyuan";
-  import { onDestroy } from "svelte";
+  import { onDestroy, tick } from "svelte";
   import SettingPanel from "./libs/setting-panel.svelte";
+  import { searchSettingsGroups } from "./setting-search";
   // let groups: string[] = ["Default", "自动获取链接标题"];
   import { PluginRegistry } from "./plugin-registry";
   import { plugin } from "./utils";
@@ -116,6 +117,38 @@
   ];
 
   let focusGroup = "开关";
+  let sidebarSearch = "";
+  $: searchQuery = sidebarSearch.trim();
+  $: searchResults = searchQuery
+    ? searchSettingsGroups(groups, SettingItems, searchQuery, getGroupLabel)
+    : [];
+  $: visibleGroups = searchQuery
+    ? searchResults.map((result) => result.group)
+    : groups;
+  let tabWrapEl: HTMLDivElement | undefined;
+  function selectSettingGroup(group: string): void {
+    sidebarSearch = "";
+    focusGroup = group;
+    if (tabWrapEl) tabWrapEl.scrollTop = 0;
+    void settings.save();
+  }
+
+  async function locateSettingSection({ detail }: CustomEvent<{ group: string; sectionKey: string }>) {
+    selectSettingGroup(detail.group);
+    await tick();
+    const sections = tabWrapEl?.querySelectorAll<HTMLElement>("[data-dodo-setting-section]");
+    const target = Array.from(sections ?? []).find(
+      (section) => section.dataset.dodoSettingSection === detail.sectionKey);
+    target?.scrollIntoView({ block: "start" });
+  }
+
+  function onSearchKeyDown(event: KeyboardEvent): void {
+    if (event.key === "Escape" && sidebarSearch) {
+      sidebarSearch = "";
+      event.stopPropagation();
+      event.preventDefault();
+    }
+  }
   let showBottomSheet = false;
 
   $: {
@@ -227,12 +260,14 @@
       }
     }
 
-    for (let index = 0; index < SettingItems[focusGroup].length; index++) {
-      if (SettingItems[focusGroup][index].key === detail.key) {
-        SettingItems[focusGroup][index].value =
-          focusGroup === "开关"
+    // Search results can edit a setting belonging to another category.
+    const changedItems = SettingItems[detail.group] ?? [];
+    for (let index = 0; index < changedItems.length; index++) {
+      if (changedItems[index].key === detail.key) {
+        changedItems[index].value =
+          detail.group === "开关"
             ? detail.value
-            : coerceSettingValue(SettingItems[focusGroup][index], detail.value);
+            : coerceSettingValue(changedItems[index], detail.value);
         break;
       }
     }
@@ -250,20 +285,36 @@
 </script>
 
 <div class="fn__flex-1 fn__flex config__panel">
-  <!-- Desktop Sidebar -->
-  <ul class="sidebar-menu">
-    {#each groups as group}
+  <!-- Use SiYuan's native b3-list sidebar and text input controls. -->
+  <aside class="config__side b3-list b3-list--background dodo-settings-sidebar">
+    <div class="config__tab-head">
+      <div class="config__tab-title dodo-settings-sidebar__heading">
+        <span class="b3-list-item__graphic sidebar-item__icon">
+          <SlidersHorizontal size={17} strokeWidth={2} aria-hidden="true" />
+        </span>
+        <span class="b3-list-item__text">设置</span>
+      </div>
+      <input
+        class="b3-text-field dodo-settings-sidebar__search"
+        type="search"
+        aria-label="搜索所有设置"
+        placeholder="搜索设置..."
+        bind:value={sidebarSearch}
+        on:keydown={onSearchKeyDown}
+        on:input={() => { if (tabWrapEl) tabWrapEl.scrollTop = 0; }}
+      />
+    </div>
+    <ul class="config__tab-scroll sidebar-menu">
+      {#each visibleGroups as group}
       <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
       <li
-        class="sidebar-item"
-        class:active={group === focusGroup}
-        on:click={() => {
-          focusGroup = group;
-          settings.save();
-        }}
+        class={!searchQuery && group === focusGroup
+          ? "sidebar-item b3-list-item b3-list-item--focus active"
+          : "sidebar-item b3-list-item"}
+        on:click={() => selectSettingGroup(group)}
         on:keydown={() => {}}
       >
-        <span class="sidebar-item__icon">
+        <span class="b3-list-item__graphic sidebar-item__icon">
           <svelte:component
             this={getGroupIcon(group)}
             size={17}
@@ -271,10 +322,11 @@
             aria-hidden="true"
           />
         </span>
-        <span class="b3-list-item__text_my">{getGroupLabel(group)}</span>
+        <span class="b3-list-item__text sidebar-label">{getGroupLabel(group)}</span>
       </li>
-    {/each}
-  </ul>
+      {/each}
+    </ul>
+  </aside>
 
   <!-- Mobile Selector Bar -->
   <!-- svelte-ignore a11y-click-events-have-key-events -->
@@ -297,16 +349,31 @@
         aria-hidden="true"
       />
     </span>
-    <span class="current-category">{getGroupLabel(focusGroup)}</span>
+    <span class="current-category">{searchQuery ? "搜索结果" : getGroupLabel(focusGroup)}</span>
     <span class="arrow-icon">▼</span>
+  </div>
+
+  <!-- The sidebar is hidden on narrow screens: keep global search available. -->
+  <div class="mobile-settings-search">
+    <input
+      class="b3-text-field"
+      type="search"
+      aria-label="搜索所有设置"
+      placeholder="搜索设置..."
+      bind:value={sidebarSearch}
+      on:keydown={onSearchKeyDown}
+      on:input={() => { if (tabWrapEl) tabWrapEl.scrollTop = 0; }}
+    />
   </div>
 
   <!-- Main Content Wrap -->
   <div class="config__tab-wrap">
-    <!-- Global Persistent Warning Banner -->
+    <div class="config__tab-container panel-content" bind:this={tabWrapEl}>
+    <!-- Operational notice belongs to the plugin controls, not every setting section. -->
+    {#if focusGroup === "开关"}
     <div class="global-banner">
       <div class="banner-left">
-        <span>💡</span>
+        <span class="dodo-notice-icon" aria-hidden="true">ⓘ</span>
         <span>{plugin?.i18n?.["settings.restartWarning"] || "部分功能设置后需重启插件生效."}</span>
       </div>
       <button
@@ -316,15 +383,47 @@
         {plugin?.i18n?.["settings.reloadNow"] || "现在重载"}
       </button>
     </div>
+    {/if}
 
-    <!-- Active Setting Panel -->
-    <div class="panel-content">
-    <SettingPanel
-      group={focusGroup}
-      settingItems={SettingItems[focusGroup]}
-      on:changed={onChanged}
-      on:click={onClick}
-    />
+    <!-- Global matches are editable; source category and section are preserved. -->
+    {#if searchQuery}
+        <div class="dodo-search-results" aria-label="全局设置搜索结果">
+          {#if searchResults.length === 0}
+            <div class="dodo-search-empty" role="status">
+              没有找到与「{searchQuery}」相关的设置
+            </div>
+          {:else}
+            {#each searchResults as result (result.group)}
+              <div class="dodo-search-group">
+                <div class="dodo-search-group__heading">
+                  <h2>{result.label}</h2>
+                  <button
+                    type="button"
+                    class="b3-button b3-button--outline"
+                    on:click={() => selectSettingGroup(result.group)}
+                  >查看全部</button>
+                </div>
+                <SettingPanel
+                  group={result.group}
+                  settingItems={SettingItems[result.group] ?? []}
+                  searchSections={result.sections}
+                  showLocate
+                  on:changed={onChanged}
+                  on:click={onClick}
+                  on:locate={locateSettingSection}
+                />
+              </div>
+            {/each}
+          {/if}
+        </div>
+      {:else}
+        <SettingPanel
+          group={focusGroup}
+          settingItems={SettingItems[focusGroup] ?? []}
+          on:changed={onChanged}
+          on:click={onClick}
+        />
+    {/if}
     </div>
   </div>
 
@@ -362,10 +461,9 @@
           <li
             class:active={group === focusGroup}
             on:click={() => {
-              focusGroup = group;
-              settings.save();
-              showBottomSheet = false;
-            }}
+               selectSettingGroup(group);
+               showBottomSheet = false;
+             }}
           >
             <span class="bottom-sheet-list__icon">
               <svelte:component
@@ -404,96 +502,38 @@
       var(--dodo-surface) 94%,
       var(--dodo-foreground) 6%
     );
-    --dodo-accent: color-mix(
-      in srgb,
-      var(--dodo-surface) 90%,
-      var(--dodo-foreground) 10%
-    );
-    --dodo-primary: var(--dodo-foreground);
-    --dodo-primary-foreground: var(--dodo-background);
-    --dodo-ring: color-mix(in srgb, var(--dodo-foreground) 24%, transparent);
+    /* Derive settings colors from SiYuan's active theme, not a second UI kit. */
+    --dodo-accent: color-mix(in srgb, var(--b3-theme-primary) 10%, transparent);
+    --dodo-hover: color-mix(in srgb, var(--b3-theme-primary) 5%, transparent);
+    --dodo-primary: var(--b3-theme-primary);
+    --dodo-primary-foreground: var(--b3-theme-on-primary);
+    --dodo-ring: color-mix(in srgb, var(--b3-theme-primary) 24%, transparent);
     --dodo-success: #16a34a;
     --dodo-danger: var(--b3-theme-error, #dc2626);
     display: flex;
     height: 100%;
     min-width: 0;
     overflow: hidden;
-    color: var(--dodo-foreground);
-    background-color: var(--dodo-background);
+    /* Background, default font and text color are inherited from the native
+       .config__panel and the active SiYuan theme. */
   }
 
-  .sidebar-menu {
-    width: 200px;
-    flex: 0 0 200px;
-    border-right: 1px solid var(--dodo-border);
-    padding: 16px 12px;
-    margin: 0;
+  /* SiYuan's .config__side/.config__tab-title/.config__tab-head and
+     .config__tab-scroll/.b3-list-item define the actual sidebar geometry.
+     Only the Lucide stroke handling is plugin-specific. */
+  .dodo-settings-sidebar__search {
+    width: 100%;
     box-sizing: border-box;
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    overflow-y: auto;
-    background-color: var(--dodo-muted);
-  }
-
-  .sidebar-item {
-    list-style: none;
-    padding: 10px 14px;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 13px;
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-    color: var(--dodo-foreground);
-    display: flex;
-    align-items: center;
-    gap: 10px;
-
-    &:hover {
-      background-color: var(--dodo-accent);
-    }
-
-    &.active {
-      background-color: var(--dodo-accent);
-      color: var(--dodo-foreground);
-      font-weight: 500;
-    }
-  }
-
-  .b3-list-item__text_my {
-    flex: 1;
     min-width: 0;
-    text-align: left;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
   }
-
-  .sidebar-item__icon,
-  .mobile-selector-bar__icon,
-  .bottom-sheet-list__icon {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    flex: 0 0 17px;
-    width: 17px;
-    height: 17px;
-    color: var(--dodo-muted-foreground);
-    transition: color 0.2s ease;
-  }
-
   .sidebar-item__icon :global(svg),
   .mobile-selector-bar__icon :global(svg),
   .bottom-sheet-list__icon :global(svg) {
     display: block;
-    width: 17px;
-    height: 17px;
+    flex: none;
     fill: none !important;
     stroke: currentColor !important;
-    stroke-width: 2 !important;
-    stroke-linecap: round !important;
-    stroke-linejoin: round !important;
   }
-
   .sidebar-item__icon :global(svg *),
   .mobile-selector-bar__icon :global(svg *),
   .bottom-sheet-list__icon :global(svg *) {
@@ -502,39 +542,40 @@
     stroke-linecap: inherit !important;
     stroke-linejoin: inherit !important;
   }
-
-  .sidebar-item:hover .sidebar-item__icon,
-  .sidebar-item.active .sidebar-item__icon,
-  .mobile-selector-bar:focus-visible .mobile-selector-bar__icon,
-  .bottom-sheet-list li.active .bottom-sheet-list__icon {
-    color: var(--dodo-foreground);
-  }
-
-  .config__tab-wrap {
-    flex: 1;
-    min-width: 0;
+  .mobile-settings-search { display: none; }
+  .dodo-search-group { margin-bottom: 24px; }
+  .dodo-search-group__heading {
     display: flex;
-    flex-direction: column;
-    overflow-y: auto;
-    padding: 24px;
-    box-sizing: border-box;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 0 12px 16px;
   }
-
-  .panel-content {
-    flex: 1;
-    min-width: 0;
+  .dodo-search-group__heading h2 {
+    margin: 0;
+    font-size: var(--b3-font-size, 16px);
+    font-weight: 600;
+    line-height: 1.5;
+    color: var(--b3-theme-on-background);
   }
-
+  .dodo-search-empty {
+    padding: 32px 12px;
+    color: var(--b3-theme-on-surface-light);
+    text-align: center;
+    font-size: var(--b3-font-size, 16px);
+  }
+  .dodo-search-results .dodo-search-group:last-child { margin-bottom: 0; }
   .global-banner {
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 12px;
-    padding: 12px 16px;
-    background-color: var(--dodo-muted);
-    border: 1px solid var(--dodo-border);
-    border-radius: 8px;
-    margin-bottom: 20px;
+    padding: 8px 0 14px;
+    background-color: transparent;
+    border: 0;
+    border-bottom: 1px solid var(--dodo-border);
+    border-radius: 0;
+    margin-bottom: 18px;
     font-size: 13px;
     color: var(--dodo-muted-foreground);
 
@@ -550,39 +591,36 @@
       overflow-wrap: anywhere;
     }
 
-    .my-reload-button {
-      flex-shrink: 0;
-      border: 1px solid var(--dodo-border-strong) !important;
-      color: var(--dodo-foreground) !important;
-      background: transparent;
-      padding: 4px 12px;
-      font-size: 12px;
-      height: 28px;
-      cursor: pointer;
-      border-radius: 6px;
-      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-
-      &:hover {
-        background-color: var(--dodo-primary) !important;
-        color: var(--dodo-primary-foreground) !important;
-      }
-    }
+    .my-reload-button { flex-shrink: 0; }
   }
 
+  .dodo-notice-icon {
+    display: inline-flex;
+    align-items: center;
+    color: var(--dodo-primary);
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 1;
+  }
   .mobile-selector-bar {
     display: none;
   }
 
   @media (max-width: 768px) {
+    .mobile-settings-search {
+      display: block;
+      margin: 0 16px 8px;
+    }
+    .mobile-settings-search .b3-text-field {
+      width: 100%;
+      box-sizing: border-box;
+    }
     .config__panel {
       flex-direction: column;
       overflow-y: auto;
     }
 
-    .sidebar-menu {
+    .dodo-settings-sidebar {
       display: none;
     }
 
@@ -617,9 +655,7 @@
       }
     }
 
-    .config__tab-wrap {
-      padding: 8px 16px 16px;
-    }
+    .config__tab-wrap { flex: 1 1 auto; min-height: 0; }
 
     .global-banner {
       margin-bottom: 16px;

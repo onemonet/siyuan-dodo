@@ -3,6 +3,9 @@ import {
   assetRelativePath,
   assetUrl,
   findAssetReferences,
+  findCustomAssetAttributeReferences,
+  findStaleCustomAssetBlockAttrs,
+  relinkCustomAssetAttributeReferences,
   formatSize,
   getAssetSize,
   relinkAssetReferences,
@@ -177,6 +180,9 @@ export interface CompressionMigrationDeps {
   stat: typeof getAssetSize;
   dryRun: typeof relinkAssetReferences;
   check: typeof findAssetReferences;
+  scanCustomAttrs: typeof findCustomAssetAttributeReferences;
+  checkCustomAttrs: typeof findStaleCustomAssetBlockAttrs;
+  relinkCustomAttrs: typeof relinkCustomAssetAttributeReferences;
   remove: typeof removeUnusedAssetSafely;
 }
 
@@ -185,6 +191,9 @@ const DEFAULT_DEPS: CompressionMigrationDeps = {
   stat: getAssetSize,
   dryRun: relinkAssetReferences,
   check: findAssetReferences,
+  scanCustomAttrs: findCustomAssetAttributeReferences,
+  checkCustomAttrs: findStaleCustomAssetBlockAttrs,
+  relinkCustomAttrs: relinkCustomAssetAttributeReferences,
   remove: removeUnusedAssetSafely,
 };
 
@@ -200,7 +209,7 @@ export interface CompressionCommitResult {
   savedPath: string;
   oldRemoved: boolean;
   migratedReferences: number;
-  /** Core document/database references verified independently of OCR text indexes. */
+  /** Document, database and custom-attribute references verified independently of OCR indexes. */
   verificationCompleted: boolean;
   verificationWarning?: string;
   ocrMetadataCount: number;
@@ -339,9 +348,12 @@ async function commitStagedImage(
 
   onStep("正在预检引用迁移（不修改文档）…");
   let report: AssetRelinkPreview;
+  let customReferences: Awaited<ReturnType<CompressionMigrationDeps["scanCustomAttrs"]>>;
   try {
     report = await deps.dryRun(sourceRelativePath, targetRelativePath, true);
     assertCompleteScan(report);
+    customReferences = await deps.scanCustomAttrs(sourceRelativePath);
+    if (!Array.isArray(customReferences)) throw new Error("自定义属性扫描结果无效。");
   } catch (error) {
     throw new Error("新图片已保存，但引用迁移预检失败，原图和引用未修改。新图：" + targetRelativePath
       + "。原因：" + (error instanceof Error ? error.message : String(error)));
@@ -349,19 +361,44 @@ async function commitStagedImage(
 
   onStep("正在由思源内核迁移文档和数据库引用…");
   let migrated: AssetRelinkPreview;
+  let customAttrsUpdated = 0;
   try {
     migrated = await deps.dryRun(sourceRelativePath, targetRelativePath, false);
     assertCompleteScan(migrated);
+    if (customReferences.length) {
+      onStep("正在迁移块自定义属性中的图片路径…");
+      customAttrsUpdated = await deps.relinkCustomAttrs(
+        sourceRelativePath, targetRelativePath, customReferences);
+    }
   } catch (error) {
     throw new Error("新图片已保存，但迁移未能确认成功，原图未删除。请检查引用后再操作。新图："
       + targetRelativePath + "。原因：" + (error instanceof Error ? error.message : String(error)));
   }
 
   const verification = await verifyCompressionRelink(sourceRelativePath, deps.check, onStep);
-  const verified = verification.complete;
-  const warning = verified ? undefined : describeCompressionVerification(verification);
+  let customRemaining = 0;
+  let customVerificationError = "";
+  onStep("正在核验自定义属性不再引用原图…");
+  try {
+    const references = await deps.scanCustomAttrs(sourceRelativePath);
+    if (!Array.isArray(references)) throw new Error("扫描结果无效");
+    customRemaining = references.length;
+    // Native SQL and the in-memory block-attribute API can disagree. Only
+    // allow deletion when both stop returning the old asset path.
+    const staleAttrs = await deps.checkCustomAttrs(sourceRelativePath, customReferences);
+    if (!Array.isArray(staleAttrs)) throw new Error("块属性核验结果无效");
+    customRemaining += staleAttrs.length;
+  } catch (error) {
+    customVerificationError = error instanceof Error ? error.message : String(error);
+  }
+  const verified = verification.complete && customRemaining === 0 && !customVerificationError;
+  const warning = [
+    describeCompressionVerification(verification),
+    customRemaining ? "旧图仍有 " + customRemaining + " 个自定义属性引用" : "",
+    customVerificationError ? "自定义属性核验失败：" + customVerificationError : "",
+  ].filter(Boolean).join("；");
   const ocrMetadataCount = verification.ocrMetadataCount;
-  const migratedReferences = migrated.updated ?? 0;
+  const migratedReferences = (migrated.updated ?? 0) + customAttrsUpdated;
 
   if (mode === "relink-delete" && verified) {
     // Never remove the original based on a plugin-only prediction. The kernel

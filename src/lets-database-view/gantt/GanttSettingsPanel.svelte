@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import FieldMapping from "../../components/ui/FieldMapping.svelte";
+  import SettingRow from "../../components/ui/SettingRow.svelte";
   import type { AvRenderData } from "../../shared/av/av-data-adapter";
   import { adaptAttributeViewRender } from "../../shared/av/av-data-adapter";
   import { GANTT_FIELDS, GANTT_FIELD_TYPES, prepareGanttMapping,
@@ -76,18 +77,18 @@
     <FieldMapping {definitions} {table} {mapping} disabled={busy}
       on:change={event=>change(event.detail.field,event.detail.value)}/>
     <p class="dodo-gantt-hint">顶栏「小时」「日」默认按 15 分钟拖拽；「周」「月」按天。也可在下方单独设置 30 分钟。</p>
-    <div class="dodo-gantt-setting-row"><span>拖拽时间精度</span>
-      <select disabled={busy} value={config.timeStep??0} on:change={changeTimeStep}>
+    <SettingRow label="拖拽时间精度">
+      <select class="b3-select" aria-label="拖拽时间精度" disabled={busy} value={config.timeStep??0} on:change={changeTimeStep}>
         <option value={0}>1 天（默认）</option>
         <option value={30}>30 分钟</option>
         <option value={15}>15 分钟</option>
       </select>
-    </div>
-    <div class="dodo-gantt-setting-row"><span>进度数值范围</span>
-      <select disabled={busy} value={config.progressMax===1?1:100} on:change={changeProgress}>
+    </SettingRow>
+    <SettingRow label="进度数值范围">
+      <select class="b3-select" aria-label="进度数值范围" disabled={busy} value={config.progressMax===1?1:100} on:change={changeProgress}>
         <option value={100}>0–100</option><option value={1}>0–1</option>
       </select>
-    </div>
+    </SettingRow>
     <p class="dodo-gantt-hint">拖拽仅修改日期和进度映射列；分组、颜色由原生选项字段决定，需到思源表格修改。日期按天调整时保留原有时分秒和日期范围；异常日期仍会阻止写入。项目组及依赖连线不写入数据库。</p>
     {#if busy}<p>正在保存配置…</p>{/if}
     {#if error}<p class="dodo-gantt-error" role="alert">{error}</p>{/if}
@@ -96,7 +97,7 @@
 <style>
 .dodo-gantt-settings{padding:13px 16px;color:var(--b3-theme-on-background);font-size:13px;overflow-y:auto;height:100%;box-sizing:border-box}
 .dodo-gantt-info,.dodo-gantt-hint{color:var(--b3-theme-on-surface-light);line-height:1.7;margin:5px 0 12px}
-.dodo-gantt-setting-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:9px 8px}
-.dodo-gantt-setting-row select{width:160px;height:31px;background:var(--b3-theme-background);color:var(--b3-theme-on-background);border:1px solid var(--b3-border-color);border-radius:5px;padding:4px 7px;box-sizing:border-box}
+
+select.b3-select{width:160px;max-width:100%;}
 .dodo-gantt-error{color:var(--b3-theme-error);overflow-wrap:anywhere}
 </style>

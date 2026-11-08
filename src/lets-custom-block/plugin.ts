@@ -20,7 +20,7 @@ export default {
     {
       type: "textarea",
       title: "菜单名称与触发词",
-      description: "每行一个菜单项，格式：名称; 触发词1 触发词2（触发词不含 /，用空格分隔），修改立即生效。",
+      description: "格式：名称; 触发词1 触发词2",
       key: "math-slash-entries",
       value: "计算块; dodo计算块 计算块",
       height: "88px",
@@ -39,7 +39,7 @@ export default {
     {
       type: "textarea",
       title: "菜单名称与触发词",
-      description: "每行一个菜单项，格式：名称; 触发词1 触发词2（触发词不含 /，用空格分隔），修改立即生效。",
+      description: "格式：名称; 触发词1 触发词2",
       key: "toggle-slash-entries",
       value: "折叠块; dodo折叠块 折叠块",
       height: "88px",
@@ -58,7 +58,7 @@ export default {
     {
       type: "textarea",
       title: "菜单名称与触发词",
-      description: "每行一个菜单项，格式：名称; 触发词1 触发词2（触发词不含 /，用空格分隔），修改立即生效。",
+      description: "格式：名称; 触发词1 触发词2",
       key: "sql-slash-entries",
       value: "SQL块; dodoSQL SQL块",
       height: "88px",
@@ -86,7 +86,7 @@ export default {
     {
       type: "textarea",
       title: "菜单名称与触发词",
-      description: "每行一个菜单项，格式：名称; 触发词1 触发词2（触发词不含 /，用空格分隔），修改立即生效。",
+      description: "格式：名称; 触发词1 触发词2",
       key: "gallery-slash-entries",
       value: "相册块; dodo相册 相册块",
       height: "88px",
@@ -96,7 +96,7 @@ export default {
     {
       type: "textarea",
       title: "菜单名称与触发词",
-      description: "每行一个菜单项，格式：名称; 触发词1 触发词2（触发词不含 /，用空格分隔），修改立即生效。",
+      description: "格式：名称; 触发词1 触发词2",
       key: "file-slash-entries",
       value: "文件块; dodo文件 文件块",
       height: "88px",

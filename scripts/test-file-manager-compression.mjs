@@ -20,6 +20,9 @@ const fakeService={
   getAssetSize:()=>{throw Error("unexpected live stat");},
   relinkAssetReferences:()=>{throw Error("unexpected live relink");},
   findAssetReferences:()=>{throw Error("unexpected live scan");},
+  findCustomAssetAttributeReferences:()=>{throw Error("unexpected live custom-attr scan");},
+  findStaleCustomAssetBlockAttrs:()=>{throw Error("unexpected live block-attr scan");},
+  relinkCustomAssetAttributeReferences:()=>{throw Error("unexpected live custom-attr relink");},
   removeUnusedAssetSafely:()=>{throw Error("unexpected live delete");},
 };
 const oldBytes=new Blob([new Uint8Array(1024)],{type:"image/jpeg"});
@@ -95,9 +98,9 @@ assert.equal(qualityReceived,.76);
 assert.equal(disposed,true,"bitmap must always be released");
 assert.equal(api.compressionSavings(preview),76);
 
-async function run(mode,{preflightError=false, migrateError=false, remaining=false, skipped=false, blockRef=false, unavailable=false, verificationUnavailable=false, deleteError=false, statMismatch=false, ocrOnly=false, recoverAfter=0, checkError=false}={}){
+async function run(mode,{preflightError=false, migrateError=false, remaining=false, skipped=false, blockRef=false, unavailable=false, verificationUnavailable=false, deleteError=false, statMismatch=false, ocrOnly=false, recoverAfter=0, checkError=false, customAttrs=false, customPreflightError=false, customMigrateError=false, customRemaining=false, customVerificationError=false, staleGetter=false}={}){
   const calls=[];
-  let lookupCount=0;
+  let lookupCount=0, customScanCount=0;
   const deps={
     save:async(folder,file,name)=>{calls.push("save");assert.equal(folder,"photos");assert.ok(name.endsWith(".webp"));},
     stat:async()=>{calls.push("stat");return statMismatch ? 17 : preview.blob.size;},
@@ -121,6 +124,26 @@ async function run(mode,{preflightError=false, migrateError=false, remaining=fal
         skippedNotebooks:[],unavailableAttributeViews:verificationUnavailable?[{reason:"locked"}]:[],
       };
     },
+    scanCustomAttrs:async()=>{
+      calls.push("custom-scan");
+      customScanCount++;
+      if (customPreflightError && customScanCount===1) throw Error("custom scan unavailable");
+      if (customVerificationError && customScanCount>1) throw Error("custom verification unavailable");
+      return (customRemaining || (customAttrs && customScanCount===1))
+        ? [{blockID:"20260101000000-abcdefg",name:"custom-image",value:"assets/photos/one.jpg"}] : [];
+    },
+    checkCustomAttrs:async(_oldPath, preflight)=>{
+      calls.push("custom-get-check");
+      assert.equal(preflight.length, customAttrs ? 1 : customRemaining ? 1 : 0,
+        "getter verification must receive original preflight reference snapshot");
+      return staleGetter ? [{blockID:"20260101000000-abcdefg",name:"custom-image"}] : [];
+    },
+    relinkCustomAttrs:async(_oldPath, _newPath, preflight)=>{
+      calls.push("custom-migrate");
+      assert.equal(preflight.length,1,"native relink changed SQL, but must retain original reference snapshot");
+      if (customMigrateError) throw Error("custom attr update failed");
+      return 1;
+    },
     remove:async()=>{calls.push("remove");if(deleteError)throw Error("kernel cleanup refused");},
   };
   try {
@@ -134,26 +157,31 @@ assert.equal(result.result.oldRemoved,false);
 assert.equal(result.result.verificationCompleted,true);
 
 result=await run("relink-keep");
-assert.deepEqual(result.calls,["save","stat","preflight","migrate","check"]);
+assert.deepEqual(result.calls,["save","stat","preflight","custom-scan","migrate","check","custom-scan","custom-get-check"]);
 assert.equal(result.result.migratedReferences,1);
 assert.equal(result.result.verificationCompleted,true);
 
 result=await run("relink-delete");
-assert.deepEqual(result.calls,["save","stat","preflight","migrate","check","remove"]);
+assert.deepEqual(result.calls,["save","stat","preflight","custom-scan","migrate","check","custom-scan","custom-get-check","remove"]);
 assert.equal(result.result.oldRemoved,true);
+
+result=await run("relink-delete",{customAttrs:true});
+assert.deepEqual(result.calls,["save","stat","preflight","custom-scan","migrate","custom-migrate","check","custom-scan","custom-get-check","remove"]);
+assert.equal(result.result.oldRemoved,true);
+assert.equal(result.result.migratedReferences,2,"native and custom-attribute updates are both counted");
 
 // Exactly the user's case: OCR metadata is NOT a document or database reference.
 result=await run("relink-keep",{ocrOnly:true});
 assert.equal(result.result.verificationCompleted,true);
 assert.equal(result.result.ocrMetadataCount,1);
 assert.equal(result.result.verificationWarning,undefined);
-assert.deepEqual(result.calls,["save","stat","preflight","migrate","check"]);
+assert.deepEqual(result.calls,["save","stat","preflight","custom-scan","migrate","check","custom-scan","custom-get-check"]);
 
 result=await run("relink-delete",{ocrOnly:true});
 assert.equal(result.result.verificationCompleted,true);
 assert.equal(result.result.ocrMetadataCount,1);
 assert.equal(result.result.oldRemoved,true,"kernel cleanup remains the final authority");
-assert.deepEqual(result.calls,["save","stat","preflight","migrate","check","remove"]);
+assert.deepEqual(result.calls,["save","stat","preflight","custom-scan","migrate","check","custom-scan","custom-get-check","remove"]);
 
 const rawClassified=api.classifyCompressionReferences({
   references:[{type:"ocr"},{type:"link"},{type:"ocr"}],
@@ -193,7 +221,8 @@ assert.equal(retryOnRequestError.complete,true,"temporary scan errors must be re
 
 for(const options of [
   {preflightError:true},{skipped:true},{blockRef:true},{unavailable:true},
-  {migrateError:true},{statMismatch:true},
+  {migrateError:true},{statMismatch:true},{customPreflightError:true},
+  {customAttrs:true,customMigrateError:true},
 ]){
   result=await run("relink-delete",options);
   assert.ok(result.error,"pre-migration / upload failures remain hard errors");
@@ -201,12 +230,15 @@ for(const options of [
 }
 for(const options of [
   {remaining:true},{verificationUnavailable:true},{checkError:true},
+  {customRemaining:true},{customVerificationError:true},
+  {customAttrs:true,staleGetter:true},
 ]){
   result=await run("relink-delete",options);
   assert.ok(result.result,"post-commit verification warning must return a result");
   assert.equal(result.result.verificationCompleted,false);
   assert.match(result.result.verificationWarning,/原图已保留/);
-  assert.equal(result.calls.filter(x=>x==="check").length,3);
+  const nativeUnresolved = options.remaining || options.verificationUnavailable || options.checkError;
+  assert.equal(result.calls.filter(x=>x==="check").length,nativeUnresolved ? 3 : 1);
   assert.ok(!result.calls.includes("remove"),"delete forbidden after unsuccessful verification");
 }
 result=await run("relink-keep",{remaining:true});
@@ -215,7 +247,7 @@ assert.ok(result.result.verificationWarning);
 assert.ok(!result.calls.includes("remove"));
 
 result=await run("relink-delete",{deleteError:true});
-assert.deepEqual(result.calls,["save","stat","preflight","migrate","check","remove"]);
+assert.deepEqual(result.calls,["save","stat","preflight","custom-scan","migrate","check","custom-scan","custom-get-check","remove"]);
 assert.equal(result.result.oldRemoved,false);
 assert.match(result.result.verificationWarning,/已保留/);
 await assert.rejects(
@@ -242,13 +274,16 @@ const replaceDeps={
     replaceCalls.push("check");
     return {references:[{type:"ocr"}],skippedNotebooks:[],unavailableAttributeViews:[]};
   },
+  scanCustomAttrs:async()=>{replaceCalls.push("custom-scan");return [];},
+  checkCustomAttrs:async(_oldPath, refs)=>{replaceCalls.push("custom-get-check");assert.equal(refs.length,0);return [];},
+  relinkCustomAttrs:async()=>{throw Error("unexpected custom relink");},
   remove:async()=>replaceCalls.push("remove"),
 };
 const replaced=await api.replaceImageAsset("photos/one.jpg",largePNG,()=>{},replaceDeps);
 assert.equal(replaced.oldRemoved,true);
 assert.equal(replaced.ocrMetadataCount,1);
 assert.equal(replaced.migratedReferences,2);
-assert.deepEqual(replaceCalls,["save","stat","preflight","migrate","check","remove"]);
+assert.deepEqual(replaceCalls,["save","stat","preflight","custom-scan","migrate","check","custom-scan","custom-get-check","remove"]);
 await assert.rejects(
   api.replaceImageAsset("photos/one.jpg",new File([new Uint8Array(3)],"bad.txt"),()=>{},replaceDeps),
   /图片格式/,

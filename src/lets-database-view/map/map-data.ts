@@ -10,6 +10,13 @@ export const MAP_MARKER_TEXT_SETTING_KEY = "map-marker-text-color";
 
 export type MapSource = "osm" | "amap" | "google";
 
+/** JS API 2.0 is an automatic capability upgrade, not a user preference.
+ * The obsolete map-amap-api2 setting remains readable for old workspaces,
+ * but must not affect engine selection. */
+export function shouldUseAmapApi2(source: MapSource, apiKey: string): boolean {
+  return source === "amap" && apiKey.trim().length > 0;
+}
+
 export interface MapFieldMapping {
   coordinate: string;
   image: string;

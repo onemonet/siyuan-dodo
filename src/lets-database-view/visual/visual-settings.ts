@@ -13,8 +13,9 @@ import TimelineSettingsPanel from "../../lets-custom-block/timeline/ui/TimelineS
 import type { TimelineBlockConfig, TimelineFieldMapping } from "../../lets-custom-block/timeline/types";
 import { materializeTimelineFieldMapping, resolveTimelineColumns, TIMELINE_FIELD_DEFINITIONS } from "../../lets-custom-block/timeline/services/field-mapping";
 import GanttSettingsPanel from "../gantt/GanttSettingsPanel.svelte";
-import { makeGanttResult, prepareGanttMapping, type GanttConfig } from "../gantt/gantt-model";
 import CalendarSettingsPanel from "../calendar/CalendarSettingsPanel.svelte";
+import { makeGanttResult, prepareGanttMapping, type GanttConfig } from "../gantt/gantt-model";
+
 import { CALENDAR_VIEWS, type CalendarConfig } from "../calendar/calendar-model";
 import { prepareScheduleMapping } from "../core/schedule-model";
 import { openCustomSettings } from "../custom/settings";
@@ -194,7 +195,7 @@ export class DatabaseVisualSettings {
     this.settingsDialog=dialog;
     const target=dialog.element.querySelector<HTMLElement>(".dodo-gantt-settings-host");
     if(!target){dialog.destroy();return;}
-    panel=new GanttSettingsPanel({target,props:{
+    panel=new GanttSettingsPanel({ target, props: {
       load:async()=>{
         const latest=(await DatabaseViewConfigStore.load(blockId)).views[viewId];
         if(latest?.mode!=="gantt")throw new Error("甘特视图已切换");

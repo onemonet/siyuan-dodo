@@ -8,8 +8,14 @@ const APP = /^app-[0-9a-f]{8}-[0-9a-f-]{27}$/;
 const VERSION = /^v\d+-\d+-[0-9a-f]+\.html$/;
 const MAX_HTML = 512 * 1024;
 /** Number of *unpinned* historical snapshots (the current HTML is separate). */
-export const DEFAULT_HISTORY_LIMIT = 20;
-export const HISTORY_LIMIT_OPTIONS = [5, 10, 20, 50, 100] as const;
+export const DEFAULT_HISTORY_LIMIT = 10;
+/** A free-form positive integer, bounded to prevent unreasonable retention. */
+export const MIN_HISTORY_LIMIT = 1;
+export const MAX_HISTORY_LIMIT = 10000;
+export function validCustomHistoryLimit(value: unknown): value is number {
+  return typeof value === "number" && Number.isSafeInteger(value) &&
+    value >= MIN_HISTORY_LIMIT && value <= MAX_HISTORY_LIMIT;
+}
 
 export interface CustomAppManifest {
   id: string;
@@ -82,7 +88,7 @@ export async function getCustomHistoryLimit(): Promise<number> {
   } catch {}
   if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
     const json = parsed as {historyLimit?:unknown;code?:unknown;msg?:unknown};
-    if (HISTORY_LIMIT_OPTIONS.includes(json.historyLimit as typeof HISTORY_LIMIT_OPTIONS[number]))
+    if (validCustomHistoryLimit(json.historyLimit))
       return json.historyLimit as number;
     if (json.code === 404) return DEFAULT_HISTORY_LIMIT;
     if (typeof json.code === "number")
@@ -93,8 +99,8 @@ export async function getCustomHistoryLimit(): Promise<number> {
 }
 
 export async function setCustomHistoryLimit(value: number): Promise<void> {
-  if (!HISTORY_LIMIT_OPTIONS.includes(value as typeof HISTORY_LIMIT_OPTIONS[number]))
-    throw new Error("版本保留数量必须从 5、10、20、50、100 中选择");
+  if (!validCustomHistoryLimit(value))
+    throw new Error("历史版本保留数量必须为 1～10000 的整数");
   await putFile("/data/storage/petal/siyuan-dodo");
   await putFile(CUSTOM_VIEW_ROOT);
   await putFile(PREFERENCES_PATH, JSON.stringify({historyLimit:value},null,2));
@@ -315,6 +321,25 @@ export async function listCustomApps(status: "active" | "trash" = "active"): Pro
   return result.sort((a,b) => b.updatedAt.localeCompare(a.updatedAt));
 }
 
+/** Permanently delete an active, validated App directory and its history.
+ * Caller MUST re-scan every known SiYuan database reference immediately first.
+ * Storage also rejects symlinks, damaged manifests and unexpected directories. */
+export async function permanentlyRemoveCustomApp(appId: string): Promise<void> {
+  await queueApp(appId, async () => {
+    const active = await readDirectory(CUSTOM_VIEW_ROOT, true);
+    const entry = active.find(item => item.name === appId);
+    if (!entry || entry.isDir !== true || entry.isSymlink)
+      throw new Error("自定义应用目录不存在或不是安全的普通目录");
+    const summary = await appSummary(appId, "active");
+    if (summary.error) throw new Error("应用数据异常，拒绝直接删除：" + summary.error);
+    const parts = await readDirectory(CUSTOM_VIEW_ROOT + "/" + appId);
+    const versions = await readDirectory(CUSTOM_VIEW_ROOT + "/" + appId + "/versions", true);
+    if ([...parts,...versions].some(item => item.isSymlink))
+      throw new Error("应用内包含符号链接，拒绝删除");
+    // Never delete the app collection root, or follow an arbitrary user path.
+    await removeFile(CUSTOM_VIEW_ROOT + "/" + assertAppId(appId));
+  });
+}
 /** Physical removal is deliberately restricted to the recycle bin. */
 export async function moveCustomAppToTrash(appId: string): Promise<void> {
   await queueApp(appId,async()=> {

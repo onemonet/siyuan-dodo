@@ -267,7 +267,7 @@
 
     <button
       type="button"
-      class="add-filter"
+      class="b3-button b3-button--outline add-filter"
       disabled={config.filters.length >= SQL_MAX_FILTERS}
       on:click={addFilter}
     >
@@ -319,7 +319,7 @@
     <div class="sql-actions">
       <button
         type="button"
-        class="apply-sql"
+        class="b3-button apply-sql"
         disabled={saving}
         on:click={applySql}
       >
@@ -434,24 +434,7 @@
     align-items: center;
     gap: 5px;
     min-height: 28px;
-    padding: 0 8px;
-    border: 1px solid var(--b3-border-color);
-    border-radius: 4px;
-    background: var(--b3-theme-background);
-    color: var(--b3-theme-on-surface);
-    cursor: pointer;
-    font: inherit;
     font-size: 12px;
-  }
-
-  .add-filter:hover:not(:disabled) {
-    border-color: var(--b3-theme-primary);
-    color: var(--b3-theme-primary);
-  }
-
-  .add-filter:disabled {
-    cursor: default;
-    opacity: 0.5;
   }
 
   .sql-actions {
@@ -464,23 +447,7 @@
     align-items: center;
     gap: 5px;
     min-height: 28px;
-    padding: 0 10px;
-    border: 1px solid var(--b3-theme-primary);
-    border-radius: 4px;
-    background: var(--b3-theme-primary);
-    color: var(--b3-theme-on-primary);
-    cursor: pointer;
-    font: inherit;
     font-size: 12px;
-  }
-
-  .apply-sql:hover:not(:disabled) {
-    opacity: 0.9;
-  }
-
-  .apply-sql:disabled {
-    cursor: default;
-    opacity: 0.5;
   }
 
   .field-row {
@@ -495,7 +462,7 @@
     flex-direction: column;
     gap: 4px;
     color: var(--b3-theme-on-surface-light);
-    font-size: 11px;
+    font-size: 12px;
   }
 
   .field .b3-select,

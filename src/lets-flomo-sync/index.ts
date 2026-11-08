@@ -12,6 +12,7 @@ import {
   VALIDATE_FLOMO_ACCOUNT_ACTION,
 } from "./services/FlomoAccountValidator";
 import { FlomoConfigStore } from "./services/FlomoConfigStore";
+import { promptFlomoCaptcha } from "./services/FlomoCaptchaDialog";
 import { FlomoDashboardConfigBridge } from "./services/FlomoDashboardConfigBridge";
 import { FlomoDashboardHost } from "./services/FlomoDashboardHost";
 import { MemoDateDecorator } from "./services/MemoDateDecorator";
@@ -46,6 +47,7 @@ class FlomoSyncPlugin implements SubPlugin {
     saveConfig: (config) => this.saveConfig(config),
     createApi: (config) => this.createFlomoApi(config),
     refreshServices: () => this.syncCoordinator.refreshServices(),
+    requestCaptcha: (api, reason) => promptFlomoCaptcha(api, reason),
     getNow: () => new Date(),
   });
   private dashboardHost = new FlomoDashboardHost({
@@ -180,7 +182,7 @@ class FlomoSyncPlugin implements SubPlugin {
       showMessage(
         result.message,
         result.success ? 3000 : 4000,
-        result.success ? "info" : "error",
+        result.success || result.message === "已取消 Flomo 账号校验" ? "info" : "error",
       );
     } catch (error) {
       showMessage(

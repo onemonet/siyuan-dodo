@@ -64,7 +64,7 @@ const metadata: PluginMetadata = {
     {
       type: "select",
       title: "地图源",
-      description: "数据库地图视图共用底图来源。OSM 无需 Key；高德使用 GCJ-02；Google 使用 WGS84，并需要 Google Maps JavaScript API Key。",
+      description: "选择地图底图。OpenStreetMap 无需配置；高德地图和 Google Maps 的部分功能需要 API Key。",
       key: "map-provider",
       value: "osm",
       options: {
@@ -76,23 +76,15 @@ const metadata: PluginMetadata = {
     },
     {
       type: "textinput",
-      title: '高德 Key <a href="https://console.amap.com/dev/key/app" target="_blank" rel="noopener noreferrer" style="margin-left:8px;font-size:12px;color:var(--b3-theme-on-surface-light, #888);text-decoration:none;cursor:pointer;" title="前往高德开放平台申请 Key">获取API</a>',
-      description: "用于高德 JS API 2.0 和地点搜索。高德瓦片模式本身不强制需要 Key。",
+      title: '高德 Key <a class="dodo-setting-api-link" href="https://console.amap.com/dev/key/app" target="_blank" rel="noopener noreferrer" title="前往高德开放平台申请 Key">获取 API ↗</a>',
+      description: "用于地点搜索和地图增强功能。未填写时仍可使用基础地图。",
       key: "map-amap-key",
       value: "",
       placeholder: "请输入高德 Web 服务 / JS API Key",
       visibleWhen: { key: "map-provider", equals: "amap" },
       section: "地图视图",
     },
-    {
-      type: "checkbox",
-      title: "使用 API 2.0 地图",
-      description: "开启后优先使用高德 JS API 2.0，加载失败时自动回退到高德瓦片地图。",
-      key: "map-amap-api2",
-      value: false,
-      visibleWhen: { key: "map-provider", equals: "amap" },
-      section: "地图视图",
-    },
+
     {
       type: "checkbox",
       title: "开启搜索",
@@ -119,7 +111,7 @@ const metadata: PluginMetadata = {
     },
     {
       type: "textinput",
-      title: 'Google Maps Key <a href="https://console.cloud.google.com/google/maps-apis/credentials" target="_blank" rel="noopener noreferrer" style="margin-left:8px;font-size:12px;color:var(--b3-theme-on-surface-light, #888);text-decoration:none;cursor:pointer;" title="打开 Google Cloud API 凭据">获取API</a>',
+      title: 'Google Maps Key <a class="dodo-setting-api-link" href="https://console.cloud.google.com/google/maps-apis/credentials" target="_blank" rel="noopener noreferrer" title="打开 Google Cloud API 凭据">获取 API ↗</a>',
       description: "Google Maps JavaScript API 的浏览器 Key，需启用计费并限制 HTTP 来源。搜索另需启用 Places API (New)，地址反查使用 Geocoding。",
       key: "map-google-key",
       value: "",

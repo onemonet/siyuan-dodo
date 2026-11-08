@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import FieldMapping from "../../components/ui/FieldMapping.svelte";
+  import SettingRow from "../../components/ui/SettingRow.svelte";
   import type { AvRenderData } from "../../shared/av/av-data-adapter";
   import { adaptAttributeViewRender } from "../../shared/av/av-data-adapter";
   import { SCHEDULE_FIELD_TYPES, prepareScheduleMapping, type ScheduleMapping } from "../core/schedule-model";
@@ -71,15 +72,14 @@
     <p class="info">直接使用思源数据库中的记录。月、周、日视图均需拖动框选日期或时间范围来创建日程；单击空白处不会新建。拖动现有日程自动保存。</p>
     <FieldMapping {definitions} {table} {mapping} disabled={busy}
       on:change={event => change(event.detail.field, event.detail.value)} />
-    <label class="setting-row">
-      <span>默认视图</span>
-      <select disabled={busy} value={config.defaultView || "dayGridMonth"} on:change={changeView}>
+    <SettingRow label="默认视图">
+      <select class="b3-select" aria-label="默认视图" disabled={busy} value={config.defaultView || "dayGridMonth"} on:change={changeView}>
         <option value="dayGridMonth">月</option>
         <option value="timeGridWeek">周</option>
         <option value="timeGridDay">日</option>
         <option value="listWeek">日程列表</option>
       </select>
-    </label>
+    </SettingRow>
     <p class="info">新建日程会写入当前思源数据库。选区后可输入标题，点击「创建」或按 Ctrl+Enter 保存，普通 Enter 只用于确认输入法候选词；也可选择“更多选项”；现有日程点击可打开原始条目。</p>
     {#if busy}<p>正在保存设置…</p>{/if}
     {#if error}<p class="error" role="alert">{error}</p>{/if}
@@ -88,7 +88,7 @@
 <style>
   .dodo-calendar-settings { height:100%; overflow-y:auto; padding:14px 16px; box-sizing:border-box; color:var(--b3-theme-on-background); font-size:13px }
   .info { line-height:1.65; color:var(--b3-theme-on-surface-light); margin:6px 0 13px }
-  .setting-row { display:flex; justify-content:space-between; align-items:center; gap:12px; padding:12px 8px }
-  select { min-width:148px; height:32px; padding:4px; background:var(--b3-theme-background);color:var(--b3-theme-on-background);border:1px solid var(--b3-border-color);border-radius:5px }
+
+  select.b3-select { min-width: 148px; max-width: 100%; }
   .error { color:var(--b3-theme-error); overflow-wrap:anywhere }
 </style>

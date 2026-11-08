@@ -2,6 +2,8 @@ import { fetchSyncPost } from "siyuan";
 import { plugin } from "./utils";
 import { PluginRegistry } from "./plugin-registry";
 import { createLogger } from "./logger";
+import { ALWAYS_ON_SECTION_FLAGS } from "./setting-section-features";
+import { migrateLegacyFaviconServiceTemplates } from "./lets-link-icon/settings";
 import {
   buildDefaultSettingsConfig,
   normalizeSettingsConfig,
@@ -32,6 +34,14 @@ function normalizeConfigData(
 ) {
   const savedRecord = isRecord(savedConfig) ? savedConfig : {};
   const normalizedSettings = normalizeSettingsConfig(savedRecord, pluginConfigs);
+  // Preserve custom lists, but automatically upgrade previously saved stock
+  // defaults so the new favicon service appears for existing users too.
+  const linkIconSettings = normalizedSettings["link-icon"];
+  if (linkIconSettings) {
+    linkIconSettings.faviconServiceTemplates = migrateLegacyFaviconServiceTemplates(
+      linkIconSettings.faviconServiceTemplates,
+    );
+  }
   const normalizedConfig: Record<string, unknown> = { ...savedRecord };
 
   for (const pluginMeta of pluginConfigs) {
@@ -44,6 +54,15 @@ function normalizeConfigData(
       ...(isRecord(existingSpace) ? existingSpace : {}),
       ...normalizedSettings[pluginMeta.name],
     };
+  }
+
+  // Once section switches are gone, migrate previously disabled subfeatures
+  // to enabled so a hidden flag cannot silently disable an inaccessible view.
+  // The entire plugin is still controlled by the "开关" page.
+  for (const [space, keys] of Object.entries(ALWAYS_ON_SECTION_FLAGS)) {
+    const state = normalizedConfig[space];
+    if (!isRecord(state)) continue;
+    for (const key of keys) state[key] = true;
   }
 
   return normalizedConfig;

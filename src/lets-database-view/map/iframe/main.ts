@@ -7,6 +7,7 @@ import {
   type PointNameFallback,
   normalizeMapGlobalSettings,
   nativeLocationHasValue,
+  shouldUseAmapApi2,
   parseMapConfig,
   truncateMapDisplayText,
   truncateMapHoverTitle,
@@ -218,15 +219,13 @@ async function loadMapContext(blockId: string): Promise<{
 }
 
 async function ensureMapEngine(config: MapGlobalSettings): Promise<void> {
-  const wantsAmapApi2 = config.mapSource === "amap" && config.useAmapApi2 && Boolean(config.amapKey);
+  const wantsAmapApi2 = shouldUseAmapApi2(config.mapSource, config.amapKey);
   const wantsGoogle = config.mapSource === "google" && Boolean(config.googleKey) && Boolean(config.googleMapId);
   const desired = wantsGoogle ? `google:${config.googleKey}:${config.googleMapId}`
     : wantsAmapApi2 ? `amap-api2:${config.amapKey}` : `leaflet:${config.mapSource === "google" ? "osm" : config.mapSource}`;
   if (engineSignature === desired && activeEngine) {
-    engineNotice = config.mapSource === "google" && !wantsGoogle
-      ? "Google 地图需要 Key 和 Map ID，当前使用 OpenStreetMap。"
-      : config.mapSource === "amap" && config.useAmapApi2 && !config.amapKey
-        ? "API 2.0 需要高德 Key，当前使用高德瓦片地图。" : "";
+    // Keep the fallback notice and map instance for the same API key.
+    // A failed JS API attempt must not repeat on every data reload.
     return;
   }
 
@@ -253,10 +252,12 @@ async function ensureMapEngine(config: MapGlobalSettings): Promise<void> {
       initAmapApi2();
       engineSignature = desired;
       return;
-    } catch {
-      engineNotice = "高德 API 2.0 加载失败，已回退到高德瓦片地图。";
+    } catch (error) {
+      console.warn("[地图块] 高德 JS API 2.0 加载失败，已切换高德瓦片。", error);
+      engineNotice = "高德增强地图不可用，已自动切换为基础地图。";
+      destroyMapEngine();
       initLeaflet("amap");
-      engineSignature = `leaflet:amap:fallback:${config.amapKey}`;
+      engineSignature = desired; // Prevent repeated failed requests on ordinary reload.
       return;
     }
   }
@@ -267,9 +268,7 @@ async function ensureMapEngine(config: MapGlobalSettings): Promise<void> {
     engineSignature = desired;
     return;
   }
-  if (config.mapSource === "amap" && config.useAmapApi2 && !config.amapKey) {
-    engineNotice = "API 2.0 需要高德 Key，当前使用高德瓦片地图。";
-  }
+
   initLeaflet(config.mapSource);
   engineSignature = desired;
 }

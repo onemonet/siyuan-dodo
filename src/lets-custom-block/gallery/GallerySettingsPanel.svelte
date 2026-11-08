@@ -632,7 +632,7 @@
     >
       <Upload size={20} strokeWidth={1.8} />
       <span>拖入图片，或</span>
-      <button class="text-button" disabled={saving} on:click={() => fileInput?.click()}>
+      <button class="b3-button b3-button--outline text-button" disabled={saving} on:click={() => fileInput?.click()}>
         选择图片
       </button>
       <input
@@ -647,12 +647,12 @@
     <form class="link-form" on:submit|preventDefault={addLink}>
       <Link2 size={16} strokeWidth={1.8} />
       <input
-        bind:value={linkInput}
+        class="b3-text-field"
         disabled={saving}
         placeholder="粘贴图片链接或思源块内容"
         on:paste={handleLinkPaste}
       />
-      <button class="text-button" type="submit" disabled={saving || !linkInput.trim()}>添加</button>
+      <button class="b3-button b3-button--outline text-button" type="submit" disabled={saving || !linkInput.trim()}>添加</button>
     </form>
 
     {#if assets.length}
@@ -702,11 +702,11 @@
 
     <div class="section-title"><Download size={14} strokeWidth={2} /> 相册操作</div>
     <div class="action-row">
-      <button class="action-button" disabled={!assets.length || saving || downloading} on:click={copyMarkdown}>
+      <button class="b3-button b3-button--outline action-button" disabled={!assets.length || saving || downloading} on:click={copyMarkdown}>
         <Copy size={15} strokeWidth={1.8} />
         <span>复制 Markdown</span>
       </button>
-      <button class="action-button" disabled={!assets.length || saving || downloading} on:click={downloadImages}>
+      <button class="b3-button b3-button--outline action-button" disabled={!assets.length || saving || downloading} on:click={downloadImages}>
         <Download size={15} strokeWidth={1.8} />
         <span>下载图片包</span>
       </button>
@@ -717,7 +717,7 @@
       <div class="row">
         <label for="gallery-item-width">{config.mode === "masonry" ? "列宽基准" : "图片宽度"}</label>
         <input
-          id="gallery-item-width"
+          id="gallery-item-width" class="b3-text-field"
           type="number"
           min="96"
           max="800"
@@ -733,7 +733,7 @@
       <div class="row">
         <label for="gallery-item-height">图片高度</label>
         <input
-          id="gallery-item-height"
+          id="gallery-item-height" class="b3-text-field"
           type="number"
           min="96"
           max="800"
@@ -749,7 +749,7 @@
       <div class="row">
         <label for="gallery-gap">图片间距</label>
         <input
-          id="gallery-gap"
+          id="gallery-gap" class="b3-text-field"
           type="number"
           min="0"
           max="64"
@@ -764,7 +764,7 @@
     {#if config.mode !== "masonry"}
       <div class="row">
         <label for="gallery-fit">图片填充</label>
-        <select id="gallery-fit" value={config.objectFit} on:change={(event) => setObjectFit(fieldValue(event))}>
+        <select id="gallery-fit" class="b3-select" value={config.objectFit} on:change={(event) => setObjectFit(fieldValue(event))}>
           <option value="contain">完整显示</option>
           <option value="cover">填满裁切</option>
         </select>
@@ -773,13 +773,13 @@
     {#if config.mode !== "carousel"}
       <div class="row">
         <label for="gallery-background">背景颜色</label>
-        <input id="gallery-background" class="color-text" type="text" value={config.background} on:input={(event) => setBackground(fieldValue(event))} />
+        <input id="gallery-background" class="b3-text-field color-text" type="text" value={config.background} on:input={(event) => setBackground(fieldValue(event))} />
       </div>
     {/if}
     <div class="row">
       <label for="gallery-radius">圆角</label>
       <input
-        id="gallery-radius"
+        id="gallery-radius" class="b3-text-field"
         type="number"
         min="0"
         max="32"
@@ -888,23 +888,10 @@
   .action-button {
     display: flex;
     min-width: 0;
-    min-height: 30px;
     align-items: center;
     justify-content: center;
     gap: 5px;
-    padding: 0 7px;
-    border: 1px solid var(--b3-border-color);
-    border-radius: 5px;
-    background: var(--b3-theme-background);
-    color: var(--b3-theme-on-surface);
-    cursor: pointer;
-    font: inherit;
     font-size: 12px;
-  }
-
-  .action-button:hover:not(:disabled) {
-    border-color: var(--b3-theme-primary);
-    color: var(--b3-theme-primary);
   }
 
   .dropzone {
@@ -926,17 +913,8 @@
   }
 
   .text-button {
-    padding: 3px 7px;
-    border: 0;
-    border-radius: 4px;
-    background: transparent;
+    flex: 0 0 auto;
     color: var(--b3-theme-primary);
-    cursor: pointer;
-    font: inherit;
-  }
-
-  .text-button:hover {
-    background: var(--b3-list-hover, rgba(0, 0, 0, 0.05));
   }
 
   .link-form {
@@ -951,11 +929,7 @@
   .row select {
     min-width: 0;
     box-sizing: border-box;
-    border: 1px solid var(--b3-border-color);
-    border-radius: 4px;
-    background: var(--b3-theme-background);
-    color: var(--b3-theme-on-surface);
-    font: inherit;
+    font-size: 13px;
   }
 
   .link-form input {

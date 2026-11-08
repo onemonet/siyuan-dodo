@@ -326,7 +326,8 @@ export default class PluginGo extends Plugin {
   openGlobalSetting(): void {
     // 移动端屏幕小，居中悬浮窗放不下，直接铺满；桌面端保持居中大窗
     const fullscreen = isMobile;
-    let dialog = new Dialog({
+    let pannel: SettingPannel | undefined;
+    const dialog = new Dialog({
       title: "配置",
       content: `<div id="dodo-setting-panel" style="height: ${
         fullscreen ? "100%" : "600px"
@@ -334,7 +335,8 @@ export default class PluginGo extends Plugin {
       width: fullscreen ? "100%" : "1000px",
       height: fullscreen ? "100%" : "auto",
       destroyCallback: () => {
-        pannel.$destroy();
+        pannel?.$destroy();
+        pannel = undefined;
       },
     });
 
@@ -348,9 +350,9 @@ export default class PluginGo extends Plugin {
       container.style.borderRadius = "0";
     }
 
-    let pannel = new SettingPannel({
-      target: dialog.element.querySelector("#dodo-setting-panel"),
-    });
+    const target = dialog.element.querySelector<HTMLElement>("#dodo-setting-panel");
+    if (!target) throw new Error("渡渡鸟设置面板挂载容器不存在");
+    pannel = new SettingPannel({ target });
   }
 
   updateProtyleToolbar(toolbar: Array<string | any>) {

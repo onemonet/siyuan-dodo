@@ -275,14 +275,10 @@ function hydrateSectionStatus(
       ? savedState
       : status.state;
   const label = status.labels?.[state] ?? status.label;
-  const message =
-    status.messageKey && typeof savedData[status.messageKey] === "string"
-      ? savedData[status.messageKey]
-      : "";
-  const checkedAt =
-    status.checkedAtKey && typeof savedData[status.checkedAtKey] === "string"
-      ? savedData[status.checkedAtKey]
-      : "";
+  const messageValue = status.messageKey ? savedData[status.messageKey] : undefined;
+  const checkedAtValue = status.checkedAtKey ? savedData[status.checkedAtKey] : undefined;
+  const message = typeof messageValue === "string" ? messageValue : "";
+  const checkedAt = typeof checkedAtValue === "string" ? checkedAtValue : "";
   const title = message
     ? checkedAt
       ? `${message}（${checkedAt}）`

@@ -1,355 +1,177 @@
-<!--
- Copyright (c) 2023 by frostime All Rights Reserved.
- Author       : frostime
- Date         : 2023-07-01 19:23:50
- FilePath     : /src/libs/setting-panel.svelte
- LastEditTime : 2023-11-28 21:45:10
- Description  : 
--->
 <script lang="ts">
-    import { createEventDispatcher } from "svelte";
-    import { buildSettingSections } from "@/setting-schema";
-    import type { SettingSection } from "@/setting-schema";
-    import SettingItem from "./setting-item.svelte";
-    import CustomAppManager from "../lets-database-view/custom/CustomAppManager.svelte";
+  import { createEventDispatcher } from "svelte";
+  import { getSettingsSections } from "@/setting-search";
+  import type { SettingSection } from "@/setting-schema";
+  import { isSectionActivationItem } from "@/setting-section-features";
+  import SettingItem from "./setting-item.svelte";
+  import CustomAppManager from "../lets-database-view/custom/CustomAppManager.svelte";
+  import FlomoNotebookSetting from "../lets-flomo-sync/FlomoNotebookSetting.svelte";
 
-    export let group: string;
-    export let settingItems: ISettingItem[] = [];
-    export let display: boolean = true;
+  export let group: string;
+  export let settingItems: ISettingItem[] = [];
+  export let display: boolean = true;
+  export let searchSections: SettingSection<ISettingItem>[] | null = null;
+  export let showLocate = false;
 
-    const dispatch = createEventDispatcher();
+  const dispatch = createEventDispatcher();
 
-    function onClick( {detail}) {
-        dispatch("click", {group: group, ...detail});
-    }
-    function onChanged( {detail}) {
-        dispatch("changed", {group: group, ...detail});
-    }
-    function onSectionAction(section) {
-        dispatch("click", {
-            group: group,
-            key: section.action.key,
-            value: section.key,
-        });
-    }
+  function onClick({detail}) {
+    dispatch("click", {group, ...detail});
+  }
 
-    $: fn__none = display ? "" : "fn__none";
-    const DATABASE_SECTIONS = [
-        "AI 自定义视图", "地图视图", "图表视图", "甘特视图", "日历视图", "时间线视图",
-    ];
-    function databaseSections(items: ISettingItem[]): SettingSection<ISettingItem>[] {
-        const present = buildSettingSections(items);
-        const byTitle = new Map(present.map(section => [section.title, section]));
-        // Keep headings even if a view currently has no settings.
-        // Retain any future/unknown sections after the standard ones.
-        return [
-            ...DATABASE_SECTIONS.map(title => byTitle.get(title) || {
-                key: title, title, items: [] as ISettingItem[],
-            }),
-            ...present.filter(section => !DATABASE_SECTIONS.includes(section.title)),
-        ];
-    }
-    $: sections = group === "数据库视图"
-        ? databaseSections(settingItems)
-        : buildSettingSections(settingItems);
+  function onChanged({detail}) {
+    dispatch("changed", {group, ...detail});
+  }
 
-    // 数据库视图常显、整页滚动；自定义块保持原有折叠行为。
-    $: collapsible = group === "自定义块";
-    let expandedSection: string | null = null;
-    let previousGroup = group;
-    $: if (group !== previousGroup) {
-        previousGroup = group;
-        expandedSection = null;
-    }
+  function locateSection(section: SettingSection<ISettingItem>) {
+    dispatch("locate", { group, sectionKey: section.key });
+  }
 
-    function toggleSection(key: string) {
-        expandedSection = expandedSection === key ? null : key;
-    }
+  function onSectionAction(section: SettingSection<ISettingItem>) {
+    if (!section.action) return;
+    dispatch("click", {
+      group,
+      key: section.action.key,
+      value: section.key,
+    });
+  }
 
-    // 主开关移到标题右侧，其他复选设置仍留在展开区域中。
-    function getSectionEnableItem(section: { items: ISettingItem[] }): ISettingItem | undefined {
-        return (collapsible || group === "数据库视图")
-            ? section.items.find(item =>
-                item.type === "checkbox" &&
-                item.key.endsWith("-enabled") &&
-                item.title.startsWith("启用"))
-            : undefined;
-    }
 
-    function onSectionEnabled(event: Event, item: ISettingItem) {
-        dispatch("changed", {
-            group,
-            key: item.key,
-            value: (event.currentTarget as HTMLInputElement).checked,
-        });
-    }
+  $: sections = searchSections ?? getSettingsSections(group, settingItems);
 
+  // The new settings layout uses headings, not module-enable switches. Other
+  // controls (e.g. map search, plugin-level switches) are kept functional.
+  // Keep field-level help text as in SiYuan's editor settings.
+  // Only section-level explanatory paragraphs remain hidden.
+  const showFieldDescriptions = true;
 </script>
 
-<div class="config__tab-container {fn__none}" data-name={group}>
-    <slot />
-    {#each sections as section (section.key)}
-            {@const enableItem = getSectionEnableItem(section)}
-            <section
-                class="dodo-setting-section"
-                class:dodo-setting-section--default={!section.title}
-            >
-                {#if section.title}
-                <div
-                    class="dodo-setting-section__header"
-                    class:collapsed={collapsible && expandedSection !== section.key}
+{#if display}
+  <slot />
+  {#each sections as section, index (section.key)}
+    {@const visibleItems = section.items.filter(item => !isSectionActivationItem(group, item.key))}
+    {@const hasAppManager = group === "数据库视图" && section.title === "AI 自定义视图"}
+    <section
+      class={"config-group dodo-setting-section" +
+        (index === 0 ? " config-group--first" : "") +
+        (index === sections.length - 1 ? " config-group--last" : "")}
+      class:dodo-setting-section--default={!section.title}
+      data-dodo-setting-section={section.key}
+    >
+      {#if section.title}
+        <header class="config-title config-title--action dodo-setting-section__header">
+          <h3 class="dodo-setting-section__title">{section.title}</h3>
+          {#if section.status || section.action || showLocate}
+            <div class="dodo-setting-section__tools">
+              {#if section.status}
+                <span
+                  class="dodo-setting-section__status"
+                  class:status-success={section.status.state === "success"}
+                  class:status-error={section.status.state === "error"}
+                  title={section.status.title || section.status.label || "状态未知"}
+                  aria-label={section.status.label || "状态未知"}
                 >
-                    <div class="dodo-setting-section__title-row">
-                        {#if collapsible}
-                            <button
-                                type="button"
-                                class="dodo-setting-section__toggle"
-                                aria-expanded={expandedSection === section.key}
-                                aria-controls={"dodo-setting-section-" + section.key}
-                                on:click={() => toggleSection(section.key)}
-                            >
-                                <span
-                                    class="dodo-setting-section__chevron"
-                                    class:is-expanded={expandedSection === section.key}
-                                    aria-hidden="true"
-                                ></span>
-                                <span class="dodo-setting-section__title">{section.title}</span>
-                            </button>
-                        {:else}
-                            <div class="dodo-setting-section__title">{section.title}</div>
-                        {/if}
-                        <div class="dodo-setting-section__tools">
-                            {#if enableItem}
-                                <label class="dodo-setting-section__enable" title={enableItem.title}>
-                                    <span class="dodo-setting-section__enable-label">{enableItem.value === true ? "已启用" : "已关闭"}</span>
-                                    <input
-                                        class="b3-switch"
-                                        type="checkbox"
-                                        checked={enableItem.value === true}
-                                        aria-label={enableItem.title}
-                                        on:change={(event) => onSectionEnabled(event, enableItem)}
-                                    />
-                                </label>
-                            {/if}
-                            {#if section.status}
-                                <span
-                                    class:status-success={section.status.state === "success"}
-                                    class:status-error={section.status.state === "error"}
-                                    class="dodo-setting-section__status"
-                                    title={section.status.title || section.status.label || "状态未知"}
-                                    aria-label={section.status.label || "状态未知"}
-                                >
-                                    <span class="dodo-setting-section__status-dot"></span>
-                                </span>
-                            {/if}
-                            {#if section.action}
-                                <button
-                                    class="b3-button b3-button--outline dodo-setting-section__action"
-                                    type="button"
-                                    title={section.action.title || section.action.label}
-                                    on:click={() => onSectionAction(section)}
-                                >
-                                    {section.action.label}
-                                </button>
-                            {/if}
-                        </div>
-                    </div>
-                    {#if !collapsible || expandedSection === section.key}
-                    <div class="dodo-setting-section__header-main">
-                        {#if section.description}
-                            <div class="dodo-setting-section__description">
-                                {@html section.description}
-                            </div>
-                        {/if}
-                    </div>
-                    {/if}
-                </div>
-                {/if}
-                <div
-                    id={"dodo-setting-section-" + section.key}
-                    class="dodo-setting-section__content"
-                    hidden={collapsible && !!section.title && expandedSection !== section.key}
+                  <span class="dodo-setting-section__status-dot"></span>
+                </span>
+              {/if}
+              {#if showLocate}
+                <button
+                  class="b3-button b3-button--outline dodo-setting-section__action"
+                  type="button"
+                  aria-label={"定位到" + (section.title || "设置项") + "所在分类"}
+                  on:click={() => locateSection(section)}
+                >定位</button>
+              {/if}
+              {#if section.action}
+                <button
+                  class="b3-button b3-button--outline dodo-setting-section__action"
+                  type="button"
+                  title={section.action.title || section.action.label}
+                  on:click={() => onSectionAction(section)}
                 >
-                {#if !collapsible || !section.title || expandedSection === section.key}
-                {#each section.items as item (item.key)}
-                    {#if !enableItem || item.key !== enableItem.key}
-                    <SettingItem
-                        type={item.type}
-                        title={item.title}
-                        description={item.description}
-                        settingKey={item.key}
-                        settingValue={item.value}
-                        placeholder={item?.placeholder}
-                        preview={item?.preview}
-                        options={item?.options}
-                        slider={item?.slider}
-                        height={item?.height}
-                        on:click={onClick}
-                        on:changed={onChanged}
-                    />
-                    {/if}
-                {/each}
-                {#if group === "数据库视图" && section.title === "AI 自定义视图"}
-                    <CustomAppManager />
-                {/if}
-                {/if}
-                </div>
-            </section>
-    {/each}
-</div>
+                  {section.action.label}
+                </button>
+              {/if}
+            </div>
+          {/if}
+        </header>
+      {/if}
+
+      {#if visibleItems.length > 0 || hasAppManager}
+      <div class="config-items dodo-setting-section__content">
+        {#each visibleItems as item (item.key)}
+          {#if group === "Flomo 同步" && item.key === "dailnoteNotebook"}
+            <FlomoNotebookSetting
+              settingValue={item.value}
+              configItemId={group + "." + item.key}
+              on:changed={onChanged}
+            />
+          {:else}
+          <SettingItem
+            type={item.type}
+            title={item.title}
+            description={item.description}
+            showDescription={showFieldDescriptions}
+            settingKey={item.key}
+            configItemId={group + "." + item.key}
+            settingValue={item.value}
+            placeholder={item?.placeholder}
+            preview={item?.preview}
+            options={item?.options}
+            slider={item?.slider}
+            height={item?.height}
+            on:click={onClick}
+            on:changed={onChanged}
+          />
+          {/if}
+        {/each}
+        {#if hasAppManager}
+          <CustomAppManager />
+        {/if}
+      </div>
+      {/if}
+    </section>
+  {/each}
+{/if}
 
 <style lang="scss">
-    .dodo-setting-section {
-        margin: 0 0 16px;
-        background-color: var(--dodo-surface, var(--b3-theme-surface));
-        border: 1px solid var(--dodo-border, var(--b3-theme-outline-variant));
-        border-radius: 8px;
-        overflow: hidden;
-        box-shadow: 0 1px 2px color-mix(in srgb, var(--dodo-foreground, #09090b) 5%, transparent);
-    }
+  /* Native SiYuan v3.8.9 supplies config-group/title/items and b3-label:
+     spacing, font sizes, surface/background, radius and row separators. */
 
-    .dodo-setting-section--default {
-        overflow: visible;
-    }
+  /* A heading inside the native .config-title retains the host font size. */
+  .dodo-setting-section__title {
+    margin: 0;
+    font: inherit;
+    color: inherit;
+    min-width: 0;
+  }
 
-    .dodo-setting-section__header {
-        padding: 14px 18px 10px;
-        border-bottom: 1px solid var(--dodo-border, var(--b3-theme-outline-variant));
-    }
-
-    .dodo-setting-section__header.collapsed {
-        padding-bottom: 14px;
-        border-bottom: none;
-    }
-
-    .dodo-setting-section__toggle {
-        display: inline-flex;
-        align-items: center;
-        gap: 12px;
-        flex: 1;
-        min-width: 0;
-        padding: 0;
-        color: inherit;
-        font: inherit;
-        text-align: left;
-        cursor: pointer;
-        border: 0;
-        background: transparent;
-    }
-
-    .dodo-setting-section__toggle:hover .dodo-setting-section__title {
-        color: var(--dodo-primary, var(--b3-theme-primary));
-    }
-
-    .dodo-setting-section__toggle:focus-visible {
-        outline: 2px solid var(--dodo-primary, var(--b3-theme-primary));
-        outline-offset: 4px;
-        border-radius: 3px;
-    }
-
-    .dodo-setting-section__chevron {
-        width: 7px;
-        height: 7px;
-        flex: none;
-        border-right: 1.5px solid currentColor;
-        border-bottom: 1.5px solid currentColor;
-        transform: rotate(-45deg);
-        transition: transform 150ms ease;
-        color: var(--dodo-muted-foreground, var(--b3-theme-on-surface-light));
-    }
-
-    .dodo-setting-section__chevron.is-expanded {
-        transform: rotate(45deg);
-    }
-
-    .dodo-setting-section__title-row {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 8px;
-    }
-
-    .dodo-setting-section__header-main {
-        min-width: 0;
-    }
-
-    .dodo-setting-section__title {
-        color: var(--dodo-foreground, var(--b3-theme-on-background));
-        font-size: 13px;
-        font-weight: 600;
-        line-height: 20px;
-        min-width: 0;
-    }
-
-    .dodo-setting-section__tools {
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        flex: none;
-    }
-
-    .dodo-setting-section__enable {
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        cursor: pointer;
-        white-space: nowrap;
-        margin: 0;
-    }
-
-    .dodo-setting-section__enable-label {
-        font-size: 12px;
-        font-weight: 400;
-        color: var(--dodo-muted-foreground, var(--b3-theme-on-surface-light));
-    }
-
-    .dodo-setting-section__enable .b3-switch {
-        margin: 0;
-        flex: none;
-    }
-
-    .dodo-setting-section__status {
-        --dodo-section-status-color: var(--dodo-muted-foreground, #71717a);
-        display: inline-flex;
-        align-items: center;
-        color: var(--dodo-muted-foreground, var(--b3-theme-on-surface-light));
-        width: 20px;
-        height: 20px;
-        justify-content: center;
-    }
-
-    .dodo-setting-section__status.status-success {
-        --dodo-section-status-color: var(--dodo-success, #16a34a);
-    }
-
-    .dodo-setting-section__status.status-error {
-        --dodo-section-status-color: var(--dodo-danger, var(--b3-theme-error, #dc2626));
-    }
-
-    .dodo-setting-section__status-dot {
-        width: 8px;
-        height: 8px;
-        border-radius: 50%;
-        background: var(--dodo-section-status-color);
-        box-shadow: 0 0 0 2px color-mix(in srgb, var(--dodo-section-status-color) 18%, transparent);
-    }
-
-    .dodo-setting-section__description {
-        color: var(--dodo-muted-foreground, var(--b3-theme-on-surface-light));
-        font-size: 12px;
-        line-height: 18px;
-        margin-top: 2px;
-        overflow-wrap: anywhere;
-    }
-
-    .dodo-setting-section__action {
-        flex: none;
-        min-width: 48px;
-        height: 24px;
-        padding: 0 10px;
-        font-size: 12px;
-        line-height: 22px;
-        border-color: var(--dodo-border-strong, var(--b3-theme-outline-variant));
-        color: var(--dodo-foreground, var(--b3-theme-on-background));
-    }
+  .dodo-setting-section__header { justify-content: space-between; gap: 8px; }
+  .dodo-setting-section__tools {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: none;
+  }
+  .dodo-setting-section__status {
+    --dodo-status-color: var(--b3-theme-on-surface-light);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+  }
+  .dodo-setting-section__status.status-success {
+    --dodo-status-color: var(--b3-theme-success, #16a34a);
+  }
+  .dodo-setting-section__status.status-error {
+    --dodo-status-color: var(--b3-theme-error, #dc2626);
+  }
+  .dodo-setting-section__status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--dodo-status-color);
+  }
+  .dodo-setting-section__action { flex: none; }
 </style>

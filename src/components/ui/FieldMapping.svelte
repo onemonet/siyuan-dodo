@@ -3,6 +3,7 @@
   import { fieldColumns, resolveFieldBinding } from "../../shared/av/field-binding";
   import type { FieldTable } from "../../shared/av/field-binding";
   import FieldSelect from "./FieldSelect.svelte";
+  import SettingRow from "./SettingRow.svelte";
   import FieldHelp from "./FieldHelp.svelte";
   import { newFieldType } from "./av-create-field";
   import type { FieldMappingDefinition, FieldMappingChange, FieldSelectOption } from "./field-mapping-types";
@@ -40,8 +41,8 @@
 
 <div class="dodo-field-mapping">
   {#each definitions as field (field.key)}
-    <div class="dodo-field-mapping-row">
-      <span class="dodo-field-mapping-name">
+    <SettingRow>
+      <span slot="label" class="dodo-field-mapping-name">
         {field.label}{#if field.required}<span class="dodo-field-mapping-required" title="必填字段">*</span>{/if}
         {#if field.description}<FieldHelp description={field.description}/>{/if}
       </span>
@@ -54,16 +55,13 @@
         ariaLabel={`为${field.label}选择数据库列`}
         {disabled} on:change={event => dispatch("change", { field: field.key, value: event.detail })}
         on:create={() => dispatch("create", field.key)}/>
-    </div>
+    </SettingRow>
   {/each}
 </div>
 
 <style>
   .dodo-field-mapping { display: flex; flex-direction: column; }
-  .dodo-field-mapping-row {
-    display: flex; align-items: center; justify-content: space-between;
-    gap: 12px; padding: 7px 8px;
-  }
+
   .dodo-field-mapping-name { display: inline-flex; align-items: center; gap: 5px; line-height: 20px; white-space: nowrap; min-width: 0; }
   .dodo-field-mapping-required { color: var(--b3-theme-error, #d23f31); font-weight: 700; }
 </style>

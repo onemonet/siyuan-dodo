@@ -18,8 +18,10 @@ let failIndex = false;
 const originals = Array.from({ length: 129 }, (_, i) => ({
   path: "assets/file-" + String(i).padStart(3, "0") + ".jpg", updated: 100 + i,
 }));
-let indexed = [...originals, { path: "assets/subfolder/photo.avif", updated: 900 }];
+let indexed = [...originals, { path: "assets/subfolder/photo.avif", updated: 900 },
+  { path: "assets/ocr-texts.json", updated: 901 }];
 const disk = [
+  { name: "ocr-texts.json", isDir: false, updated: 1 },
   { name: "file-000.jpg", isDir: false, updated: 1 },
   { name: "empty-folder", isDir: true },
   { name: "not-in-index.pdf", isDir: false, updated: 2 },
@@ -59,6 +61,10 @@ const api = sandbox.exports;
 
 const root = await api.readAssetDirectory("");
 assert.equal(root.filter((item) => !item.isDir).length, 129);
+assert.equal(root.some((item) => item.name === "ocr-texts.json"), false,
+  "internal OCR JSON is hidden in fast-index listings");
+assert.equal(api.isHiddenFileManagerAsset("assets/ocr-texts.json"), true);
+assert.equal(api.isHiddenFileManagerAsset("subfolder/ocr-texts.json"), false);
 assert.equal(root.some((item) => item.isDir && item.name === "subfolder"), true);
 assert.equal(indexCalls, 3, "130 indexed files must use three 64-result pages");
 assert.equal(diskCalls, 0, "normal listing must not call slow disk API");
@@ -81,6 +87,8 @@ assert.equal(diskCalls, 0);
 const deep = await api.deepScanAssetDirectory("");
 assert.equal(diskCalls, 1, "complete scan is explicit");
 assert.equal(deep.some((item) => item.name === "empty-folder" && item.isDir), true);
+assert.equal(deep.some((item) => item.name === "ocr-texts.json"), false,
+  "internal OCR JSON is hidden in disk-scan listings too");
 const afterScan = await api.readAssetDirectory("", { forceRefresh: true });
 assert.equal(afterScan.some((item) => item.name === "empty-folder" && item.isDir), true, "empty folders retained");
 assert.equal(afterScan.some((item) => item.name === "not-in-index.pdf"), true, "full-scan discoveries retained");
@@ -106,6 +114,8 @@ failIndex = true;
 api.invalidateAssetDirectory("subfolder");
 const fallback = await api.readAssetDirectory("subfolder", { forceRefresh: true });
 assert.equal(diskCalls, 2, "fallback to native readDir when index API unavailable");
-assert.equal(fallback[0].name, "file-000.jpg");
+assert.equal(fallback.some((item) => item.name === "file-000.jpg"), true);
+assert.equal(fallback.some((item) => item.name === "ocr-texts.json"), true,
+  "only the root OCR index is hidden, unrelated nested files stay visible");
 
 console.log("PASS: 3-page fast index, nested folders, TTL, full scan, upload, empty folders, rename, fallback");

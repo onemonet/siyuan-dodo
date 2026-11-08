@@ -183,7 +183,7 @@
     >
       <Upload size={19} strokeWidth={1.8} />
       <span>{asset ? "拖入文件替换当前文件，或" : "拖入文件，或"}</span>
-      <button class="text-button" type="button" disabled={saving} on:click={() => fileInput?.click()}>
+      <button class="b3-button b3-button--outline text-button" type="button" disabled={saving} on:click={() => fileInput?.click()}>
         选择文件
       </button>
       <input
@@ -198,17 +198,17 @@
     <form class="link-form" on:submit|preventDefault={addLink}>
       <Link2 size={16} strokeWidth={1.8} />
       <input
-        bind:value={linkInput}
+        class="b3-text-field"
         disabled={saving}
         placeholder="粘贴文件链接或思源块内容"
         on:paste={handleLinkPaste}
       />
-      <button class="text-button" type="submit" disabled={saving || !linkInput.trim()}>添加</button>
+      <button class="b3-button b3-button--outline text-button" type="submit" disabled={saving || !linkInput.trim()}>添加</button>
     </form>
 
     {#if asset}
       <div class="dodo-file-settings-path" title={asset}>{asset}</div>
-      <button class="dodo-file-settings-copy" type="button" disabled={saving} on:click={copyMarkdown}>
+      <button class="b3-button b3-button--outline dodo-file-settings-copy" type="button" disabled={saving} on:click={copyMarkdown}>
         <Copy size={15} strokeWidth={1.8} />
         <span>复制 Markdown</span>
       </button>
@@ -283,17 +283,8 @@
   }
 
   .text-button {
-    padding: 3px 7px;
-    border: 0;
-    border-radius: 4px;
-    background: transparent;
+    flex: 0 0 auto;
     color: var(--b3-theme-primary);
-    cursor: pointer;
-    font: inherit;
-  }
-
-  .text-button:hover {
-    background: var(--b3-list-hover, rgba(0, 0, 0, 0.05));
   }
 
   .link-form {
@@ -302,17 +293,10 @@
     gap: 6px;
   }
 
-  .link-form input {
+  .link-form input.b3-text-field {
     min-width: 0;
-    height: 28px;
     flex: 1;
-    box-sizing: border-box;
-    padding: 0 7px;
-    border: 1px solid var(--b3-border-color);
-    border-radius: 4px;
-    background: var(--b3-theme-background);
-    color: var(--b3-theme-on-surface);
-    font-size: 12px;
+    font-size: 13px;
   }
 
   .dodo-file-settings-path {
@@ -329,20 +313,8 @@
 
   .dodo-file-settings-copy {
     display: inline-flex;
-    min-height: 34px;
     align-items: center;
     justify-content: center;
     gap: 7px;
-    padding: 0 12px;
-    border: 1px solid var(--b3-border-color);
-    border-radius: 6px;
-    background: var(--b3-theme-surface);
-    color: var(--b3-theme-on-surface);
-    cursor: pointer;
-    font: inherit;
-  }
-
-  .dodo-file-settings-copy:hover {
-    background: var(--b3-theme-surface-lighter);
   }
 </style>

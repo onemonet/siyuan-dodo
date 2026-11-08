@@ -43,6 +43,12 @@ export function normalizeFolder(folder: string): string {
   return normalized.split("/").map(cleanName).join("/");
 }
 
+/** Hide only the root OCR index; do not delete it or hide ordinary JSON files. */
+export function isHiddenFileManagerAsset(relativePath: string): boolean {
+  const path = relativePath.replace(/\\/g, "/").replace(/^\/+|\/+$/g, "");
+  return path === "ocr-texts.json" || path === "assets/ocr-texts.json";
+}
+
 export function assetRelativePath(folder: string, name: string): string {
   const safeFolder = normalizeFolder(folder);
   const safeName = cleanName(name);
@@ -195,7 +201,7 @@ function indexedDirectory(folder: string, index: Map<string, number>): AssetEntr
   const directory = new Map<string, AssetEntry>();
   const now = Date.now();
   function collect(path: string, updated: number) {
-    if (!path.startsWith(prefix)) return;
+    if (isHiddenFileManagerAsset(path) || !path.startsWith(prefix)) return;
     const rest = path.slice(prefix.length);
     if (!rest) return;
     const slash = rest.indexOf("/");
@@ -250,7 +256,11 @@ export async function deepScanAssetDirectory(folder: string): Promise<AssetEntry
   const items = await callApi<AssetEntry[]>("/api/file/readDir", { path: dirPath });
   if (!Array.isArray(items)) throw new Error("磁盘扫描结果格式不正确。");
   const valid = items.filter((item) => {
-    try { cleanName(item.name); return typeof item.isDir === "boolean"; }
+    try {
+      cleanName(item.name);
+      return typeof item.isDir === "boolean" &&
+        (item.isDir || !isHiddenFileManagerAsset(assetRelativePath(key, item.name)));
+    }
     catch { return false; }
   });
   for (const item of valid) {
@@ -334,6 +344,190 @@ export async function findAssetReferences(relativePath: string): Promise<AssetRe
   return callApi<AssetReferences>("/api/asset/findAssetReferences", {
     path: "assets/" + normalizeFolder(relativePath),
   });
+}
+
+/** Additional references stored as block custom-* attribute values. */
+export interface CustomAssetAttributeReference {
+  blockID: string;
+  name: string;
+  value: string;
+}
+const CUSTOM_ATTRIBUTE_SCAN_PAGE_SIZE = 200;
+const CUSTOM_ATTRIBUTE_SCAN_MAX_ROWS = 10_000;
+const CUSTOM_ATTRIBUTE_BLOCK_ID = /^\d{14}-[a-z0-9]{7}$/;
+
+function sqlStringLiteral(value: string): string {
+  return "'" + value.replace(/'/g, "''") + "'";
+}
+
+/** Gallery paths encode spaces as percent escapes, while other attrs use plain text. */
+function customAssetPathVariants(relativePath: string): string[] {
+  const original = normalizeFolder(relativePath);
+  const plain = "assets/" + original;
+  const encoded = "assets/" + original.split("/").map(encodeURIComponent).join("/");
+  return encoded === plain ? [plain] : [plain, encoded];
+}
+
+/** Only replace complete local asset paths, not similar filenames or external URLs. */
+function rewriteCustomAssetVariant(
+  value: string,
+  oldPath: string,
+  newPath: string,
+): { value: string; replacements: number } {
+  if (oldPath === newPath || !value.includes(oldPath)) return { value, replacements: 0 };
+  let cursor = 0;
+  let replacements = 0;
+  let result = "";
+  for (;;) {
+    const start = value.indexOf(oldPath, cursor);
+    if (start < 0) break;
+    const end = start + oldPath.length;
+    const before = start === 0 ? "" : value[start - 1];
+    const after = end === value.length ? "" : value[end];
+    const isolatedStart = !before || !/[a-z0-9._-]/i.test(before);
+    const isolatedEnd = !after || !/[a-z0-9._/%+-]/i.test(after);
+    // URLs on other servers may share the same /assets/ suffix.
+    const precedingToken = value.slice(Math.max(0, start - 1024), start);
+    const isExternalUrl = /(?:https?|ftp):\/\/[^\s"'<>]*$/i.test(precedingToken);
+    if (isolatedStart && isolatedEnd && !isExternalUrl) {
+      result += value.slice(cursor, start) + newPath;
+      replacements++;
+    } else {
+      result += value.slice(cursor, end);
+    }
+    cursor = end;
+  }
+  return { value: result + value.slice(cursor), replacements };
+}
+
+function rewriteCustomAssetPath(
+  value: string,
+  oldRelativePath: string,
+  newRelativePath: string,
+): { value: string; replacements: number } {
+  if (normalizeFolder(oldRelativePath) === normalizeFolder(newRelativePath)) {
+    return { value, replacements: 0 };
+  }
+  const oldPaths = customAssetPathVariants(oldRelativePath);
+  const newPaths = customAssetPathVariants(newRelativePath);
+  let result = { value, replacements: 0 };
+  for (let index = 0; index < oldPaths.length; index++) {
+    const changed = rewriteCustomAssetVariant(result.value, oldPaths[index],
+      newPaths[index] ?? newPaths[0]);
+    result = { value: changed.value, replacements: result.replacements + changed.replacements };
+  }
+  return result;
+}
+
+export function replaceCustomAssetPathInValue(
+  value: string,
+  oldRelativePath: string,
+  newRelativePath: string,
+): string {
+  return rewriteCustomAssetPath(value, oldRelativePath, newRelativePath).value;
+}
+
+/** Read-only indexed scan. Any API failure prevents an original-file deletion. */
+export async function findCustomAssetAttributeReferences(
+  relativePath: string,
+): Promise<CustomAssetAttributeReference[]> {
+  const original = normalizeFolder(relativePath);
+  const needles = customAssetPathVariants(original);
+  const found: CustomAssetAttributeReference[] = [];
+  for (let offset = 0; offset < CUSTOM_ATTRIBUTE_SCAN_MAX_ROWS; offset += CUSTOM_ATTRIBUTE_SCAN_PAGE_SIZE) {
+    const conditions = needles.map((needle) =>
+      "instr(value, " + sqlStringLiteral(needle) + ") > 0").join(" OR ");
+    const stmt = "SELECT block_id, name, value FROM attributes WHERE name LIKE 'custom-%' " +
+      "AND (" + conditions + ") " +
+      "ORDER BY block_id, name LIMIT " + CUSTOM_ATTRIBUTE_SCAN_PAGE_SIZE + " OFFSET " + offset;
+    const rows = await callApi<Array<{ block_id: string; name: string; value: string }>>(
+      "/api/query/sql", { stmt }, 30_000);
+    if (!Array.isArray(rows) || rows.length > CUSTOM_ATTRIBUTE_SCAN_PAGE_SIZE) {
+      throw new Error("自定义属性扫描返回异常，禁止删除原图。");
+    }
+    for (const row of rows) {
+      if (!row || !CUSTOM_ATTRIBUTE_BLOCK_ID.test(row.block_id) ||
+        typeof row.name !== "string" || !row.name.startsWith("custom-") ||
+        typeof row.value !== "string") {
+        throw new Error("自定义属性索引记录异常，禁止删除原图。");
+      }
+      if (rewriteCustomAssetPath(row.value, original, original + ".dodo-check").replacements) {
+        found.push({ blockID: row.block_id, name: row.name, value: row.value });
+      }
+    }
+    if (rows.length < CUSTOM_ATTRIBUTE_SCAN_PAGE_SIZE) return found;
+  }
+  throw new Error("自定义属性引用超过安全扫描上限，禁止删除原图。");
+}
+
+/**
+ * The native relinker can update SQL/.sy while getBlockAttrs continues to
+ * expose the old value from a live block. Verify both representations.
+ */
+export async function findStaleCustomAssetBlockAttrs(
+  oldRelativePath: string,
+  references: readonly CustomAssetAttributeReference[],
+): Promise<CustomAssetAttributeReference[]> {
+  const byBlock = new Map<string, string[]>();
+  for (const ref of references) {
+    const names = byBlock.get(ref.blockID) ?? [];
+    if (!names.includes(ref.name)) names.push(ref.name);
+    byBlock.set(ref.blockID, names);
+  }
+  const stale: CustomAssetAttributeReference[] = [];
+  for (const [id, names] of byBlock) {
+    const attrs = await callApi<Record<string, string>>("/api/attr/getBlockAttrs", { id });
+    if (!attrs || typeof attrs !== "object" || Array.isArray(attrs)) {
+      throw new Error("核验块自定义属性失败：" + id);
+    }
+    for (const name of names) {
+      const value = attrs[name];
+      if (typeof value === "string" &&
+          rewriteCustomAssetPath(value, oldRelativePath, oldRelativePath + ".dodo-check").replacements) {
+        stale.push({ blockID: id, name, value });
+      }
+    }
+  }
+  return stale;
+}
+
+/** Update a block's latest custom attrs, using the native API and verifying writes. */
+export async function relinkCustomAssetAttributeReferences(
+  oldRelativePath: string,
+  newRelativePath: string,
+  preflightReferences?: readonly CustomAssetAttributeReference[],
+): Promise<number> {
+  // Always use the preflight snapshot after the native relinker. It may have
+  // already removed oldPath from SQL, while getBlockAttrs still returns it.
+  const references = preflightReferences ?? await findCustomAssetAttributeReferences(oldRelativePath);
+  const byBlock = new Map<string, string[]>();
+  for (const ref of references) {
+    const names = byBlock.get(ref.blockID) ?? [];
+    if (!names.includes(ref.name)) names.push(ref.name);
+    byBlock.set(ref.blockID, names);
+  }
+  let changed = 0;
+  for (const [id, names] of byBlock) {
+    const attrs = await callApi<Record<string, string>>("/api/attr/getBlockAttrs", { id });
+    if (!attrs || typeof attrs !== "object" || Array.isArray(attrs)) {
+      throw new Error("读取块自定义属性失败：" + id);
+    }
+    const patch: Record<string, string> = {};
+    for (const name of names) {
+      const current = attrs[name];
+      if (typeof current !== "string") continue;
+      const rewritten = replaceCustomAssetPathInValue(current, oldRelativePath, newRelativePath);
+      if (rewritten !== current) patch[name] = rewritten;
+    }
+    if (!Object.keys(patch).length) continue;
+    await callApi("/api/attr/setBlockAttrs", { id, attrs: patch });
+    const saved = await callApi<Record<string, string>>("/api/attr/getBlockAttrs", { id });
+    if (!saved || Object.entries(patch).some(([name, value]) => saved[name] !== value)) {
+      throw new Error("块自定义属性写入后核验失败：" + id);
+    }
+    changed += Object.keys(patch).length;
+  }
+  return changed;
 }
 
 const SIYUAN_ID_PATTERN = /^\d{14}-[a-z0-9]{7}$/;

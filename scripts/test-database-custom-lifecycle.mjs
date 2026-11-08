@@ -106,7 +106,7 @@ globalThis.fetch=async(url,options={})=>{
 const first=await storage.createCustomApp();
 const firstId=first.manifest.id;
 const original=first.html;
-assert.equal(await storage.getCustomHistoryLimit(),20);
+assert.equal(await storage.getCustomHistoryLimit(),10);
 assert.equal(preferenceReads,0,
   "First-run missing preferences.json should not be read as a broken file");
 files.set(preferencesPath,JSON.stringify({historyLimit:10}));
@@ -116,10 +116,24 @@ await assert.rejects(()=>storage.getCustomHistoryLimit(),/版本保留设置损�
 files.set(preferencesPath,JSON.stringify({code:401,msg:"Auth failed [session]"}));
 await assert.rejects(()=>storage.getCustomHistoryLimit(),/无法读取版本保留设置：Auth failed/);
 files.set(preferencesPath,JSON.stringify({code:404,msg:"missing"}));
-assert.equal(await storage.getCustomHistoryLimit(),20,
+assert.equal(await storage.getCustomHistoryLimit(),10,
   "SiYuan may respond HTTP 200 with kernel 404 JSON");
 files.delete(preferencesPath);
-assert.equal(await storage.getCustomHistoryLimit(),20);
+assert.equal(await storage.getCustomHistoryLimit(),10);
+assert.equal(storage.DEFAULT_HISTORY_LIMIT,10);
+for (const value of [1,7,9,11,37,250,10000]) {
+  assert(storage.validCustomHistoryLimit(value), "Free numeric value should work: "+value);
+}
+for (const value of [0,-1,1.5,NaN,Infinity,10001,"10",null]) {
+  assert.equal(storage.validCustomHistoryLimit(value),false);
+  await assert.rejects(()=>storage.setCustomHistoryLimit(value),/1～10000 的整数/);
+}
+await storage.setCustomHistoryLimit(7);
+assert.equal(await storage.getCustomHistoryLimit(),7,
+  "Free numeric values must round-trip via preferences.json");
+await storage.setCustomHistoryLimit(20);
+assert.equal(await storage.getCustomHistoryLimit(),20,
+  "Old users' 20-version preference must remain supported");
 const v2=await storage.saveCustomApp(firstId,original+"\n<!--2-->",1);
 assert.equal(v2.version,2);
 const firstSnapshot=(await storage.listCustomVersions(firstId))[0];
@@ -137,6 +151,8 @@ assert(retained[0].startsWith("v26-"),"Snapshots must be numerically sorted");
 await assert.rejects(()=>storage.pinCustomVersion(firstId,"../x.html",true),/不允许/);
 await storage.setCustomHistoryLimit(5);
 assert.equal(await storage.getCustomHistoryLimit(),5);
+assert.equal((await storage.listCustomVersions(firstId)).length,21,
+  "Changing the retention setting alone must not delete existing snapshots");
 assert.equal(await storage.pruneCustomAppVersions(firstId),15);
 assert.equal((await storage.listCustomVersions(firstId)).length,6);
 await storage.pinCustomVersion(firstId,firstSnapshot,false);
@@ -188,4 +204,24 @@ assert.equal((await storage.listCustomApps("trash")).length,0);
 assert.equal(files.get(prefix+"/keep-me.txt"),"unrelated content");
 assert(!operations.some(([kind,path])=>kind==="remove" && path===storage.CUSTOM_VIEW_ROOT),
   "Never delete the entire app root");
+// Direct-deletion path: never moves to trash, guards both SQL and retained views,
+// and removes only the validated active App directory (including versions).
+await assert.rejects(() => manager.deleteUnusedCustomApp(second.manifest.id), /引用/);
+sqlUnavailable = true;
+await assert.rejects(() => manager.deleteUnusedCustomApp(firstId), /query unavailable/);
+sqlUnavailable = false;
+const beforeDirect = operations.length;
+const oldTrashCount = (await storage.listCustomApps("trash")).length;
+await manager.deleteUnusedCustomApp(firstId);
+assert(!(await storage.listCustomApps()).some(item => item.appId === firstId));
+assert.equal((await storage.listCustomApps("trash")).length,oldTrashCount,
+  "Direct deletion must not move the app to trash");
+const directOps = operations.slice(beforeDirect);
+assert(directOps.some(([kind,path]) => kind === "remove" &&
+  path === storage.CUSTOM_VIEW_ROOT + "/" + firstId));
+assert(!directOps.some(([kind]) => kind === "rename"));
+assert(!directOps.some(([kind,path]) => kind === "remove" &&
+  path === storage.CUSTOM_VIEW_ROOT));
+assert.equal(files.get(prefix + "/keep-me.txt"),"unrelated content");
+console.log("PASS: direct permanent deletion, no new trash, SQL fail-closed guard and unrelated-file isolation");
 console.log("PASS: missing/valid/damaged/HTTP200-kernel-404 preferences, 20-snapshot auto-prune, pin/restore, 5-limit, SQL-only orphan check, inactive detach, recycle/restore/purge, fail-closed safety");

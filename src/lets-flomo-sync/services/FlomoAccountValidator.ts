@@ -1,9 +1,15 @@
 import type { FlomoConfig, FlomoMemo } from "../types";
+import type {
+  FlomoCaptchaImage, FlomoLoginCaptcha, FlomoLoginRequirements,
+} from "./FlomoAPI";
 
 export const VALIDATE_FLOMO_ACCOUNT_ACTION = "validateAccount";
 
 export interface FlomoAccountValidationApi {
-  login(username: string, password: string): Promise<string>;
+  login(username: string, password: string,
+    captcha?: FlomoLoginCaptcha, requirements?: FlomoLoginRequirements): Promise<string>;
+  getLoginConfiguration(): Promise<FlomoLoginRequirements>;
+  getLoginCaptcha(): Promise<FlomoCaptchaImage>;
   getUpdatedMemos(
     latestUpdatedAt: number,
     latestSlug?: string,
@@ -22,6 +28,9 @@ interface FlomoAccountValidatorDependencies {
   createApi: (config: FlomoConfig) => FlomoAccountValidationApi;
   refreshServices: () => void;
   getNow?: () => Date;
+  requestCaptcha?: (
+    api: FlomoAccountValidationApi, reason?: string
+  ) => Promise<FlomoLoginCaptcha | null>;
 }
 
 function hasText(value: string): boolean {
@@ -55,11 +64,42 @@ export class FlomoAccountValidator {
   ): Promise<FlomoAccountValidationResult> {
     try {
       const api = this.dependencies.createApi(config);
-      const accessToken = await api.login(
-        config.username.trim(),
-        config.password,
-      );
-      const message = "Flomo 账号校验成功";
+      const requirements = await api.getLoginConfiguration();
+      let accessToken: string;
+      if (requirements.captchaEnabled) {
+        if (!this.dependencies.requestCaptcha) {
+          throw new Error("Flomo 当前要求图形验证码，请通过设置页手动校验");
+        }
+        let validated = false;
+        let reason = "";
+        accessToken = "";
+        for (let attempt = 0; attempt < 3; attempt++) {
+          const captcha = await this.dependencies.requestCaptcha(api, reason);
+          if (!captcha) {
+            return { success: false, message: "已取消 Flomo 账号校验" };
+          }
+          try {
+            accessToken = await api.login(
+              config.username.trim(), config.password, captcha, requirements,
+            );
+            validated = true;
+            break;
+          } catch (error) {
+            // Retry only explicit CAPTCHA failures with fresh challenges.
+            if (error instanceof Error &&
+                error.name === "FlomoCaptchaRequiredError" && attempt < 2) {
+              reason = error.message;
+              continue;
+            }
+            throw error;
+          }
+        }
+        if (!validated) throw new Error("验证码校验未通过，请稍后重新尝试");
+      } else {
+        accessToken = await api.login(
+          config.username.trim(), config.password, undefined, requirements,
+        );
+      }      const message = "Flomo 账号校验成功";
 
       await this.dependencies.saveConfig({
         accessToken,

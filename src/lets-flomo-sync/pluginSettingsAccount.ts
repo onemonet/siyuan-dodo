@@ -11,8 +11,8 @@ export const ACCOUNT_SETTINGS: PluginSettingItem[] = [
   {
     key: "username",
     section: "账号认证",
-    title: "用户名",
-    description: "Flomo 账号用户名（邮箱）",
+    title: "账号",
+    description: "Flomo 手机号/邮箱",
     sectionStatus: {
       state: "unknown",
       label: authStatusLabels.unknown,
@@ -29,13 +29,13 @@ export const ACCOUNT_SETTINGS: PluginSettingItem[] = [
     },
     type: "textinput",
     value: "",
-    placeholder: "your@email.com",
+    placeholder: "手机号或邮箱",
   },
   {
     key: "password",
     section: "账号认证",
     title: "密码",
-    description: "Flomo 账号密码",
+    description: "Flomo 密码",
     type: "textinput",
     value: "",
     placeholder: "密码",
